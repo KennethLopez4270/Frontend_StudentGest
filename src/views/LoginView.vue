@@ -41,6 +41,11 @@
         </button>
       </form>
 
+      <!-- Mensaje de estado -->
+      <div v-if="statusMessage" :class="['alert', statusType === 'success' ? 'alert-success' : 'alert-danger']" class="mt-3 text-center">
+        {{ statusMessage }}
+      </div>
+
       <!-- Enlaces de registro y recuperación -->
       <p class="text-center mt-3">
         ¿No tienes una cuenta? <router-link to="/registro" class="text-primary fw-bold">Regístrate</router-link>
@@ -61,6 +66,8 @@ export default {
       password: "",
       showPassword: false,
       shake: false,
+      statusMessage: "",     // Mensaje a mostrar
+      statusType: "",        // "success" o "error"
     };
   },
   methods: {
@@ -74,7 +81,7 @@ export default {
         return;
       }
 
-      fetch("http://localhost:8080/usuarios/login", {
+      fetch("http://localhost:8080/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: this.email, password: this.password }),
@@ -82,21 +89,28 @@ export default {
         .then(async (response) => {
           const data = await response.json();
 
-          if (!response.ok || data.status === "ERROR") {
-            throw new Error(data.mensaje || "Usuario o contraseña incorrectos");
+          if (!response.ok || data.message) {
+            // Si viene message, asumimos error
+            this.statusType = "error";
+            this.statusMessage = data.message || "Usuario o contraseña incorrectos";
+            throw new Error(this.statusMessage);
           }
 
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", JSON.stringify(data.usuario));
+          // Login exitoso
+          console.log("Login exitoso");
+          this.statusType = "success";
+          this.statusMessage = "Inicio de sesión exitoso";
 
-          // Redirección única a la página principal
-          this.$router.push("/");
+          localStorage.setItem("user", JSON.stringify(data));
+
+          // Redirección (si deseas activarla)
+          // this.$router.push("/");
         })
         .catch((error) => {
-          console.error("Error en el login:", error);
-          alert(error.message);
+          console.error("Error en el login:", error.message);
         });
-    },
+    }
+
   },
 };
 </script>
