@@ -76,18 +76,19 @@
           <!-- Rol -->
           <div class="mb-3">
             <select v-model="user.rol" class="form-control" required>
-              <option disabled value="">Selecciona un rol</option>
+              <option disabled value="">Registrarse como:</option>
               <option value="ESTUDIANTE">Estudiante</option>
               <option value="PROFESOR">Profesor</option>
+              <option value="PERSONAL">Personal</option>
             </select>
           </div>
 
           <button type="submit" class="btn btn-primary w-100">
-          <i class="fas fa-user-plus me-2"></i> Registrarse
-        </button>
-        <p class="text-center mt-3">
-          ¿Ya tienes una cuenta? <router-link to="/login" class="text-primary fw-bold">Inicia Sesión</router-link>
-        </p>
+            <i class="fas fa-user-plus me-2"></i> Registrarse
+          </button>
+          <p class="text-center mt-3">
+            ¿Ya tienes una cuenta? <router-link to="/login" class="text-primary fw-bold">Inicia Sesión</router-link>
+          </p>
 
           <div v-if="statusMessage" :class="['alert mt-3 text-center', statusType === 'success' ? 'alert-success' : 'alert-danger']">
             {{ statusMessage }}
@@ -96,17 +97,18 @@
       </div>
 
       <!-- Columna derecha -->
-      <div class="col-md-5 consejos-box">
-        <h4><i class="fas fa-lightbulb me-2 text-warning"></i> Consejos</h4>
-        <ul class="ps-3">
-          <li>Usa un correo válido y accesible.</li>
-          <li>Contraseña segura (mín. 8 caracteres).</li>
-          <li>Incluye mayúsculas, minúsculas, números y símbolos.</li>
-          <li>Confirma tu contraseña correctamente.</li>
-          <li>La imagen es opcional (máx. 2MB, formatos JPG, PNG, etc.).</li>
-          <li>Puedes subirla más adelante si lo prefieres.</li>
-        </ul>
-
+      <div class="col-md-5 ">
+        <div class="consejos-box">
+          <h4><i class="fas fa-lightbulb me-2 text-warning"></i> Consejos</h4>
+          <ul class="ps-3">
+            <li>Usa un correo válido y accesible.</li>
+            <li>Contraseña segura (mín. 8 caracteres,).</li>
+            <li>Incluye mayúsculas, minúsculas, números y símbolos.</li>
+            <li>Confirma tu contraseña correctamente.</li>
+            <li>La imagen es opcional (máx. 2MB, formatos JPG, PNG, etc.).</li>
+            <li>Puedes subirla más adelante si lo prefieres.</li>
+          </ul>
+        </div>
         
       </div>
     </div>
@@ -187,17 +189,18 @@ export default {
         return;
       }
 
-      // Simulación sin envío real de imagen
-      const formData = new FormData();
-      for (const key in this.user) {
-        formData.append(key, this.user[key]);
-      }
+      // Establecer la foto como null temporalmente
+      const userToSend = { ...this.user, foto: null };
 
       try {
         const response = await fetch("http://localhost:8080/api/users", {
           method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "application/json", // IMPORTANTE: Indicar que enviamos JSON
+          },
+          body: JSON.stringify(userToSend),
         });
+
         const data = await response.json();
 
         if (!response.ok) {
@@ -212,7 +215,8 @@ export default {
       } catch (error) {
         console.error("Registro fallido:", error.message);
       }
-    },
+    }
+
   },
 };
 </script>
@@ -247,7 +251,10 @@ h1 {
 
 /* Consejos */
 .consejos-box {
-  padding-left: 30px;
+  padding: 50px;
+  background-color: #213547;
+  color: white;
+  border-radius: 20px;
 }
 
 ul {
@@ -314,7 +321,6 @@ ul {
   }
   .consejos-box {
     margin-top: 20px;
-    padding-left: 0;
   }
   h1 {
     font-size: 24px;
