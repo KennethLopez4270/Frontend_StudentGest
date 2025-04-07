@@ -7,28 +7,28 @@
       <div class="col-md-7">
         <form @submit.prevent="submitRegister">
           <!-- Nombre -->
-          <div class="mb-3">
+          <div class="mb-3 input-group">
             <input v-model="user.nombre" type="text" class="form-control" placeholder="Nombre(s)" required />
           </div>
 
           <!-- Apellidos -->
           <div class="mb-3 row">
-            <div class="col">
+            <div class="col input-group">
               <input v-model="user.apellido_paterno" type="text" class="form-control" placeholder="Apellido Paterno" required />
             </div>
-            <div class="col">
+            <div class="col input-group">
               <input v-model="user.apellido_materno" type="text" class="form-control" placeholder="Apellido Materno" required />
             </div>
           </div>
 
           <!-- Email -->
-          <div class="mb-3">
+          <div class="mb-3 input-group">
             <input v-model="user.email" type="email" class="form-control" placeholder="Correo electrónico" required />
           </div>
 
           <!-- Contraseñas -->
           <div class="mb-3 row">
-            <div class="col position-relative">
+            <div class="col position-relative input-group">
               <input
                 :type="showPassword ? 'text' : 'password'"
                 v-model="user.password"
@@ -40,11 +40,20 @@
               <span class="toggle-password" @click="togglePassword">
                 <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
               </span>
-              <div class="password-strength mt-1">
-                <div :style="{ width: passwordStrength + '%'}" class="strength-bar"></div>
-              </div>
+              
             </div>
-            <div class="col position-relative">
+            <div class="password-strength-container mt-1">
+                <div class="password-strength-bar">
+                  <div
+                    :style="{ width: passwordStrength + '%', backgroundColor: passwordStrengthColor }"
+                    class="strength-bar"
+                  ></div>
+                </div>
+                <p class="password-strength-text mt-1" :class="passwordStrengthClass">
+                  {{ passwordStrengthLabel }}
+                </p>
+              </div>
+            <div class="col position-relative input-group">
               <input
                 :type="showConfirm ? 'text' : 'password'"
                 v-model="confirmPassword"
@@ -75,7 +84,7 @@
 
           <!-- Rol -->
           <div class="mb-3">
-            <select v-model="user.rol" class="form-control" required>
+            <select v-model="user.rol" class="form-control input-group" required>
               <option disabled value="">Registrarse como:</option>
               <option value="ESTUDIANTE">Estudiante</option>
               <option value="PROFESOR">Profesor</option>
@@ -86,8 +95,10 @@
           <button type="submit" class="btn btn-primary w-100">
             <i class="fas fa-user-plus me-2"></i> Registrarse
           </button>
+
           <p class="text-center mt-3">
-            ¿Ya tienes una cuenta? <router-link to="/login" class="text-primary fw-bold">Inicia Sesión</router-link>
+            ¿Ya tienes una cuenta?
+            <router-link to="/login" class="text-primary fw-bold">Inicia Sesión</router-link>
           </p>
 
           <div v-if="statusMessage" :class="['alert mt-3 text-center', statusType === 'success' ? 'alert-success' : 'alert-danger']">
@@ -97,19 +108,18 @@
       </div>
 
       <!-- Columna derecha -->
-      <div class="col-md-5 ">
+      <div class="col-md-5">
         <div class="consejos-box">
           <h4><i class="fas fa-lightbulb me-2 text-warning"></i> Consejos</h4>
           <ul class="ps-3">
             <li>Usa un correo válido y accesible.</li>
-            <li>Contraseña segura (mín. 8 caracteres,).</li>
+            <li>Contraseña segura (mín. 8 caracteres).</li>
             <li>Incluye mayúsculas, minúsculas, números y símbolos.</li>
             <li>Confirma tu contraseña correctamente.</li>
             <li>La imagen es opcional (máx. 2MB, formatos JPG, PNG, etc.).</li>
             <li>Puedes subirla más adelante si lo prefieres.</li>
           </ul>
         </div>
-        
       </div>
     </div>
   </div>
@@ -138,6 +148,24 @@ export default {
       statusMessage: "",
       statusType: "",
     };
+  },
+  computed: {
+    passwordStrengthColor() {
+      if (this.passwordStrength < 40) return "#dc3545";
+      if (this.passwordStrength < 75) return "#ffc107";
+      return "#28a745";
+    },
+    passwordStrengthLabel() {
+      if (!this.user.password) return "";
+      if (this.passwordStrength < 40) return "Contraseña débil";
+      if (this.passwordStrength < 75) return "Contraseña media";
+      return "Contraseña fuerte";
+    },
+    passwordStrengthClass() {
+      if (this.passwordStrength < 40) return "text-danger";
+      if (this.passwordStrength < 75) return "text-warning";
+      return "text-success";
+    },
   },
   methods: {
     togglePassword() {
@@ -189,14 +217,13 @@ export default {
         return;
       }
 
-      // Establecer la foto como null temporalmente
       const userToSend = { ...this.user, foto: null };
 
       try {
         const response = await fetch("http://localhost:8080/api/users", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json", // IMPORTANTE: Indicar que enviamos JSON
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(userToSend),
         });
@@ -215,8 +242,7 @@ export default {
       } catch (error) {
         console.error("Registro fallido:", error.message);
       }
-    }
-
+    },
   },
 };
 </script>
@@ -231,7 +257,13 @@ export default {
   max-width: 900px;
   color: #000;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  /*background: rgba(255, 255, 255, 0.25);*/
+}
+
+.input-group {
+  background-color: #ffffff9c;
+}
+.input-group input {
+  background-color: #ffffff9c;
 }
 
 h1 {
@@ -244,7 +276,6 @@ h1 {
 .text-primary {
   color: #213547 !important;
 }
-
 .text-primary:hover {
   color: #172b3a !important;
 }
@@ -271,7 +302,6 @@ ul {
   color: gray;
   z-index: 10;
 }
-
 .toggle-password:hover {
   color: #213547;
 }
@@ -284,7 +314,6 @@ ul {
   cursor: pointer;
   transition: 0.3s;
 }
-
 .upload-area:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
@@ -294,19 +323,22 @@ ul {
   object-fit: contain;
 }
 
-/* Barra de fuerza de contraseña */
-.password-strength {
-  height: 5px;
+/* Fuerza de contraseña */
+.password-strength-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.password-strength-bar {
+  height: 6px;
+  width: 100%;
   background-color: #e0e0e0;
   border-radius: 10px;
   overflow: hidden;
-  margin-top: 5px;
 }
-
 .strength-bar {
   height: 100%;
   transition: width 0.3s ease;
-  background-color: #28a745;
 }
 
 .btn-primary {
