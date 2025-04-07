@@ -53,7 +53,7 @@
       <router-link to="/registro" class="text-primary fw-bold">Regístrate</router-link>
     </p>
     <p class="text-center">
-      <router-link to="/recuperar-contraseña" class="text-primary fw-bold">Olvidé mi contraseña</router-link>
+      <router-link to="/recuperar-contrasena" class="text-primary fw-bold">Olvidé mi contraseña</router-link>
     </p>
   </div>
 </template>
@@ -102,7 +102,7 @@ export default {
           localStorage.setItem("user", JSON.stringify(data));
 
           // Redirección
-          // this.$router.push("/");
+          this.$router.push("/parent-dashboard");
         })
         .catch((error) => {
           console.error("Error en el login:", error.message);
@@ -120,6 +120,7 @@ export default {
 .input-group input {
   padding-left: 40px;
   padding-right: 45px;
+  background-color: #ffffff9c;
 }
 
 .input-icon {
