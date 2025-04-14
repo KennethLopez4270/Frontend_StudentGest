@@ -1,172 +1,120 @@
 <template>
-  <div class="wrapper">
-    <!-- Sidebar (opcional, lo dejo para mantener consistencia, pero podría omitirse en esta vista) -->
-    <div class="sidebar animate__animated animate__fadeInLeft">
-      <div class="logo">Academia</div>
-      <router-link to="/" :class="{ active: $route.name === 'Home' }">
-        <i class="fas fa-tachometer-alt"></i> Dashboard
-      </router-link>
-      <router-link to="/control-asistencia" :class="{ active: $route.name === 'ControlAsistencia' }">
-        <i class="fas fa-users"></i> Estudiantes
-      </router-link>
-      <router-link to="/reportes" :class="{ active: $route.name === 'Reportes' }">
-        <i class="fas fa-chart-line"></i> Reportes
-      </router-link>
-      <router-link to="/historial-academico" :class="{ active: $route.name === 'HistorialAcademico' }">
-        <i class="fas fa-book"></i> Tareas
-      </router-link>
-      <router-link to="/calificaciones" :class="{ active: $route.name === 'Calificaciones' }">
-        <i class="fas fa-star"></i> Calificaciones
-      </router-link>
-      <router-link to="/calendario" :class="{ active: $route.name === 'Calendario' }">
-        <i class="fas fa-calendar-alt"></i> Calendario
-      </router-link>
-      <router-link to="/justificar-ausencias" :class="{ active: $route.name === 'JustificarAusencias' }">
-        <i class="fas fa-file-alt"></i> Justificar Ausencias
-      </router-link>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content d-flex justify-content-center align-items-center">
-      <div class="login-box animate__animated animate__fadeInUp">
-        <h1 class="text-center mb-4 animate__animated animate__bounceInDown">
-          Recuperar Contraseña
-        </h1>
-
-        <form @submit.prevent="submitRecovery" class="p-3">
-          <!-- Campo de correo -->
-          <div class="input-group mb-4 animate__animated animate__fadeInUp" :class="{ 'animate__shakeX': shake }">
-            <span class="input-icon"><i class="fas fa-envelope"></i></span>
-            <input
-              type="email"
-              v-model="email"
-              placeholder="Correo electrónico registrado"
-              class="form-control shadow-sm"
-              required
-              @focus="shake = false"
-            />
+    <div class="wrapper">
+      <!-- Sidebar (opcional, lo dejo para mantener consistencia, pero podría omitirse en esta vista) -->
+      <div class="sidebar animate__animated animate__fadeInLeft">
+        <div class="logo">Academia</div>
+        <router-link to="/" :class="{ active: $route.name === 'Home' }">
+          <i class="fas fa-tachometer-alt"></i> Dashboard
+        </router-link>
+        <router-link to="/control-asistencia" :class="{ active: $route.name === 'ControlAsistencia' }">
+          <i class="fas fa-users"></i> Estudiantes
+        </router-link>
+        <router-link to="/reportes" :class="{ active: $route.name === 'Reportes' }">
+          <i class="fas fa-chart-line"></i> Reportes
+        </router-link>
+        <router-link to="/historial-academico" :class="{ active: $route.name === 'HistorialAcademico' }">
+          <i class="fas fa-book"></i> Tareas
+        </router-link>
+        <router-link to="/calificaciones" :class="{ active: $route.name === 'Calificaciones' }">
+          <i class="fas fa-star"></i> Calificaciones
+        </router-link>
+        <router-link to="/calendario" :class="{ active: $route.name === 'Calendario' }">
+          <i class="fas fa-calendar-alt"></i> Calendario
+        </router-link>
+        <router-link to="/justificar-ausencias" :class="{ active: $route.name === 'JustificarAusencias' }">
+          <i class="fas fa-file-alt"></i> Justificar Ausencias
+        </router-link>
+      </div>
+  
+      <!-- Main Content -->
+      <div class="main-content d-flex justify-content-center align-items-center">
+        <div class="login-box animate__animated animate__fadeInUp">
+          <h1 class="text-center mb-4 animate__animated animate__bounceInDown">
+            Recuperar Contraseña
+          </h1>
+  
+          <form @submit.prevent="submitRecovery" class="p-3">
+            <!-- Campo de correo -->
+            <div class="input-group mb-4 animate__animated animate__fadeInUp" :class="{ 'animate__shakeX': shake }">
+              <span class="input-icon"><i class="fas fa-envelope"></i></span>
+              <input
+                type="email"
+                v-model="email"
+                placeholder="Correo electrónico registrado"
+                class="form-control shadow-sm"
+                required
+                @focus="shake = false"
+              />
+            </div>
+  
+            <!-- Mensaje de instrucciones -->
+            <div class="alert alert-info mb-4 animate__animated animate__fadeInUp">
+              <i class="fas fa-info-circle me-2"></i>
+              Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+            </div>
+  
+            <!-- Botón de recuperación -->
+            <button type="submit" class="login-button btn w-100" :disabled="loading">
+              <template v-if="!loading">
+                <i class="fas fa-paper-plane me-2"></i> Enviar enlace
+              </template>
+              <template v-else>
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Enviando...
+              </template>
+            </button>
+          </form>
+  
+          <!-- Enlace para volver al login -->
+          <p class="text-center mt-3">
+            <router-link to="/login" class="text-primary fw-bold">
+              <i class="fas fa-arrow-left me-2"></i>Volver al inicio de sesión
+            </router-link>
+          </p>
+  
+          <!-- Mensaje de éxito -->
+          <div v-if="success" class="alert alert-success mt-3 animate__animated animate__fadeIn">
+            <i class="fas fa-check-circle me-2"></i>
+            {{ successMessage }}
           </div>
-
-          <!-- Mensaje de instrucciones -->
-          <div class="alert alert-info mb-4 animate__animated animate__fadeInUp">
-            <i class="fas fa-info-circle me-2"></i>
-            Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
-          </div>
-
-          <!-- Botón de recuperación -->
-          <button type="submit" class="login-button btn w-100" :disabled="loading">
-            <template v-if="!loading">
-              <i class="fas fa-paper-plane me-2"></i> Enviar enlace
-            </template>
-            <template v-else>
-              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-              Enviando...
-            </template>
-          </button>
-        </form>
-
-        <!-- Enlace para volver al login -->
-        <p class="text-center mt-3">
-          <router-link to="/login" class="text-primary fw-bold">
-            <i class="fas fa-arrow-left me-2"></i>Volver al inicio de sesión
-          </router-link>
-        </p>
-
-        <!-- Mensaje de éxito -->
-        <div v-if="success" class="alert alert-success mt-3 animate__animated animate__fadeIn">
-          <i class="fas fa-check-circle me-2"></i>
-          {{ successMessage }}
-        </div>
-
-        <!-- Mensaje de éxito -->
-        <div v-if="success" class="alert alert-success mt-3 animate__animated animate__fadeIn">
-          <i class="fas fa-check-circle me-2"></i>
-          {{ successMessage }}
-        </div>
-
-        <!-- Mensaje de error (nuevo) -->
-        <div v-if="error" class="alert alert-danger mt-3 animate__animated animate__fadeIn">
-          <i class="fas fa-exclamation-circle me-2"></i>
-          {{ errorMessage }}
         </div>
       </div>
     </div>
-  </div>
-</template>
-
-<script>
-import 'animate.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import '@/assets/passwordRecovery.css';
-
-export default {
-  name: "PasswordRecoveryView",
-  data() {
-    return {
-      email: "",
-      shake: false,
-      loading: false,
-      success: false,
-      error: false,
-      successMessage: "Hemos enviado un enlace de recuperación a tu correo electrónico. Por favor revisa tu bandeja de entrada.",
-      errorMessage: ""
-    };
-  },
-  methods: {
-    async submitRecovery() {
-      // Validación básica
-      if (!this.email) {
-        this.shake = true;
-        setTimeout(() => (this.shake = false), 500);
-        return;
-      }
-
-      this.loading = true;
-      this.error = false;
-      this.success = false;
-
-      try {
-        // 1. Buscar usuario por email
-        const usersResponse = await fetch('http://localhost:8080/api/users');
-        if (!usersResponse.ok) throw new Error('Error al buscar usuarios');
-        
-        const users = await usersResponse.json();
-        const user = users.find(u => u.email === this.email);
-
-        if (!user) {
-          throw new Error('No se encontró un usuario con ese correo');
+  </template>
+  
+  <script>
+  import 'animate.css';
+  import 'bootstrap/dist/css/bootstrap.min.css';
+  import '@/assets/passwordRecovery.css';
+  
+  export default {
+    name: "PasswordRecoveryView",
+    data() {
+      return {
+        email: "",
+        shake: false,
+        loading: false,
+        success: false,
+        successMessage: "Hemos enviado un enlace de recuperación a tu correo electrónico. Por favor revisa tu bandeja de entrada."
+      };
+    },
+    methods: {
+      submitRecovery() {
+        if (!this.email) {
+          this.shake = true;
+          setTimeout(() => (this.shake = false), 500);
+          return;
         }
-
-        // 2. Enviar correo con enlace
-        const recoveryLink = `http://localhost:5173/restaurar-password/${user.id_usuario}`;
-        const emailData = {
-          to: this.email,
-          subject: 'Recuperación de contraseña - Academia',
-          message: `Haga clic en este enlace para restablecer su contraseña: ${recoveryLink}\n\nSi no solicitó este cambio, ignore este mensaje.`
-        };
-
-        const emailResponse = await fetch('http://localhost:8080/api/email/send', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(emailData)
-        });
-
-        if (!emailResponse.ok) throw new Error('Error al enviar correo');
-
-        // Éxito
-        this.success = true;
-        this.email = ""; // Limpiar campo después del envío
-
-      } catch (error) {
-        this.error = true;
-        this.errorMessage = error.message;
-        console.error('Error en recuperación:', error);
-      } finally {
-        this.loading = false;
+  
+        this.loading = true;
+        
+        // Simulación de envío
+        setTimeout(() => {
+          this.loading = false;
+          this.success = true;
+          console.log("Se enviaría un correo a:", this.email);
+        }, 1500);
       }
     }
-  }
-};
-</script>
+  };
+  </script>
