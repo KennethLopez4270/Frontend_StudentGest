@@ -14,6 +14,7 @@ import TaskDetailsView from '../views/TaskDetailsView.vue';
 import TeacherTasksView from '../views/TeacherTasksView.vue';
 import AcademicCalendar from '../views/AcademicCalendar.vue';
 import TeacherPerformanceReports from '../views/TeacherPerformanceReports.vue'; // Nueva vista
+import RestaurarPasswordForm from '../components/RestaurarPasswordForm.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: HomeView },
@@ -31,6 +32,7 @@ const routes = [
   { path: '/teacher-tasks', name: 'TeacherTasks', component: TeacherTasksView },
   { path: '/calendario', name: 'AcademicCalendar', component: AcademicCalendar },
   { path: '/teacher-performance-reports', name: 'TeacherPerformanceReports', component: TeacherPerformanceReports }, // Nueva ruta
+  { path: '/restaurar-password/:id', name: 'RestaurarPasword', component: RestaurarPasswordForm, props: true }
 ];
 
 const router = createRouter({
