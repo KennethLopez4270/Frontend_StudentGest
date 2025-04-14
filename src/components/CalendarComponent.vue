@@ -22,6 +22,7 @@
     <div class="days-grid">
       <!-- Días vacíos antes del primer día del mes -->
       <div v-for="n in firstDayOfMonth" :key="'empty-' + n" class="day empty"></div>
+      
       <!-- Días del mes -->
       <div
         v-for="day in daysInMonth"
@@ -31,7 +32,11 @@
         @click="selectDate(day)"
       >
         {{ day }}
-        <span v-if="hasEvent(day)" class="event-indicator"></span>
+
+        <!-- Indicador con ícono según el tipo de evento -->
+        <span v-if="hasEvent(day)" class="event-indicator">
+          <i :class="getIconForDate(day)" :style="{ color: getColorForDate(day) }"></i>
+        </span>
       </div>
     </div>
   </div>
@@ -93,8 +98,33 @@ export default {
       return dateStr === this.selectedDate;
     },
     hasEvent(day) {
+      return this.getEventsForDate(day).length > 0;
+    },
+    getEventsForDate(day) {
       const dateStr = `${this.currentYear}-${String(this.currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      return this.events.some(event => event.date === dateStr);
+      return this.events.filter(event => dateStr >= event.fechaInicio && dateStr <= event.fechaFin);
+    },
+    getIconForDate(day) {
+      const eventos = this.getEventsForDate(day);
+      if (!eventos.length) return '';
+      const tipo = eventos[0].tipo;
+      switch (tipo) {
+        case 'evaluación': return 'fas fa-star';
+        case 'evento': return 'fas fa-calendar-check';
+        case 'taller': return 'fas fa-tools';
+        default: return 'fas fa-circle';
+      }
+    },
+    getColorForDate(day) {
+      const eventos = this.getEventsForDate(day);
+      if (!eventos.length) return '#888';
+      const tipo = eventos[0].tipo;
+      switch (tipo) {
+        case 'evaluación': return '#dc3545'; // rojo
+        case 'evento': return '#007bff';     // azul
+        case 'taller': return '#28a745';     // verde
+        default: return '#6c757d';           // gris
+      }
     },
   },
 };
@@ -175,10 +205,7 @@ export default {
   position: absolute;
   bottom: 5px;
   right: 5px;
-  width: 8px;
-  height: 8px;
-  background: #8b2e3c;
-  border-radius: 50%;
+  font-size: 0.8rem;
 }
 
 .btn-outline-primary {
