@@ -100,10 +100,19 @@ export default {
           this.statusMessage = "Inicio de sesión exitoso";
 
           localStorage.setItem("user", JSON.stringify(data));
+          localStorage.setItem("userId", data.id); // Guardar solo el ID
+          //localStorage.setItem("user", JSON.stringify(data));   //guardar todos los datos del usuario
 
-          // Redirección
-          this.$router.push("/parent-dashboard");
+          // Redirección según el rol
+          if (data.rol === "PROFESOR") {
+            this.$router.push("/parent-dashboard"); //cambiar luego 
+          } else if (data.rol === "DIRECTOR") {
+            this.$router.push("/parent-dashboard");//cambiar luego 
+          } else {
+            this.$router.push("/parent-dashboard"); //cambiar luego 
+          }
         })
+
         .catch((error) => {
           console.error("Error en el login:", error.message);
         });
