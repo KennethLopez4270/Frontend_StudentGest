@@ -6,12 +6,13 @@
         <span class="logo">StudentGest</span>
       </div>
       <div class="navbar-links">
+        <router-link to="/foro" class="nav-link">Foro</router-link>
         <router-link to="/login" class="nav-link">Iniciar Sesión</router-link>
         <router-link to="/registro" class="nav-link btn">Registrarse</router-link>
       </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- Resto del contenido de HomeView.vue (sin cambios) -->
     <section class="hero animate__animated animate__zoomIn">
       <div class="hero-overlay"></div>
       <div class="hero-shapes">
@@ -215,6 +216,6 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import '@/assets/home.css';
 
 export default {
-  name: 'HomeView'
+  name: 'HomeView',
 };
 </script>
