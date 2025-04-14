@@ -1,0 +1,370 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f8f1e9 0%, #e5e5e5 50%, #f4e4e6 100%);
+    color: #4a4a4a;
+    overflow-x: hidden;
+  }
+  
+  .wrapper {
+    display: flex;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    background: #1a2e4a;
+    height: 100vh;
+    position: fixed;
+    width: 220px;
+    padding: 1.5rem;
+    box-shadow: 2px 0 8px rgba(26, 46, 74, 0.4);
+    clip-path: polygon(0 0, 85% 0, 100% 15%, 100% 85%, 85% 100%, 0 100%);
+    transition: all 0.3s ease;
+  }
+  
+  .sidebar:hover {
+    clip-path: polygon(0 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 0 100%);
+    box-shadow: 3px 0 12px rgba(26, 46, 74, 0.5);
+  }
+  
+  .sidebar .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+  }
+  
+  .sidebar .logo::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #8b2e3c;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+  
+  .sidebar .logo::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #355e3b;
+    border-radius: 50%;
+    margin-left: 0.5rem;
+  }
+  
+  .sidebar a {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    color: #e0e7ff;
+    text-decoration: none;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .sidebar a:hover,
+  .sidebar a.active {
+    background: rgba(255, 255, 255, 0.05);
+    color: #d4c08a;
+    transform: scale(1.02);
+    box-shadow: 0 0 6px rgba(26, 46, 74, 0.3);
+  }
+  
+  .sidebar a i {
+    margin-right: 0.75rem;
+    color: #a3bffa;
+  }
+  
+  /* Main Content */
+  .main-content {
+    margin-left: 220px;
+    padding: 2rem;
+    display: flex;
+    gap: 1.5rem;
+    width: 100%;
+  }
+  
+  .left-section {
+    flex: 2;
+  }
+  
+  .right-section {
+    flex: 1;
+  }
+  
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1a2e4a 0%, #355e3b 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 16px rgba(26, 46, 74, 0.4);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .header .btn {
+    background: #d4c08a;
+    color: #1a2e4a;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(26, 46, 74, 0.4);
+  }
+  
+  .header .btn:hover {
+    background: #ffffff;
+    color: #355e3b;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(26, 46, 74, 0.5);
+  }
+  
+  /* Form Section */
+  .form-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 16px rgba(26, 46, 74, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .form-section:hover {
+    box-shadow: 0 6px 20px rgba(26, 46, 74, 0.25);
+  }
+  
+  .form-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #1a2e4a;
+    margin-bottom: 1.5rem;
+    position: relative;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  }
+  
+  .form-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, #d4c08a, #355e3b);
+  }
+  
+  .form-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #1a2e4a;
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Formulario de Nueva Tarea */
+  .new-task-form .form-label {
+    font-size: 1rem;
+    color: #4a4a4a;
+    font-weight: 500;
+  }
+  
+  .new-task-form .form-control,
+  .new-task-form .form-select {
+    border: none;
+    border-radius: 8px;
+    background: #ffffff;
+    font-size: 1rem;
+    color: #4a4a4a;
+    box-shadow: 0 2px 8px rgba(26, 46, 74, 0.3);
+    transition: all 0.3s ease;
+  }
+  
+  .new-task-form .form-control:focus,
+  .new-task-form .form-select:focus {
+    box-shadow: 0 4px 12px rgba(26, 46, 74, 0.5);
+    outline: none;
+    border-color: #355e3b;
+  }
+  
+  /* Tasks Section */
+  .tasks-section {
+    margin-bottom: 2rem;
+  }
+  
+  .tasks-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #1a2e4a;
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  }
+  
+  .tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .task-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(26, 46, 74, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .task-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(26, 46, 74, 0.3);
+  }
+  
+  .task-card.border-warning {
+    border: 2px solid #d4c08a;
+  }
+  
+  .task-card.border-info {
+    border: 2px solid #3b5998;
+  }
+  
+  .task-card.border-success {
+    border: 2px solid #355e3b;
+  }
+  
+  .task-card h5 {
+    font-size: 1.1rem;
+    color: #1a2e4a;
+  }
+  
+  .task-card h6 {
+    font-size: 1rem;
+    color: #1a2e4a;
+    margin-bottom: 1rem;
+  }
+  
+  .type-badge {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .pending-badge {
+    background: #d4c08a;
+    color: #1a2e4a;
+  }
+  
+  .submitted-badge {
+    background: #3b5998;
+    color: #ffffff;
+  }
+  
+  .graded-badge {
+    background: #355e3b;
+    color: #ffffff;
+  }
+  
+  .type-badge:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 8px rgba(26, 46, 74, 0.3);
+  }
+  
+  .btn-primary {
+    background: #3b5998;
+    border: none;
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    background: #4a6ab9;
+    transform: scale(1.05);
+  }
+  
+  /* Grade Form */
+  .grade-form .form-label {
+    font-size: 0.9rem;
+    color: #4a4a4a;
+    font-weight: 500;
+  }
+  
+  .grade-form .form-control {
+    border: none;
+    border-radius: 8px;
+    background: #f8f1e9;
+    font-size: 0.9rem;
+    color: #4a4a4a;
+    box-shadow: 0 2px 8px rgba(26, 46, 74, 0.3);
+    transition: all 0.3s ease;
+  }
+  
+  .grade-form .form-control:focus {
+    box-shadow: 0 4px 12px rgba(26, 46, 74, 0.5);
+    outline: none;
+    border-color: #355e3b;
+  }
+  
+  /* Profile Card */
+  .profile-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 16px rgba(26, 46, 74, 0.2);
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  
+  .profile-card:hover {
+    box-shadow: 0 6px 20px rgba(26, 46, 74, 0.25);
+  }
+  
+  .profile-card img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .profile-card img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(26, 46, 74, 0.5);
+  }
+  
+  .profile-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #1a2e4a;
+    margin-bottom: 0.75rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  }
+  
+  .profile-card p {
+    color: #4a4a4a;
+    font-size: 0.9rem;
+    font-weight: 300;
+  }
+  
+  .profile-card i {
+    color: #8b2e3c;
+    margin-right: 0.5rem;
+  }
