@@ -1,0 +1,25 @@
+:root {
+
+  /* 🎨 Colores base */
+  --color-primary: #1a2c44; 
+  --color-secondary: #c19f81; /*Cambiar */
+  --color-accent: #da6026;   /*Cambiar */
+  --color-info:#fe9c37; /*Cambiar */
+
+  /* 🌫️ Colores neutros */
+  --color-light: #FFF0C9;       
+  --color-dark: #1F2937;   
+  
+  /* 🎨 Colores hover*/
+  --hover-primary: #2a4363;  /*Cambiar */
+  --hover-secondary: #b28761; /*Cambiar */
+
+
+  /* 🎯 Semánticos */
+  --color-bg: var(--color-light);
+  
+  /* ✒️ Tipografías */
+  --font-title: 'Playfair Display', serif;
+  --font-body: 'Inter', sans-serif;
+}
+  

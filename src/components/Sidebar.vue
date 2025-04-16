@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       menuItems: [
-        { route: '/', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
+        { route: '/parent-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
         { route: '/control-asistencia', name: 'ControlAsistencia', icon: 'fas fa-users', label: 'Estudiantes' },
         { route: '/reportes', name: 'Reportes', icon: 'fas fa-chart-line', label: 'Reportes' },
         { route: '/historial-academico', name: 'HistorialAcademico', icon: 'fas fa-book', label: 'Tareas' },
@@ -48,23 +48,31 @@ export default {
 </script>
 
 <style scoped>
+/* Sidebar */
 .sidebar {
-  background: #1a2e4a;
+  background: var(--color-primary);
+  color: var(--color-light);
   height: 100vh;
-  width: 70px;
+  width: 65px;
+  max-width: 300px;
   transition: width 0.3s ease;
   overflow: hidden;
   position: fixed;
   display: flex;
   flex-direction: column;
   padding-top: 1.5rem;
-  z-index:9999;
+  border-radius: 0 40px 40px 0;
+  z-index: 9999;
+  
 }
 
 .sidebar:hover {
-  width: 240px;
+  width: 250px;
+  border-radius: 0 40px 40px 0;
+  padding-right: 5px;
 }
 
+/* Logo */
 .logo {
   display: flex;
   align-items: center;
@@ -73,13 +81,36 @@ export default {
 }
 
 .logo-text {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-title);
   font-weight: 700;
   font-size: 1.6rem;
-  color: #ffffff;
+  color: var(--color-text);
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
+.sidebar:hover .logo-text {
+  opacity: 1;
+}
+
+/* Icono del colegio */
+.school-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--color-dark);
+  flex-shrink: 0;
+}
+
+.school-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Navegación */
 nav {
   width: 100%;
   flex-grow: 1;
@@ -90,7 +121,7 @@ nav {
   display: flex;
   align-items: center;
   padding: 0.75rem;
-  color: #e0e7ff;
+  color: var(--color-text);
   text-decoration: none;
   border-radius: 6px;
   margin: 0.4rem 0;
@@ -99,18 +130,21 @@ nav {
 
 .sidebar a:hover,
 .sidebar a.active {
-  background: rgba(255, 255, 255, 0.05);
-  color: #d4c08a;
+  background: var(--hover-primary);
+  color: var(--hover-secondary);
   transform: scale(1.02);
+  margin-right: 5px;
 }
 
 .sidebar i {
   min-width: 30px;
   text-align: center;
-  color: #a3bffa;
+  color: var(--color-icon); /*no entiendo porque al cambiar esto se vuelve raro*/
   font-size: 1.4rem;
+  
 }
 
+/* Etiquetas del menú */
 .label {
   opacity: 0;
   transition: opacity 0.3s ease, margin-left 0.3s ease;
@@ -122,37 +156,9 @@ nav {
 }
 
 .nav-label {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-title);
   margin-left: 0.5rem;
   font-size: 1rem;
 }
-
-.school-icon {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid #a3bffa;
-  flex-shrink: 0; /* <- esto lo mantiene siempre visible */
-}
-
-.school-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.logo-text {
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-  font-size: 1.6rem;
-  color: #ffffff;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.sidebar:hover .logo-text {
-  opacity: 1;
-}
 </style>
+

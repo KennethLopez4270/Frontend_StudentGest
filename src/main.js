@@ -7,6 +7,10 @@ import 'animate.css';
 import 'font-awesome/css/font-awesome.min.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
+
+// Para colores y más >^. .^<
+import './assets/themes/light-theme.css'; // Tema predeterminado
+
 const app = createApp(App);
 app.use(router);
 app.mount('#app');
