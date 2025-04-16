@@ -1,48 +1,7 @@
 <template>
     <div class="wrapper">
       <!-- Sidebar -->
-      <div class="sidebar animate__animated animate__fadeInLeft">
-        <div class="logo">Academia</div>
-        <router-link to="/" :class="{ active: $route.name === 'Home' }">
-          <i class="fas fa-tachometer-alt"></i> Dashboard
-        </router-link>
-        <router-link to="/control-asistencia" :class="{ active: $route.name === 'ControlAsistencia' }">
-          <i class="fas fa-users"></i> Estudiantes
-        </router-link>
-        <router-link to="/reportes" :class="{ active: $route.name === 'Reportes' }">
-          <i class="fas fa-chart-line"></i> Reportes
-        </router-link>
-        <router-link to="/historial-academico" :class="{ active: $route.name === 'HistorialAcademico' }">
-          <i class="fas fa-book"></i> Tareas
-        </router-link>
-        <router-link to="/calificaciones" :class="{ active: $route.name === 'Calificaciones' }">
-          <i class="fas fa-star"></i> Calificaciones
-        </router-link>
-        <router-link to="/justificar-ausencias" :class="{ active: $route.name === 'JustificarAusencias' }">
-          <i class="fas fa-file-alt"></i> Justificar Ausencias
-        </router-link>
-        <router-link to="/foro" :class="{ active: $route.name === 'Forum' }">
-          <i class="fas fa-comments"></i> Foro
-        </router-link>
-        <router-link to="/admin-reports" :class="{ active: $route.name === 'AdminReports' }">
-          <i class="fas fa-file-export"></i> Informes Admin
-        </router-link>
-        <router-link to="/task-details" :class="{ active: $route.name === 'TaskDetails' }">
-          <i class="fas fa-tasks"></i> Detalles de Tareas
-        </router-link>
-        <router-link to="/teacher-tasks" :class="{ active: $route.name === 'TeacherTasks' }">
-          <i class="fas fa-chalkboard-teacher"></i> Gestión de Tareas
-        </router-link>
-        <router-link to="/teacher-performance-reports" :class="{ active: $route.name === 'TeacherPerformanceReports' }">
-          <i class="fas fa-chart-bar"></i> Reportes Docentes
-        </router-link>
-        <router-link to="/performance-charts" :class="{ active: $route.name === 'PerformanceCharts' }">
-          <i class="fas fa-chart-pie"></i> Gráficos de Desempeño
-        </router-link>
-        <router-link to="/student-progress" :class="{ active: $route.name === 'StudentProgress' }">
-          <i class="fas fa-graduation-cap"></i> Progreso Estudiantil
-        </router-link>
-      </div>
+      <Sidebar />
   
       <!-- Main Content -->
       <div class="main-content">
@@ -158,9 +117,11 @@
   import 'bootstrap/dist/css/bootstrap.min.css';
   import '@fortawesome/fontawesome-free/css/all.min.css';
   import '@/assets/studentProgress.css';
+import Sidebar from '../components/Sidebar.vue';
   
   export default {
     name: 'StudentProgress',
+    components: { Sidebar },
     data() {
       return {
         parentName: 'María González',

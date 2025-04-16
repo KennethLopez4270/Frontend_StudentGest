@@ -1,36 +1,7 @@
 <template>
     <div class="wrapper">
       <!-- Sidebar -->
-      <div class="sidebar animate__animated animate__fadeInLeft">
-        <div class="logo">Academia</div>
-        <router-link to="/" :class="{ active: $route.name === 'Home' }">
-          <i class="fas fa-tachometer-alt"></i> Dashboard
-        </router-link>
-        <router-link to="/control-asistencia" :class="{ active: $route.name === 'ControlAsistencia' }">
-          <i class="fas fa-users"></i> Estudiantes
-        </router-link>
-        <router-link to="/reportes" :class="{ active: $route.name === 'Reportes' }">
-          <i class="fas fa-chart-line"></i> Reportes
-        </router-link>
-        <router-link to="/historial-academico" :class="{ active: $route.name === 'HistorialAcademico' }">
-          <i class="fas fa-book"></i> Tareas
-        </router-link>
-        <router-link to="/calificaciones" :class="{ active: $route.name === 'Calificaciones' }">
-          <i class="fas fa-star"></i> Calificaciones
-        </router-link>
-        <router-link to="/calendario" :class="{ active: $route.name === 'Calendario' }">
-          <i class="fas fa-calendar-alt"></i> Calendario
-        </router-link>
-        <router-link to="/justificar-ausencias" :class="{ active: $route.name === 'JustificarAusencias' }">
-          <i class="fas fa-file-alt"></i> Justificar Ausencias
-        </router-link>
-        <router-link to="/foro" :class="{ active: $route.name === 'Forum' }">
-          <i class="fas fa-comments"></i> Foro
-        </router-link>
-        <router-link to="/admin-reports" :class="{ active: $route.name === 'AdminReports' }">
-          <i class="fas fa-file-export"></i> Informes Admin
-        </router-link>
-      </div>
+      <Sidebar />
   
       <!-- Main Content -->
       <div class="main-content">
@@ -215,116 +186,118 @@
     </div>
   </template>
   
-  <script>
-  import 'animate.css';
-  import 'bootstrap/dist/css/bootstrap.min.css';
-  import '@fortawesome/fontawesome-free/css/all.min.css';
-  import '@/assets/adminReports.css';
-  
-  export default {
-    name: 'AdminReportsView',
-    data() {
+<script>
+import 'animate.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import '@/assets/adminReports.css';
+import Sidebar from '../components/Sidebar.vue';
+
+export default {
+  name: 'AdminReportsView',
+  components: { Sidebar },
+  data() {
+    return {
+      adminName: 'Claudia Ramírez',
+      adminRole: 'administrativo',
+      selectionType: 'individual', // 'individual' o 'group'
+      selectedStudent: '',
+      selectedGroup: '',
+      reportType: '', // 'attendance', 'performance', 'both'
+      today: new Date().toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }),
+      students: [
+        { id: 1, name: 'Ana González' },
+        { id: 2, name: 'Carlos González' },
+        { id: 3, name: 'Lucía González' },
+      ],
+      groups: [
+        { id: 1, name: '5° Primaria - Sección A' },
+        { id: 2, name: '2° Secundaria - Sección B' },
+      ],
+      attendanceRecords: [],
+      performanceRecords: [],
+      showReport: false,
+    };
+  },
+  methods: {
+    resetSelection() {
+      this.selectedStudent = '';
+      this.selectedGroup = '';
+      this.reportType = '';
+      this.showReport = false;
+      this.attendanceRecords = [];
+      this.performanceRecords = [];
+    },
+    fetchReports() {
+      if (!this.selectedStudent || !this.reportType) {
+        this.showReport = false;
+        return;
+      }
+      this.showReport = true;
+
+      // Datos simulados para un estudiante individual
+      if (this.reportType === 'attendance' || this.reportType === 'both') {
+        this.attendanceRecords = [
+          { id: 1, date: '2025-04-01', type: 'presente', excuse: null },
+          { id: 2, date: '2025-04-02', type: 'falta', excuse: 'Enfermedad' },
+          { id: 3, date: '2025-04-03', type: 'tardanza', excuse: null },
+        ];
+      } else {
+        this.attendanceRecords = [];
+      }
+
+      if (this.reportType === 'performance' || this.reportType === 'both') {
+        this.performanceRecords = [
+          { id: 1, subject: 'Matemáticas', score: 85, completedTasks: 5, totalTasks: 6, date: '2025-04-04' },
+          { id: 2, subject: 'Ciencias', score: 78, completedTasks: 3, totalTasks: 4, date: '2025-04-05' },
+        ];
+      } else {
+        this.performanceRecords = [];
+      }
+    },
+    fetchGroupReports() {
+      if (!this.selectedGroup || !this.reportType) {
+        this.showReport = false;
+        return;
+      }
+      this.showReport = true;
+
+      // Datos simulados para un grupo de estudiantes
+      if (this.reportType === 'attendance' || this.reportType === 'both') {
+        this.attendanceRecords = [
+          { id: 1, studentName: 'Ana González', date: '2025-04-01', type: 'presente', excuse: null },
+          { id: 2, studentName: 'Carlos González', date: '2025-04-01', type: 'falta', excuse: 'Enfermedad' },
+          { id: 3, studentName: 'Lucía González', date: '2025-04-01', type: 'tardanza', excuse: null },
+        ];
+      } else {
+        this.attendanceRecords = [];
+      }
+
+      if (this.reportType === 'performance' || this.reportType === 'both') {
+        this.performanceRecords = [
+          { id: 1, studentName: 'Ana González', subject: 'Matemáticas', score: 85, completedTasks: 5, totalTasks: 6, date: '2025-04-04' },
+          { id: 2, studentName: 'Carlos González', subject: 'Matemáticas', score: 90, completedTasks: 6, totalTasks: 6, date: '2025-04-04' },
+          { id: 3, studentName: 'Lucía González', subject: 'Matemáticas', score: 70, completedTasks: 4, totalTasks: 6, date: '2025-04-04' },
+        ];
+      } else {
+        this.performanceRecords = [];
+      }
+    },
+    attendanceClass(type) {
       return {
-        adminName: 'Claudia Ramírez',
-        adminRole: 'administrativo',
-        selectionType: 'individual', // 'individual' o 'group'
-        selectedStudent: '',
-        selectedGroup: '',
-        reportType: '', // 'attendance', 'performance', 'both'
-        today: new Date().toLocaleDateString('es-ES', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        }),
-        students: [
-          { id: 1, name: 'Ana González' },
-          { id: 2, name: 'Carlos González' },
-          { id: 3, name: 'Lucía González' },
-        ],
-        groups: [
-          { id: 1, name: '5° Primaria - Sección A' },
-          { id: 2, name: '2° Secundaria - Sección B' },
-        ],
-        attendanceRecords: [],
-        performanceRecords: [],
-        showReport: false,
+        'presente-badge': type === 'presente',
+        'ausente-badge': type === 'falta',
+        'tardanza-badge': type === 'tardanza',
       };
     },
-    methods: {
-      resetSelection() {
-        this.selectedStudent = '';
-        this.selectedGroup = '';
-        this.reportType = '';
-        this.showReport = false;
-        this.attendanceRecords = [];
-        this.performanceRecords = [];
-      },
-      fetchReports() {
-        if (!this.selectedStudent || !this.reportType) {
-          this.showReport = false;
-          return;
-        }
-        this.showReport = true;
-  
-        // Datos simulados para un estudiante individual
-        if (this.reportType === 'attendance' || this.reportType === 'both') {
-          this.attendanceRecords = [
-            { id: 1, date: '2025-04-01', type: 'presente', excuse: null },
-            { id: 2, date: '2025-04-02', type: 'falta', excuse: 'Enfermedad' },
-            { id: 3, date: '2025-04-03', type: 'tardanza', excuse: null },
-          ];
-        } else {
-          this.attendanceRecords = [];
-        }
-  
-        if (this.reportType === 'performance' || this.reportType === 'both') {
-          this.performanceRecords = [
-            { id: 1, subject: 'Matemáticas', score: 85, completedTasks: 5, totalTasks: 6, date: '2025-04-04' },
-            { id: 2, subject: 'Ciencias', score: 78, completedTasks: 3, totalTasks: 4, date: '2025-04-05' },
-          ];
-        } else {
-          this.performanceRecords = [];
-        }
-      },
-      fetchGroupReports() {
-        if (!this.selectedGroup || !this.reportType) {
-          this.showReport = false;
-          return;
-        }
-        this.showReport = true;
-  
-        // Datos simulados para un grupo de estudiantes
-        if (this.reportType === 'attendance' || this.reportType === 'both') {
-          this.attendanceRecords = [
-            { id: 1, studentName: 'Ana González', date: '2025-04-01', type: 'presente', excuse: null },
-            { id: 2, studentName: 'Carlos González', date: '2025-04-01', type: 'falta', excuse: 'Enfermedad' },
-            { id: 3, studentName: 'Lucía González', date: '2025-04-01', type: 'tardanza', excuse: null },
-          ];
-        } else {
-          this.attendanceRecords = [];
-        }
-  
-        if (this.reportType === 'performance' || this.reportType === 'both') {
-          this.performanceRecords = [
-            { id: 1, studentName: 'Ana González', subject: 'Matemáticas', score: 85, completedTasks: 5, totalTasks: 6, date: '2025-04-04' },
-            { id: 2, studentName: 'Carlos González', subject: 'Matemáticas', score: 90, completedTasks: 6, totalTasks: 6, date: '2025-04-04' },
-            { id: 3, studentName: 'Lucía González', subject: 'Matemáticas', score: 70, completedTasks: 4, totalTasks: 6, date: '2025-04-04' },
-          ];
-        } else {
-          this.performanceRecords = [];
-        }
-      },
-      attendanceClass(type) {
-        return {
-          'presente-badge': type === 'presente',
-          'ausente-badge': type === 'falta',
-          'tardanza-badge': type === 'tardanza',
-        };
-      },
-      exportReport() {
-        // Simulación de exportación (en un sistema real, esto generaría un PDF o CSV)
-        alert('Informe exportado exitosamente.');
-      },
+    exportReport() {
+      // Simulación de exportación (en un sistema real, esto generaría un PDF o CSV)
+      alert('Informe exportado exitosamente.');
     },
-  };
-  </script>
+  },
+};
+</script>

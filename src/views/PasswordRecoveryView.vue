@@ -140,12 +140,10 @@ export default {
         // 2. Enviar correo con enlace
         const recoveryLink = `http://localhost:5173/restaurar-password/${user.id_usuario}`;
         const emailData = {
-          to: this.email,
-          subject: 'Recuperación de contraseña - Academia',
-          message: `Haga clic en este enlace para restablecer su contraseña: ${recoveryLink}\n\nSi no solicitó este cambio, ignore este mensaje.`
-        };
+          email: this.email
+          };
 
-        const emailResponse = await fetch('http://localhost:8080/api/email/send', {
+        const emailResponse = await fetch('http://localhost:8080/api/users/reset-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
