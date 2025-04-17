@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
+import HomeView from '../views/LandingPage.vue';
 import LoginView from '../views/LoginView.vue';
 import RegistroView from '../views/RegistroView.vue';
 import ControlAsistencia from '../views/controlAsistencia.vue';
@@ -32,7 +32,10 @@ const routes = [
   { path: '/teacher-tasks', name: 'TeacherTasks', component: TeacherTasksView },
   { path: '/calendario', name: 'AcademicCalendar', component: AcademicCalendar },
   { path: '/teacher-performance-reports', name: 'TeacherPerformanceReports', component: TeacherPerformanceReports }, // Nueva ruta
-  { path: '/restaurar-password/:id', name: 'RestaurarPasword', component: RestaurarPasswordForm, props: true }
+  { path: '/restaurar-password/:id', name: 'RestaurarPasword', component: RestaurarPasswordForm, props: true },
+
+
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFound.vue')},
 ];
 
 const router = createRouter({

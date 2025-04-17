@@ -20,43 +20,6 @@ body {
     flex: 1;
   }
   
-  .header {
-    background: linear-gradient(135deg, #1a2e4a 0%, #355e3b 100%);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 16px rgba(26, 46, 74, 0.4);
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  }
-  
-  .header .btn {
-    background: #d4c08a;
-    color: #1a2e4a;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(26, 46, 74, 0.4);
-  }
-  
-  .header .btn:hover {
-    background: #ffffff;
-    color: #355e3b;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(26, 46, 74, 0.5);
-  }
-  
   .form-section {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 12px;

@@ -13,7 +13,7 @@
   /* 🎨 Colores hover*/
   --hover-primary: #2a4363;  /*Cambiar */
   --hover-secondary: #b28761; /*Cambiar */
-
+  --hover-accent: #a54214;   /*Cambiar */
 
   /* 🎯 Semánticos */
   --color-bg: var(--color-light);

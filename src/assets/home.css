@@ -168,7 +168,7 @@ body {
     margin-bottom: 1.5rem;
     text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
     background: linear-gradient(45deg, #ffffff, #d4c08a);
-    -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   
