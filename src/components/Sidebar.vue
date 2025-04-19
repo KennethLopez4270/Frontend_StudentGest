@@ -1,5 +1,6 @@
+<!-- src/components/Sidebar.vue -->
 <template>
-  <div class="sidebar">
+  <div class="sidebar" :class="{ collapsed: isMobile && !isSidebarOpen }">
     <div class="logo">
       <div class="school-icon">
         <img
@@ -22,39 +23,81 @@
         <span class="label nav-label">{{ item.label }}</span>
       </router-link>
     </nav>
+
+    <FooterSidebar />
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Sidebar',
-  data() {
-    return {
-      menuItems: [
-        { route: '/parent-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
-        { route: '/control-asistencia', name: 'ControlAsistencia', icon: 'fas fa-users', label: 'Estudiantes' },
-        { route: '/reportes', name: 'Reportes', icon: 'fas fa-chart-line', label: 'Reportes' },
-        { route: '/historial-academico', name: 'HistorialAcademico', icon: 'fas fa-book', label: 'Tareas' },
-        { route: '/calificaciones', name: 'Calificaciones', icon: 'fas fa-star', label: 'Calificaciones' },
-        { route: '/calendario', name: 'AcademicCalendar', icon: 'fas fa-calendar-alt', label: 'Calendario' },
-        { route: '/justificar-ausencias', name: 'JustificarAusencias', icon: 'fas fa-file-alt', label: 'Justificar Ausencias' },
-        { route: '/foro', name: 'Forum', icon: 'fas fa-comments', label: 'Foro' },
-        { route: '/admin-reports', name: 'AdminReports', icon: 'fas fa-file-export', label: 'Informes Admin' },
-        { route: '/task-details', name: 'TaskDetails', icon: 'fas fa-tasks', label: 'Detalles de Tareas' }
-      ]
-    };
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import FooterSidebar from './FooterSidebar.vue'
+
+const route = useRoute()
+const menuItems = ref([])
+const isSidebarOpen = ref(true)
+const isMobile = ref(false)
+
+const checkScreenSize = () => {
+  isMobile.value = window.innerWidth <= 768
+  if (!isMobile.value) {
+    isSidebarOpen.value = true
   }
-};
+}
+
+onMounted(() => {
+  checkScreenSize()
+  window.addEventListener('resize', checkScreenSize)
+
+  const user = JSON.parse(localStorage.getItem("user") || '{}');
+  const role = user.rol?.toUpperCase();
+
+  const roleBasedMenus = {
+    PADRE: [
+      { route: '/parent-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
+      { route: '/control-asistencia', name: 'ControlAsistencia', icon: 'fas fa-users', label: 'Estudiantes' },
+      { route: '/historial-academico', name: 'HistorialAcademico', icon: 'fas fa-book', label: 'Tareas' },
+      { route: '/calificaciones', name: 'Calificaciones', icon: 'fas fa-star', label: 'Calificaciones' },
+      { route: '/justificar-ausencias', name: 'JustificarAusencias', icon: 'fas fa-file-alt', label: 'Justificar Ausencias' },
+      { route: '/foro', name: 'Forum', icon: 'fas fa-comments', label: 'Foro' },
+      { route: '/calendario', name: 'AcademicCalendar', icon: 'fas fa-calendar-alt', label: 'Calendario' }
+    ],
+    ESTUDIANTE: [
+      { route: '/student-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
+      { route: '/tareas', name: 'MisTareas', icon: 'fas fa-tasks', label: 'Mis Tareas' },
+      { route: '/calificaciones', name: 'Notas', icon: 'fas fa-star', label: 'Mis Calificaciones' },
+      { route: '/foro', name: 'Forum', icon: 'fas fa-comments', label: 'Foro' },
+      { route: '/calendario', name: 'AcademicCalendar', icon: 'fas fa-calendar-alt', label: 'Calendario' }
+    ],
+    PROFESOR: [
+      { route: '/teacher-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
+      { route: '/mis-cursos', name: 'Cursos', icon: 'fas fa-book', label: 'Mis Cursos' },
+      { route: '/mis-tareas', name: 'Tareas', icon: 'fas fa-tasks', label: 'Mis Tareas' },
+      { route: '/control-asistencia', name: 'Asistencia', icon: 'fas fa-check-circle', label: 'Asistencia' },
+      { route: '/foro', name: 'Forum', icon: 'fas fa-comments', label: 'Foro' }
+    ],
+    DIRECTOR: [
+      { route: '/admin-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
+      { route: '/gestion-usuarios', name: 'Usuarios', icon: 'fas fa-users-cog', label: 'Gestión de Usuarios' },
+      { route: '/reportes', name: 'Reportes', icon: 'fas fa-chart-line', label: 'Reportes Generales' }
+    ],
+    PERSONAL: [
+      { route: '/personal-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
+      { route: '/calendario', name: 'Calendario', icon: 'fas fa-calendar-alt', label: 'Calendario Escolar' },
+      { route: '/eventos', name: 'Eventos', icon: 'fas fa-bullhorn', label: 'Eventos' }
+    ]
+  }
+
+  menuItems.value = roleBasedMenus[role] || []
+})
 </script>
 
 <style scoped>
-/* Sidebar */
 .sidebar {
   background: var(--color-primary);
   color: var(--color-light);
   height: 100vh;
-  width: 65px;
-  max-width: 300px;
+  width: 250px;
   transition: width 0.3s ease;
   overflow: hidden;
   position: fixed;
@@ -63,16 +106,12 @@ export default {
   padding-top: 1.5rem;
   border-radius: 0 40px 40px 0;
   z-index: 9999;
-  
 }
 
-.sidebar:hover {
-  width: 250px;
-  border-radius: 0 40px 40px 0;
-  padding-right: 5px;
+.sidebar.collapsed {
+  width: 65px;
 }
 
-/* Logo */
 .logo {
   display: flex;
   align-items: center;
@@ -86,15 +125,14 @@ export default {
   font-size: 1.6rem;
   color: var(--color-text);
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.3s ease;
 }
 
-.sidebar:hover .logo-text {
-  opacity: 1;
+.sidebar.collapsed .logo-text {
+  opacity: 0;
 }
 
-/* Icono del colegio */
 .school-icon {
   width: 45px;
   height: 45px;
@@ -110,7 +148,6 @@ export default {
   object-fit: cover;
 }
 
-/* Navegación */
 nav {
   width: 100%;
   flex-grow: 1;
@@ -139,20 +176,18 @@ nav {
 .sidebar i {
   min-width: 30px;
   text-align: center;
-  color: var(--color-icon); /*no entiendo porque al cambiar esto se vuelve raro*/
+  color: var(--color-icon);
   font-size: 1.4rem;
-  
 }
 
-/* Etiquetas del menú */
 .label {
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.3s ease, margin-left 0.3s ease;
   white-space: nowrap;
 }
 
-.sidebar:hover .label {
-  opacity: 1;
+.sidebar.collapsed .label {
+  opacity: 0;
 }
 
 .nav-label {
@@ -161,4 +196,3 @@ nav {
   font-size: 1rem;
 }
 </style>
-

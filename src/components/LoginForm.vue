@@ -12,7 +12,7 @@
           placeholder="Correo electrónico"
           class="form-control"
           required
-          @focus="shake = false"
+          @focus="resetShake"
         />
       </div>
 
@@ -25,7 +25,7 @@
           placeholder="Contraseña"
           class="form-control"
           required
-          @focus="shake = false"
+          @focus="resetShake"
         />
         <span class="toggle-password" @click="togglePassword">
           <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
@@ -38,15 +38,6 @@
       </button>
     </form>
 
-    <!-- Estado -->
-    <div
-      v-if="statusMessage"
-      :class="['alert', statusType === 'success' ? 'alert-success' : 'alert-danger']"
-      class="mt-3 text-center"
-    >
-      {{ statusMessage }}
-    </div>
-
     <!-- Enlaces -->
     <p class="text-center mt-3">
       ¿No tienes una cuenta?
@@ -58,67 +49,62 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "LoginForm",
-  data() {
-    return {
-      email: "",
-      password: "",
-      showPassword: false,
-      shake: false,
-      statusMessage: "",
-      statusType: "",
-    };
-  },
-  methods: {
-    togglePassword() {
-      this.showPassword = !this.showPassword;
-    },
-    submitLogin() {
-      if (!this.email || !this.password) {
-        this.shake = true;
-        setTimeout(() => (this.shake = false), 500);
-        return;
-      }
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { showSuccess, showError } from '@/utils/useAlert'
 
-      fetch("http://localhost:8080/api/users/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: this.email, password: this.password }),
-      })
-        .then(async (response) => {
-          const data = await response.json();
+const email = ref('')
+const password = ref('')
+const showPassword = ref(false)
+const shake = ref(false)
+const router = useRouter()
 
-          if (!response.ok || data.message) {
-            this.statusType = "error";
-            this.statusMessage = data.message || "Usuario o contraseña incorrectos";
-            throw new Error(this.statusMessage);
-          }
+function togglePassword() {
+  showPassword.value = !showPassword.value
+}
 
-          this.statusType = "success";
-          this.statusMessage = "Inicio de sesión exitoso";
+function resetShake() {
+  shake.value = false
+}
 
-          localStorage.setItem("user", JSON.stringify(data));
-          localStorage.setItem("userId", data.id); // Guardar solo el ID
-          //localStorage.setItem("user", JSON.stringify(data));   //guardar todos los datos del usuario
+async function submitLogin() {
+  if (!email.value || !password.value) {
+    shake.value = true
+    setTimeout(() => (shake.value = false), 500)
+    return
+  }
 
-          // Redirección según el rol
-          if (data.rol === "PROFESOR") {
-            this.$router.push("/parent-dashboard"); //cambiar luego 
-          } else if (data.rol === "DIRECTOR") {
-            this.$router.push("/parent-dashboard");//cambiar luego 
-          } else {
-            this.$router.push("/parent-dashboard"); //cambiar luego 
-          }
-        })
+  try {
+    const response = await fetch("http://localhost:8080/api/users/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.value, password: password.value }),
+    })
 
-        .catch((error) => {
-          console.error("Error en el login:", error.message);
-        });
-    },
-  },
-};
+    const data = await response.json()
+
+    if (!response.ok || data.message) {
+      showError('Error de inicio de sesión', data.message || 'Correo o contraseña incorrectos')
+      throw new Error(data.message || 'Credenciales inválidas')
+    }
+
+    showSuccess('¡Bienvenido!', `Has iniciado sesión como ${data.rol.toLowerCase()}`)
+
+    localStorage.setItem("user", JSON.stringify(data))
+
+    const routeByRole = {
+      PROFESOR: "/parent-dashboard", // hay que cambiar esto
+      DIRECTOR: "/parent-dashboard", // hay que cambiar esto
+      PADRE: "/parent-dashboard", 
+      ESTUDIANTE: "/parent-dashboard", // hay que cambiar esto
+    }
+
+    router.push(routeByRole[data.rol] || "/inicio")
+  } catch (error) {
+    console.error("Error en el login:", error.message)
+  }
+}
 </script>
 
 <style scoped>
@@ -137,15 +123,15 @@ export default {
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #172b3a;
+  color: var(--color-primary);
   font-size: 16px;
-  z-index: 10; /* Asegura que los íconos estén por encima del input */
+  z-index: 10;
 }
 
 h1 {
-  font-family: 'Georgia', serif;
+  font-family: var(--font-title);
   font-weight: bold;
-  color: #213547;
+  color: var(--color-primary);
   text-align: center;
   font-size: 32px;
 }
@@ -157,36 +143,32 @@ h1 {
   transform: translateY(-50%);
   cursor: pointer;
   color: gray;
-  z-index: 10; /* Asegura que esté por encima del input */
+  z-index: 10;
 }
 
 .toggle-password:hover {
-  color: #172b3a;
+  color: var(--color-primary);
 }
 
-/* --- Botón de inicio de sesión --- */
 .btn-primary {
-  background-color: #213547 !important;
-  border-color: #213547 !important;
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
 }
 
 .btn-primary:hover {
-  background-color: #172b3a !important;
-  border-color: #172b3a !important;
+  background-color: var(--hover-primary) !important;
+  border-color: var(--hover-primary) !important;
 }
 
-/* --- Estilos de los enlaces --- */
 .text-primary {
   color: #213547 !important;
 }
 
 .text-primary:hover {
-  color: #172b3a !important;
+  color: var(--hover-primary) !important;
 }
 
-/* --- Estilo Glassmorphism --- */
 .login-glass {
-  /*background: rgba(255, 255, 255, 0.25);*/ /*quitar comentado para tener efecto de vidrio*/ 
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 20px;
@@ -197,7 +179,6 @@ h1 {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* --- RESPONSIVE --- */
 @media (max-width: 526px) {
   .login-glass {
     padding: 30px 20px;

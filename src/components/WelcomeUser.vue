@@ -1,17 +1,33 @@
 <template>
   <div class="header">
-    <h1>¡Bienvenida, {{ nombre }}!</h1>
+    <h1>¡Bienvenid@{{ nombre ? `, ${nombre}` : '' }}!</h1>
     <LogOutButton @logout="handleLogOut" />
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import LogOutButton from './LogOutButton.vue'
 
-const nombre = 'María' // En el futuro puedes obtener esto de un endpoint o localStorage
+const nombre = ref('')
+
+onMounted(() => {
+  try {
+    const user = JSON.parse(localStorage.getItem('user'))
+    if (user?.nombre) {
+      nombre.value = capitalizar(user.nombre)
+    }
+  } catch (error) {
+    console.warn('No se pudo obtener el usuario del localStorage.')
+  }
+})
+
+function capitalizar(texto) {
+  return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase()
+}
 
 function handleLogOut() {
-  // manejar la lógica de logout (borrar token, redirigir, etc)
+  localStorage.removeItem('user')
   console.log('Sesión cerrada')
 }
 </script>

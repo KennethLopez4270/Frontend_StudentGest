@@ -10,3 +10,4 @@ npm install bootstrap
 
 npm install animate.css
 
+npm install sweetalert2

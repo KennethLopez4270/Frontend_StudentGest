@@ -1,86 +1,72 @@
 <template>
-  <div class="h-screen flex flex-col items-center justify-center bg-slate-900 text-white text-center animate__animated animate__fadeIn">
-    <img
-      src="https://undraw.co/api/illustrations/011cc9ef-1739-40c6-8e2e-362e8bb7ce84" 
-      alt="Buscando página"
-      class="w-64 md:w-80 mb-8"
-    />
+  <div class="page-404 animate__animated animate__fadeIn">
+    <i class="fas fa-face-frown page-404__icon"></i>
 
-    <h1 class="text-6xl font-extrabold text-orange-400 mb-4">404</h1>
-    <h2 class="text-2xl font-semibold mb-2">Página no encontrada</h2>
-    <p class="text-gray-300 max-w-md mb-6">
+    <h1 class="page-404__code">404</h1>
+    <h2 class="page-404__title">Página no encontrada</h2>
+    <p class="page-404__message">
       La página que buscas no existe o fue movida. Pero no te preocupes, puedes volver al inicio fácilmente.
     </p>
 
-    <router-link to="/" class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition">
+    <router-link to="/" class="page-404__button">
       Volver al inicio
     </router-link>
   </div>
 </template>
 
-<script setup>
-// Sin lógica por ahora
-</script>
-
 <style scoped>
 .page-404 {
-  background-color: var(--color-primary);
-  color: var(--color-light);
-  min-height: 100vh;
+  height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-dark);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
   text-align: center;
-  font-family: var(--font-body);
+  padding: 2rem;
 }
 
-.page-404 h1 {
-  font-size: 6rem;
-  color: var(--color-accent);
-  font-family: var(--font-title);
-  margin-bottom: 0.5rem;
-  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
-}
-
-.page-404 h2 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  color: var(--color-light);
-}
-
-.page-404 p {
-  max-width: 500px;
-  color: var(--color-info);
-  margin-bottom: 2rem;
-  line-height: 1.6;
-}
-
-.page-404 img {
-  width: 300px;
-  max-width: 90%;
-  margin-bottom: 2rem;
+.page-404__icon {
+  font-size: 7rem;
+  color: var(--color-dark);
+  margin-bottom: 1.5rem;
   filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.4));
-  transition: transform 0.3s ease;
 }
 
-.page-404 img:hover {
-  transform: scale(1.05) rotate(2deg);
+.page-404__code {
+  font-size: 5rem;
+  color: var(--color-dark);
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-.page-404 .btn-home {
-  padding: 0.75rem 1.5rem;
+.page-404__title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.page-404__message {
+  color: var(--color-dark);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin-bottom: 2rem;
+}
+
+.page-404__button {
   background-color: var(--color-accent);
-  color: var(--color-light);
-  border-radius: 1rem;
+  color: var(--color-primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
   font-weight: bold;
   text-decoration: none;
   transition: background-color 0.3s ease;
 }
 
-.page-404 .btn-home:hover {
-  background-color: var(--hover-secondary);
+.page-404__button:hover {
+  background-color: var(--hover-accent);
+  color: var(--hover-primary);
 }
-
 </style>

@@ -9,6 +9,8 @@
         <!-- Header -->
         <WelcomeUser />
 
+        <UserInfoCard />
+
         <!-- Carrusel de Estudiantes -->
         <div class="form-section animate__animated animate__fadeInUp">
           <h2>Panel de Padres</h2>
@@ -140,18 +142,7 @@
           </div>
         </div>
       </div>
-
-      <!-- Right Section -->
-      <div class="right-section">
-        <div class="profile-card animate__animated animate__fadeInRight">
-          <img src="https://i.pinimg.com/736x/bd/42/8e/bd428e6bb156d90045700dbf3e967c3e.jpg" alt="Profile" class="shadow-lg" />
-          <h3>{{ parentName }}</h3>
-          <p>Tutor</p>
-          <p><i class="fas fa-building me-1"></i> Academia Prestige</p>
-          <p><i class="fas fa-calendar-alt me-1"></i> Miembro desde: 01/01/2023</p>
-          <p><i class="fas fa-users me-1"></i> {{ students.length }} Estudiantes</p>
-        </div>
-      </div>
+      
     </div>
   </div>
 </template>
@@ -162,10 +153,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '@/assets/parentDashboard.css';
 import Sidebar from '../components/Sidebar.vue';
 import WelcomeUser from '../components/WelcomeUser.vue';
+import UserInfoCard from '../components/UserInfoCard.vue';
 
 export default {
   name: 'ParentDashboard',
-  components: { Sidebar, WelcomeUser },
+  components: { Sidebar, WelcomeUser, UserInfoCard },
   data() {
     return {
       parentName: 'María González',
