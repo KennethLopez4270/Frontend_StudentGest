@@ -6,14 +6,10 @@
     <!-- Main Content -->
     <div class="main-content">
       <div class="left-section">
-        <!-- Header -->
-        <WelcomeUser />
-
-        <UserInfoCard />
-
-        <!-- Carrusel de Estudiantes -->
         <div class="form-section animate__animated animate__fadeInUp">
           <h2>Panel de Padres</h2>
+
+          <!-- Carrusel de Estudiantes -->
           <div class="student-carousel mb-5">
             <h4 class="section-title mb-4">Selecciona un Estudiante</h4>
             <div class="position-relative">
@@ -24,13 +20,14 @@
               >
                 <i class="fas fa-chevron-left"></i>
               </button>
+
               <div class="students-wrapper">
                 <transition-group name="slide" tag="div" class="students-container">
                   <div
                     v-for="(student, index) in students"
                     :key="student.id"
                     class="student-card"
-                    :class="{ 'active': currentStudentIndex === index }"
+                    :class="{ active: currentStudentIndex === index }"
                     @click="selectStudent(index)"
                   >
                     <div class="student-avatar">
@@ -44,6 +41,7 @@
                   </div>
                 </transition-group>
               </div>
+
               <button
                 @click="nextStudent"
                 class="carousel-control next"
@@ -54,7 +52,7 @@
             </div>
           </div>
 
-          <!-- Sección de Calificaciones -->
+          <!-- Calificaciones -->
           <div class="grades-section mb-5">
             <div class="section-header d-flex justify-content-between align-items-center mb-4">
               <h3>Calificaciones Recientes</h3>
@@ -87,7 +85,7 @@
             </div>
           </div>
 
-          <!-- Sección de Tareas -->
+          <!-- Tareas -->
           <div class="tasks-section">
             <div class="section-header d-flex justify-content-between align-items-center mb-4">
               <h3>Tareas Pendientes</h3>
@@ -140,129 +138,128 @@
               </div>
             </div>
           </div>
+
         </div>
       </div>
-      
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed } from 'vue';
+import Sidebar from '../components/Sidebar.vue';
+import WelcomeUser from '../components/WelcomeBanner.vue';
+import UserInfoCard from '../components/UserInfoCard.vue';
 import 'animate.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@/assets/parentDashboard.css';
-import Sidebar from '../components/Sidebar.vue';
-import WelcomeUser from '../components/WelcomeUser.vue';
-import UserInfoCard from '../components/UserInfoCard.vue';
 
-export default {
-  name: 'ParentDashboard',
-  components: { Sidebar, WelcomeUser, UserInfoCard },
-  data() {
-    return {
-      parentName: 'María González',
-      currentStudentIndex: 0,
-      students: [
-        { id: 1, name: 'Ana González', grade: '5° Primaria', section: 'Sección A', avatar: null },
-        { id: 2, name: 'Carlos González', grade: '2° Secundaria', section: 'Sección B', avatar: null },
-        { id: 3, name: 'Lucía González', grade: '3° Primaria', section: 'Sección C', avatar: null }
-      ],
-      sampleGrades: [
-        { id: 1, studentId: 1, subject: 'Matemáticas', score: 85, date: '15/03/2023' },
-        { id: 2, studentId: 1, subject: 'Ciencias', score: 78, date: '10/03/2023' },
-        { id: 3, studentId: 2, subject: 'Historia', score: 92, date: '08/03/2023' },
-        { id: 4, studentId: 3, subject: 'Español', score: 65, date: '05/03/2023' }
-      ],
-      sampleTasks: [
-        {
-          id: 1,
-          studentId: 1,
-          title: 'Proyecto de Ciencias',
-          description: 'Investigación sobre el sistema solar con maqueta',
-          subject: 'Ciencias',
-          dueDate: '20/03/2023',
-          status: 'pending',
-          isOverdue: false
-        },
-        {
-          id: 2,
-          studentId: 2,
-          title: 'Ejercicios de Matemáticas',
-          description: 'Páginas 45-50 del libro de ejercicios',
-          subject: 'Matemáticas',
-          dueDate: '18/03/2023',
-          status: 'pending',
-          isOverdue: true
-        },
-        {
-          id: 3,
-          studentId: 2,
-          title: 'Ensayo literario',
-          description: 'Redactar un ensayo sobre la obra "Cien años de soledad"',
-          subject: 'Español',
-          dueDate: '22/03/2023',
-          status: 'pending',
-          isOverdue: false
-        },
-        {
-          id: 4,
-          studentId: 3,
-          title: 'Dibujo histórico',
-          description: 'Representar una escena de la independencia',
-          subject: 'Historia',
-          dueDate: '10/03/2023',
-          status: 'completed',
-          isOverdue: false
-        }
-      ]
-    };
+const parentName = ref('María González');
+const currentStudentIndex = ref(0);
+
+const students = ref([
+  { id: 1, name: 'Ana González', grade: '5° Primaria', section: 'Sección A', avatar: null },
+  { id: 2, name: 'Carlos González', grade: '2° Secundaria', section: 'Sección B', avatar: null },
+  { id: 3, name: 'Lucía González', grade: '3° Primaria', section: 'Sección C', avatar: null }
+]);
+
+const sampleGrades = ref([
+  { id: 1, studentId: 1, subject: 'Matemáticas', score: 85, date: '15/03/2023' },
+  { id: 2, studentId: 1, subject: 'Ciencias', score: 78, date: '10/03/2023' },
+  { id: 3, studentId: 2, subject: 'Historia', score: 92, date: '08/03/2023' },
+  { id: 4, studentId: 3, subject: 'Español', score: 65, date: '05/03/2023' }
+]);
+
+const sampleTasks = ref([
+  {
+    id: 1,
+    studentId: 1,
+    title: 'Proyecto de Ciencias',
+    description: 'Investigación sobre el sistema solar con maqueta',
+    subject: 'Ciencias',
+    dueDate: '20/03/2023',
+    status: 'pending',
+    isOverdue: false
   },
-  computed: {
-    currentStudent() {
-      return this.students[this.currentStudentIndex];
-    },
-    filteredGrades() {
-      return this.sampleGrades.filter(grade => grade.studentId === this.currentStudent.id);
-    },
-    filteredTasks() {
-      return this.sampleTasks.filter(task => task.studentId === this.currentStudent.id);
-    }
+  {
+    id: 2,
+    studentId: 2,
+    title: 'Ejercicios de Matemáticas',
+    description: 'Páginas 45-50 del libro de ejercicios',
+    subject: 'Matemáticas',
+    dueDate: '18/03/2023',
+    status: 'pending',
+    isOverdue: true
   },
-  methods: {
-    prevStudent() {
-      if (this.currentStudentIndex > 0) {
-        this.currentStudentIndex--;
-      }
-    },
-    nextStudent() {
-      if (this.currentStudentIndex < this.students.length - 1) {
-        this.currentStudentIndex++;
-      }
-    },
-    selectStudent(index) {
-      this.currentStudentIndex = index;
-    },
-    gradeClass(score) {
-      return {
-        'bg-danger': score < 60,
-        'bg-warning': score >= 60 && score < 80,
-        'presente-badge': score >= 80
-      };
-    },
-    taskStatusClass(task) {
-      return {
-        'ausente-badge': task.status === 'pending' && task.isOverdue,
-        'tardanza-badge': task.status === 'pending' && !task.isOverdue,
-        'presente-badge': task.status === 'completed'
-      };
-    },
-    taskStatusIcon(task) {
-      return {
-        'fas fa-exclamation-circle': task.status === 'pending' && task.isOverdue,
-        'far fa-clock': task.status === 'pending' && !task.isOverdue,
-        'fas fa-check-circle': task.status === 'completed'
-      };
-    }
+  {
+    id: 3,
+    studentId: 2,
+    title: 'Ensayo literario',
+    description: 'Redactar un ensayo sobre la obra "Cien años de soledad"',
+    subject: 'Español',
+    dueDate: '22/03/2023',
+    status: 'pending',
+    isOverdue: false
+  },
+  {
+    id: 4,
+    studentId: 3,
+    title: 'Dibujo histórico',
+    description: 'Representar una escena de la independencia',
+    subject: 'Historia',
+    dueDate: '10/03/2023',
+    status: 'completed',
+    isOverdue: false
   }
-};
+]);
+
+const currentStudent = computed(() => students.value[currentStudentIndex.value]);
+
+const filteredGrades = computed(() =>
+  sampleGrades.value.filter((grade) => grade.studentId === currentStudent.value.id)
+);
+
+const filteredTasks = computed(() =>
+  sampleTasks.value.filter((task) => task.studentId === currentStudent.value.id)
+);
+
+function prevStudent() {
+  if (currentStudentIndex.value > 0) {
+    currentStudentIndex.value--;
+  }
+}
+
+function nextStudent() {
+  if (currentStudentIndex.value < students.value.length - 1) {
+    currentStudentIndex.value++;
+  }
+}
+
+function selectStudent(index) {
+  currentStudentIndex.value = index;
+}
+
+function gradeClass(score) {
+  return {
+    'bg-danger': score < 60,
+    'bg-warning': score >= 60 && score < 80,
+    'presente-badge': score >= 80
+  };
+}
+
+function taskStatusClass(task) {
+  return {
+    'ausente-badge': task.status === 'pending' && task.isOverdue,
+    'tardanza-badge': task.status === 'pending' && !task.isOverdue,
+    'presente-badge': task.status === 'completed'
+  };
+}
+
+function taskStatusIcon(task) {
+  return {
+    'fas fa-exclamation-circle': task.status === 'pending' && task.isOverdue,
+    'far fa-clock': task.status === 'pending' && !task.isOverdue,
+    'fas fa-check-circle': task.status === 'completed'
+  };
+}
 </script>

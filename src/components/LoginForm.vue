@@ -94,10 +94,12 @@ async function submitLogin() {
     localStorage.setItem("user", JSON.stringify(data))
 
     const routeByRole = {
-      PROFESOR: "/parent-dashboard", // hay que cambiar esto
-      DIRECTOR: "/parent-dashboard", // hay que cambiar esto
+      PROFESOR: "/teacher-dashboard", 
+      DIRECTOR: "/admin-dashboard", 
       PADRE: "/parent-dashboard", 
-      ESTUDIANTE: "/parent-dashboard", // hay que cambiar esto
+      ESTUDIANTE: "/student-dashboard", 
+      PERSONAL: "/personal-dashboard", 
+      
     }
 
     router.push(routeByRole[data.rol] || "/inicio")

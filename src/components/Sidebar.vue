@@ -97,13 +97,21 @@ onMounted(() => {
   background: var(--color-primary);
   color: var(--color-light);
   height: 100vh;
-  width: 250px;
+  width: 245px;
   transition: width 0.3s ease;
   overflow: hidden;
   position: fixed;
   display: flex;
   flex-direction: column;
   padding-top: 1.5rem;
+  clip-path: polygon(
+    0 0,              /* top-left */
+    calc(100% - 50px) 0, /* top-right before cut */
+    100% 50px,        /* tip of top-right cut */
+    100% calc(100% - 50px), /* tip of bottom-right cut */
+    calc(100% - 50px) 100%, /* bottom-right before cut */
+    0 100%            /* bottom-left */
+  );
   border-radius: 0 40px 40px 0;
   z-index: 9999;
 }

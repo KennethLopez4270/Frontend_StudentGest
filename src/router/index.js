@@ -7,7 +7,7 @@ import ControlAsistencia from '../views/controlAsistencia.vue';
 import HistorialAcademico from '../views/historialAcademico.vue';
 import JustificarAusencias from '../views/justificarAusencias.vue';
 import Reportes from '../views/reportes.vue';
-import ParentDashboard from '../views/ParentDashboard.vue';
+//import ParentDashboard from '../views/ParentDashboard.vue';
 import PasswordRecoveryView from '../views/PasswordRecoveryView.vue';
 import ForumView from '../views/ForumView.vue';
 import AdminReportsView from '../views/AdminReportsView.vue';
@@ -17,6 +17,12 @@ import AcademicCalendar from '../views/AcademicCalendar.vue';
 import TeacherPerformanceReports from '../views/TeacherPerformanceReports.vue'; // Nueva vista
 import RestaurarPasswordForm from '../components/RestaurarPasswordForm.vue';
 
+import StudentDashboard from '../views/UsersDashboards/StudentDashboard.vue';
+import ParentDashboard from '../views/UsersDashboards/ParentDashboard.vue';
+import TeacherDashboard from '../views/UsersDashboards/TeacherDashboard.vue';
+import PersonalDashboard from '../views/UsersDashboards/PersonalDashboard.vue';
+import AdminDashboard from '../views/UsersDashboards/AdminDashboard.vue';
+
 const routes = [
   { path: '/', name: 'Home', component: HomeView },
   { path: '/login', name: 'Login', component: LoginView },
@@ -25,7 +31,6 @@ const routes = [
   { path: '/historial-academico', name: 'HistorialAcademico', component: HistorialAcademico },
   { path: '/justificar-ausencias', name: 'JustificarAusencias', component: JustificarAusencias },
   { path: '/reportes', name: 'Reportes', component: Reportes },
-  { path: '/parent-dashboard', name: 'ParentDashboard', component: ParentDashboard },
   { path: '/recuperar-contrasena', name: 'PasswordRecovery', component: PasswordRecoveryView },
   { path: '/foro', name: 'Forum', component: ForumView },
   { path: '/admin-reports', name: 'AdminReports', component: AdminReportsView },
@@ -37,6 +42,13 @@ const routes = [
 
 
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFound.vue')},
+
+  { path: '/student-dashboard', name: 'StudentDashboard', component: StudentDashboard },
+  { path: '/parent-dashboard', name: 'ParentDashboard', component: ParentDashboard },
+  { path: '/teacher-dashboard', name: 'TeacherDashboard', component: TeacherDashboard },
+  { path: '/personal-dashboard', name: 'PersonalDashboard', component: PersonalDashboard },
+  { path: '/admin-dashboard', name: 'AdminDashboard', component: AdminDashboard },
+  
 ];
 
 const router = createRouter({

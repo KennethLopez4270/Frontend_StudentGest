@@ -7,6 +7,9 @@ import 'animate.css';
 import 'font-awesome/css/font-awesome.min.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
+import { Chart as ChartJS, registerables } from 'chart.js'
+ChartJS.register(...registerables)
+
 import Swal from 'sweetalert2'
 
 // Para colores y más >^. .^<
