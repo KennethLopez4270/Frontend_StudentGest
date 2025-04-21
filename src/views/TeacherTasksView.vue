@@ -6,13 +6,6 @@
     <!-- Main Content -->
     <div class="main-content">
       <div class="left-section">
-        <!-- Header -->
-        <div class="header animate__animated animate__fadeInDown">
-          <h1 class="animate__animated animate__pulse animate__infinite animate__slow">
-            Bienvenido {{ teacherName }}
-          </h1>
-          <a href="#" class="btn btn-lg">Cerrar Sesión</a>
-        </div>
 
         <!-- Task Management Section -->
         <div class="form-section animate__animated animate__fadeInUp">
@@ -192,17 +185,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Right Section -->
-      <div class="right-section">
-        <div class="profile-card animate__animated animate__fadeInRight">
-          <img src="https://i.pinimg.com/736x/bd/42/8e/bd428e6bb156d90045700dbf3e967c3e.jpg" alt="Profile" class="shadow-lg" />
-          <h3>{{ teacherName }}</h3>
-          <p>Profesor</p>
-          <p><i class="fas fa-building me-1"></i> Academia Prestige</p>
-          <p><i class="fas fa-calendar-alt me-1"></i> Miembro desde: 01/01/2023</p>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -268,39 +250,43 @@ export default {
   },
   methods: {
     addTask() {
-      const newTask = {
-        id: this.tasks.length + 1,
-        studentId: this.newTask.studentId,
-        title: this.newTask.title,
-        subject: this.newTask.subject,
-        description: this.newTask.description,
-        instructions: this.newTask.instructions,
-        materials: this.newTask.materials || 'No especificado',
-        assignedDate: new Date().toLocaleDateString('es-ES', {
-          day: 'numeric',
-          month: 'numeric',
-          year: 'numeric',
-        }),
-        dueDate: new Date(this.newTask.dueDate).toLocaleDateString('es-ES', {
-          day: 'numeric',
-          month: 'numeric',
-          year: 'numeric',
-        }),
-        status: 'pending',
-        grade: null,
-        comments: null,
+      const tareaPayload = {
+        idCmp: 1,
+        titulo: this.newTask.title,
+        descripcion: this.newTask.description,
+        fechaEntrega: this.newTask.dueDate, // En formato YYYY-MM-DD
       };
-      this.tasks.push(newTask);
-      this.newTask = {
-        title: '',
-        subject: '',
-        description: '',
-        instructions: '',
-        materials: '',
-        dueDate: '',
-        studentId: '',
-      };
-      alert('Tarea registrada exitosamente.');
+
+      fetch('http://localhost:8080/api/homework/tareas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tareaPayload),
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al registrar la tarea');
+          }
+          return response.json();
+        })
+        .then(data => {
+          alert('Tarea registrada exitosamente en el backend 🎯');
+          // Limpia el formulario
+          this.newTask = {
+            title: '',
+            subject: '',
+            description: '',
+            instructions: '',
+            materials: '',
+            dueDate: '',
+            studentId: '',
+          };
+        })
+        .catch(error => {
+          console.error(error);
+          alert('Ocurrió un error al registrar la tarea 😓');
+        });
     },
     getStudentName(studentId) {
       const student = this.students.find(s => s.id === studentId);

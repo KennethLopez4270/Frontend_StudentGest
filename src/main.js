@@ -1,3 +1,4 @@
+//src/main.js
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
@@ -9,8 +10,6 @@ import '@fortawesome/fontawesome-free/css/all.css';
 
 import { Chart as ChartJS, registerables } from 'chart.js'
 ChartJS.register(...registerables)
-
-import Swal from 'sweetalert2'
 
 // Para colores y más >^. .^<
 import './assets/themes/light-theme.css'; // Tema predeterminado
