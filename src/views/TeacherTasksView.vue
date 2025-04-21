@@ -6,11 +6,10 @@
     <!-- Main Content -->
     <div class="main-content">
       <div class="left-section">
-
         <!-- Task Management Section -->
         <div class="form-section animate__animated animate__fadeInUp">
           <h2>Gestión de Tareas</h2>
-          <p class="text-sm text-gray-600 mb-4">Registra, califica y comenta las tareas de los estudiantes.</p>
+          <p class="text-sm text-gray-600 mb-4">Registra nuevas tareas para tus cursos.</p>
 
           <!-- Formulario para Registrar Nueva Tarea -->
           <div class="new-task-form mb-5">
@@ -28,21 +27,30 @@
                     required
                   />
                 </div>
+                
                 <div class="col-md-6">
-                  <label for="taskSubject" class="form-label">Materia</label>
+                  <label for="taskCourse" class="form-label">Curso</label>
                   <select
-                    id="taskSubject"
-                    v-model="newTask.subject"
+                    id="taskCourse"
+                    v-model="newTask.courseId"
                     class="form-select shadow-sm"
                     required
+                    :disabled="loadingCourses"
                   >
                     <option value="" disabled>-- Seleccionar --</option>
-                    <option value="Ciencias">Ciencias</option>
-                    <option value="Matemáticas">Matemáticas</option>
-                    <option value="Español">Español</option>
-                    <option value="Historia">Historia</option>
+                    <option 
+                      v-for="course in courses" 
+                      :key="course.nombreCurso"
+                      :value="course.nombreCurso"
+                    >
+                      {{ course.nombreMateria }} - {{ course.nivel }} ({{ course.turno }})
+                    </option>
                   </select>
+                  <div v-if="loadingCourses" class="spinner-border spinner-border-sm mt-2" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                  </div>
                 </div>
+                
                 <div class="col-md-12">
                   <label for="taskDescription" class="form-label">Descripción</label>
                   <textarea
@@ -54,27 +62,7 @@
                     required
                   ></textarea>
                 </div>
-                <div class="col-md-6">
-                  <label for="taskInstructions" class="form-label">Instrucciones</label>
-                  <textarea
-                    id="taskInstructions"
-                    v-model="newTask.instructions"
-                    class="form-control shadow-sm"
-                    placeholder="Instrucciones detalladas..."
-                    rows="2"
-                    required
-                  ></textarea>
-                </div>
-                <div class="col-md-6">
-                  <label for="taskMaterials" class="form-label">Materiales Necesarios</label>
-                  <input
-                    type="text"
-                    id="taskMaterials"
-                    v-model="newTask.materials"
-                    class="form-control shadow-sm"
-                    placeholder="Ej: Cartulinas, lápices..."
-                  />
-                </div>
+                
                 <div class="col-md-6">
                   <label for="taskDueDate" class="form-label">Fecha de Entrega</label>
                   <input
@@ -85,101 +73,44 @@
                     required
                   />
                 </div>
-                <div class="col-md-6">
-                  <label for="taskStudent" class="form-label">Estudiante</label>
-                  <select
-                    id="taskStudent"
-                    v-model="newTask.studentId"
-                    class="form-select shadow-sm"
-                    required
-                  >
-                    <option value="" disabled>-- Seleccionar --</option>
-                    <option v-for="student in students" :key="student.id" :value="student.id">
-                      {{ student.name }}
-                    </option>
-                  </select>
-                </div>
+                
                 <div class="col-md-12 text-center">
-                  <button type="submit" class="btn btn-primary mt-3">
-                    <i class="fas fa-plus me-1"></i> Registrar Tarea
+                  <button 
+                    type="submit" 
+                    class="btn btn-primary mt-3"
+                    :disabled="loading"
+                  >
+                    <span v-if="loading" class="spinner-border spinner-border-sm" role="status"></span>
+                    <i v-else class="fas fa-plus me-1"></i> 
+                    {{ loading ? 'Registrando...' : 'Registrar Tarea' }}
                   </button>
                 </div>
               </div>
             </form>
           </div>
 
-          <!-- Lista de Tareas Asignadas -->
+          <!-- Lista de Tareas Creadas -->
           <div class="tasks-section">
-            <h3>Tareas Asignadas</h3>
+            <h3>Tareas Recientes</h3>
             <div v-if="tasks.length === 0" class="no-tasks text-center text-gray-600">
-              No hay tareas asignadas.
+              No hay tareas registradas.
             </div>
             <div v-else class="tasks-list">
               <div
                 v-for="task in tasks"
                 :key="task.id"
                 class="task-card animate__animated animate__fadeInUp"
-                :class="{
-                  'border-warning': task.status === 'pending',
-                  'border-info': task.status === 'submitted',
-                  'border-success': task.status === 'graded'
-                }"
               >
                 <div class="d-flex justify-content-between align-items-start mb-2">
                   <h5>{{ task.title }}</h5>
-                  <span class="type-badge" :class="taskStatusClass(task)">
-                    {{ task.status === 'pending' ? 'Pendiente' : task.status === 'submitted' ? 'Entregada' : 'Calificada' }}
+                  <span class="type-badge">
+                    {{ task.course }}
                   </span>
                 </div>
-                <p class="small text-muted mb-2">
-                  <i class="fas fa-book me-1"></i>{{ task.subject }}
-                </p>
                 <p class="small mb-2">
-                  <i class="fas fa-user me-1"></i>Estudiante: {{ getStudentName(task.studentId) }}
-                </p>
-                <p class="small mb-2">
-                  <i class="far fa-clock me-1"></i>Fecha de Entrega: {{ task.dueDate }}
+                  <i class="fas fa-calendar-day me-1"></i>Entrega: {{ formatDate(task.dueDate) }}
                 </p>
                 <p class="small mb-3">{{ task.description }}</p>
-
-                <!-- Formulario para Calificar y Comentar -->
-                <div v-if="task.status !== 'pending'" class="grade-form mt-3">
-                  <h6>Calificar y Comentar</h6>
-                  <div class="row g-3">
-                    <div class="col-md-4">
-                      <label :for="'grade-' + task.id" class="form-label">Calificación (0-100)</label>
-                      <input
-                        :id="'grade-' + task.id"
-                        type="number"
-                        v-model="task.grade"
-                        class="form-control shadow-sm"
-                        min="0"
-                        max="100"
-                        :disabled="task.status === 'graded'"
-                      />
-                    </div>
-                    <div class="col-md-8">
-                      <label :for="'comment-' + task.id" class="form-label">Comentarios</label>
-                      <textarea
-                        :id="'comment-' + task.id"
-                        v-model="task.comments"
-                        class="form-control shadow-sm"
-                        placeholder="Escribe tus comentarios..."
-                        rows="2"
-                        :disabled="task.status === 'graded'"
-                      ></textarea>
-                    </div>
-                    <div class="col-md-12 text-center">
-                      <button
-                        v-if="task.status !== 'graded'"
-                        class="btn btn-primary btn-sm mt-2"
-                        @click="submitGrade(task)"
-                      >
-                        <i class="fas fa-check me-1"></i> Guardar Calificación
-                      </button>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -190,6 +121,7 @@
 </template>
 
 <script>
+import { showSuccess, showError } from '@/utils/useAlert';
 import 'animate.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -201,112 +133,104 @@ export default {
   components: { Sidebar },
   data() {
     return {
-      teacherName: 'Prof. Marta Pérez',
+      loading: false,
+      loadingCourses: false,
       newTask: {
         title: '',
-        subject: '',
+        courseId: '',
         description: '',
-        instructions: '',
-        materials: '',
-        dueDate: '',
-        studentId: '',
+        dueDate: ''
       },
-      students: [
-        { id: 1, name: 'Ana González' },
-        { id: 2, name: 'Carlos González' },
-        { id: 3, name: 'Lucía González' },
-      ],
-      tasks: [
-        {
-          id: 1,
-          studentId: 1,
-          title: 'Proyecto de Ciencias',
-          description: 'Investigación sobre el sistema solar con maqueta',
-          instructions: 'Realizar una investigación sobre los planetas y construir una maqueta del sistema solar.',
-          materials: 'Cartulinas, pinturas, esferas de poliestireno',
-          subject: 'Ciencias',
-          assignedDate: '10/04/2025',
-          dueDate: '20/04/2025',
-          status: 'pending',
-          grade: null,
-          comments: null,
-        },
-        {
-          id: 2,
-          studentId: 2,
-          title: 'Ejercicios de Matemáticas',
-          description: 'Páginas 45-50 del libro de ejercicios',
-          instructions: 'Resolver los ejercicios de álgebra en las páginas indicadas.',
-          materials: 'Libro de matemáticas, calculadora',
-          subject: 'Matemáticas',
-          assignedDate: '08/04/2025',
-          dueDate: '14/04/2025',
-          status: 'submitted',
-          grade: null,
-          comments: null,
-        },
-      ],
+      courses: [],
+      tasks: []
     };
   },
+  async created() {
+    await this.loadCourses();
+  },
   methods: {
-    addTask() {
-      const tareaPayload = {
-        idCmp: 1,
-        titulo: this.newTask.title,
-        descripcion: this.newTask.description,
-        fechaEntrega: this.newTask.dueDate, // En formato YYYY-MM-DD
-      };
-
-      fetch('http://localhost:8080/api/homework/tareas', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(tareaPayload),
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Error al registrar la tarea');
-          }
-          return response.json();
-        })
-        .then(data => {
-          alert('Tarea registrada exitosamente en el backend 🎯');
-          // Limpia el formulario
-          this.newTask = {
-            title: '',
-            subject: '',
-            description: '',
-            instructions: '',
-            materials: '',
-            dueDate: '',
-            studentId: '',
-          };
-        })
-        .catch(error => {
-          console.error(error);
-          alert('Ocurrió un error al registrar la tarea 😓');
-        });
-    },
-    getStudentName(studentId) {
-      const student = this.students.find(s => s.id === studentId);
-      return student ? student.name : 'Desconocido';
-    },
-    submitGrade(task) {
-      if (task.grade !== null && task.grade >= 0 && task.grade <= 100) {
-        task.status = 'graded';
-        alert(`Calificación guardada para "${task.title}": ${task.grade}/100`);
-      } else {
-        alert('Por favor, introduce una calificación válida entre 0 y 100.');
+    async loadCourses() {
+      try {
+        this.loadingCourses = true;
+        // El 4 es el ID del profesor (deberías obtenerlo del usuario logueado)
+        const response = await fetch('http://localhost:8080/api/students/curso_materia/4');
+        
+        if (!response.ok) {
+          throw new Error('Error al cargar los cursos');
+        }
+        
+        this.courses = await response.json();
+        
+      } catch (error) {
+        console.error(error);
+        showError('Error', 'No se pudieron cargar los cursos');
+      } finally {
+        this.loadingCourses = false;
       }
     },
-    taskStatusClass(task) {
-      return {
-        'pending-badge': task.status === 'pending',
-        'submitted-badge': task.status === 'submitted',
-        'graded-badge': task.status === 'graded',
-      };
+    
+    async addTask() {
+      try {
+        this.loading = true;
+        
+        // Encontrar el curso seleccionado para obtener más datos
+        const selectedCourse = this.courses.find(c => c.nombreCurso === this.newTask.courseId);
+        
+        if (!selectedCourse) {
+          throw new Error('Curso no encontrado');
+        }
+
+        const payload = {
+          idCmp: 1, // Valor constante por ahora
+          titulo: this.newTask.title,
+          descripcion: this.newTask.description,
+          fechaEntrega: this.newTask.dueDate
+        };
+
+        const response = await fetch('http://localhost:8080/api/homework/tareas', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al registrar la tarea');
+        }
+
+        // Agregar a la lista local
+        this.tasks.unshift({
+          id: Date.now(),
+          title: this.newTask.title,
+          description: this.newTask.description,
+          course: `${selectedCourse.nombreMateria} - ${selectedCourse.nivel}`,
+          dueDate: this.newTask.dueDate
+        });
+
+        // Limpiar formulario
+        this.newTask = {
+          title: '',
+          courseId: '',
+          description: '',
+          dueDate: ''
+        };
+
+        showSuccess('Tarea registrada', 'La tarea se ha registrado exitosamente');
+
+      } catch (error) {
+        console.error(error);
+        showError('Error', error.message || 'Ocurrió un error al registrar la tarea');
+      } finally {
+        this.loading = false;
+      }
     },
-  },
+    
+    formatDate(dateString) {
+      if (!dateString) return 'Sin fecha';
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('es-ES', options);
+    }
+  }
 };
 </script>
