@@ -9,76 +9,6 @@ body {
     display: flex;
   }
   
-  /* Sidebar */
-  .sidebar {
-    background: #1a2e4a;
-    height: 100vh;
-    position: fixed;
-    width: 220px;
-    padding: 1.5rem;
-    box-shadow: 2px 0 8px rgba(26, 46, 74, 0.4);
-    clip-path: polygon(0 0, 85% 0, 100% 15%, 100% 85%, 85% 100%, 0 100%);
-    transition: all 0.3s ease;
-  }
-  
-  .sidebar:hover {
-    clip-path: polygon(0 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 0 100%);
-    box-shadow: 3px 0 12px rgba(26, 46, 74, 0.5);
-  }
-  
-  .sidebar .logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-  }
-  
-  .sidebar .logo::before {
-    content: '';
-    width: 8px;
-    height: 8px;
-    background: #8b2e3c;
-    border-radius: 50%;
-    margin-right: 0.5rem;
-  }
-  
-  .sidebar .logo::after {
-    content: '';
-    width: 8px;
-    height: 8px;
-    background: #355e3b;
-    border-radius: 50%;
-    margin-left: 0.5rem;
-  }
-  
-  .sidebar a {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem;
-    color: #e0e7ff;
-    text-decoration: none;
-    border-radius: 6px;
-    margin-bottom: 0.5rem;
-    transition: all 0.3s ease;
-  }
-  
-  .sidebar a:hover,
-  .sidebar a.active {
-    background: rgba(255, 255, 255, 0.05);
-    color: #d4c08a;
-    transform: scale(1.02);
-    box-shadow: 0 0 6px rgba(26, 46, 74, 0.3);
-  }
-  
-  .sidebar a i {
-    margin-right: 0.75rem;
-    color: #a3bffa;
-  }
-  
   /* Main Content */
   .main-content {
     margin-left: 220px;
@@ -94,44 +24,6 @@ body {
   
   .right-section {
     flex: 1;
-  }
-  
-  /* Header */
-  .header {
-    background: linear-gradient(135deg, #1a2e4a 0%, #355e3b 100%);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 16px rgba(26, 46, 74, 0.4);
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  }
-  
-  .header .btn {
-    background: #d4c08a;
-    color: #1a2e4a;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(26, 46, 74, 0.4);
-  }
-  
-  .header .btn:hover {
-    background: #ffffff;
-    color: #355e3b;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(26, 46, 74, 0.5);
   }
   
   /* Form Section */

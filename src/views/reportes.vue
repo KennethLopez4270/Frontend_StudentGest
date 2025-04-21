@@ -1,30 +1,7 @@
 <template>
     <div class="wrapper">
       <!-- Sidebar -->
-      <div class="sidebar animate__animated animate__fadeInLeft">
-        <div class="logo">Academia</div>
-        <router-link to="/" :class="{ active: $route.name === 'Home' }">
-          <i class="fas fa-tachometer-alt"></i> Dashboard
-        </router-link>
-        <router-link to="/control-asistencia" :class="{ active: $route.name === 'ControlAsistencia' }">
-          <i class="fas fa-users"></i> Estudiantes
-        </router-link>
-        <router-link to="/reportes" :class="{ active: $route.name === 'Reportes' }">
-          <i class="fas fa-chart-line"></i> Reportes
-        </router-link>
-        <router-link to="/historial-academico" :class="{ active: $route.name === 'HistorialAcademico' }">
-          <i class="fas fa-book"></i> Tareas
-        </router-link>
-        <router-link to="/calificaciones" :class="{ active: $route.name === 'Calificaciones' }">
-          <i class="fas fa-star"></i> Calificaciones
-        </router-link>
-        <router-link to="/calendario" :class="{ active: $route.name === 'Calendario' }">
-          <i class="fas fa-calendar-alt"></i> Calendario
-        </router-link>
-        <router-link to="/justificar-ausencias" :class="{ active: $route.name === 'JustificarAusencias' }">
-          <i class="fas fa-file-alt"></i> Justificar Ausencias
-        </router-link>
-      </div>
+      <Sidebar />
   
       <!-- Main Content -->
       <div class="main-content">
@@ -177,9 +154,11 @@
   import 'animate.css';
   import 'bootstrap/dist/css/bootstrap.min.css';
   import '@/assets/reportesA.css';
+import Sidebar from '../components/Sidebar.vue';
   
   export default {
     name: 'Reportes',
+    components: { Sidebar },
     data() {
       return {
         usuario: {

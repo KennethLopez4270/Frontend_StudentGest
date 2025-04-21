@@ -1,0 +1,23 @@
+:root {
+  /* 🎨 Colores base */
+  --color-primary: #1a2c44; /* Azul profundo, mantiene el carácter elegante */
+  --color-secondary: #a1744c; /* Marrón claro suave, más moderno */
+  --color-accent: #355e3b; /* Rojo terracota, cálido y llamativo */
+  --color-info: #f4a261; /* Naranja suave, complementa el terracota */
+
+  /* 🌫️ Colores neutros */
+  --color-light: #f4f3ff; /* Beige claro más neutral, para mejor contraste */
+  --color-dark: #1e1e2f; /* Azul casi negro, da un look más pro que gris puro */
+  
+  /* 🎨 Colores hover */
+  --hover-primary: #2c3e5e; /* Más contraste en hover */
+  --hover-secondary: #8c5a34; /* Más elegante y suave al pasar el mouse */
+  --hover-accent: #d1503a; /* Más oscuro que el accent para marcar acción */
+
+  /* 🎯 Semánticos */
+  --color-bg: var(--color-light);
+  
+  /* ✒️ Tipografías */
+  --font-title: 'Playfair Display', serif;
+  --font-body: 'Inter', sans-serif;
+}
