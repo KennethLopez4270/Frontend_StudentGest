@@ -8,7 +8,6 @@
         <div class="left-section">
           <!-- Header -->
           <div class="header animate__animated animate__fadeInDown">
-            <h1 class="animate__animated animate__pulse animate__infinite animate__slow">Bienvenido {{ usuario.nombre }} {{ usuario.apellido_paterno }}</h1>
             <a href="#" class="btn btn-lg">Exportar Reporte</a>
           </div>
   
@@ -164,7 +163,7 @@ import Sidebar from '../components/Sidebar.vue';
         usuario: {
           nombre: 'Juan',
           apellido_paterno: 'Gómez',
-          rol: 'tutor',
+          rol: 'Director',
           id: 1
         },
         estudiantes: [

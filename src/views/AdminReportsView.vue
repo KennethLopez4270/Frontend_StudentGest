@@ -6,14 +6,7 @@
       <!-- Main Content -->
       <div class="main-content">
         <div class="left-section">
-          <!-- Header -->
-          <div class="header animate__animated animate__fadeInDown">
-            <h1 class="animate__animated animate__pulse animate__infinite animate__slow">
-              Bienvenido {{ adminName }}
-            </h1>
-            <a href="#" class="btn btn-lg">Cerrar Sesión</a>
-          </div>
-  
+
           <!-- Reports Section -->
           <div class="form-section animate__animated animate__fadeInUp">
             <h2>Generar Informes Administrativos</h2>

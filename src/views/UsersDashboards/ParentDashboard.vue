@@ -9,10 +9,7 @@
     <div class="content-column">
       <WelcomeBanner />
       <div class="content">
-        <HijosInscritos />
-        <ResumenHijos />
-        <GraficaDesempeno />
-        <CalendarioEscolar /> <!-- Este lo tienes tú -->
+          <!--Aquí los demás componentes-->
       </div>
     </div>
   </div>
@@ -21,10 +18,6 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue'
 import WelcomeBanner from '@/components/WelcomeBanner.vue'
-import HijosInscritos from '@/components/HijosInscritos.vue'
-import ResumenHijos from '@/components/ResumenHijos.vue'
-import GraficaDesempeno from '@/components/GraficaDesempeno.vue'
-
 </script>
 
 <style scoped>
@@ -35,8 +28,8 @@ import GraficaDesempeno from '@/components/GraficaDesempeno.vue'
 }
 
 .sidebar-column {
-  width: 240px;
-  background-color: var(--color-sidebar);
+  width: 240px; /* o el ancho real de tu sidebar */
+  background-color: var(--color-sidebar); /* puedes definirlo en tu tema */
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
@@ -48,11 +41,7 @@ import GraficaDesempeno from '@/components/GraficaDesempeno.vue'
   overflow-y: auto;
   padding: 0 0 0 10px;
 }
-
-.content {
+.content{
   padding: 10px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 16px;
 }
 </style>

@@ -56,7 +56,7 @@
           <div class="grades-section mb-5">
             <div class="section-header d-flex justify-content-between align-items-center mb-4">
               <h3>Calificaciones Recientes</h3>
-              <router-link to="#" class="btn">Ver Todas</router-link>
+              <!-- <router-link to="#" class="btn">Ver Todas</router-link> -->
             </div>
             <div class="row g-3">
               <div v-for="grade in filteredGrades" :key="grade.id" class="col-md-6 col-lg-3">
@@ -89,51 +89,52 @@
           <div class="tasks-section">
             <div class="section-header d-flex justify-content-between align-items-center mb-4">
               <h3>Tareas Pendientes</h3>
-              <router-link to="#" class="btn">Ver Todas</router-link>
+              <!-- <router-link to="#" class="btn">Ver Todas</router-link> -->
             </div>
             <div class="row g-3">
-              <div v-for="task in filteredTasks" :key="task.id" class="col-md-6 col-lg-4">
+              <div v-for="task in filteredHomework" :key="task.idEntrega" class="col-md-6 col-lg-4">
                 <div
                   class="task-card animate__animated animate__fadeInUp"
                   :class="{
-                    'border-danger': task.status === 'pending' && task.isOverdue,
-                    'border-success': task.status === 'completed'
+                    'border-danger': task.estado === 'pendiente' && isOverdue(task.fechaEntrega),
+                    'border-success': task.estado === 'entregado'
                   }"
                 >
                   <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h5>{{ task.title }}</h5>
-                    <span class="type-badge" :class="taskStatusClass(task)">
-                      <i :class="taskStatusIcon(task)"></i>
+                    <h5>Tarea #{{ task.idTarea }}</h5>
+                    <span class="type-badge" :class="homeworkStatusClass(task)">
+                      <i :class="homeworkStatusIcon(task)"></i>
                     </span>
                   </div>
                   <p class="small text-muted mb-2">
-                    <i class="fas fa-book me-1"></i>{{ task.subject }}
+                    <i class="fas fa-book me-1"></i>Asignatura no especificada
                   </p>
-                  <p class="small mb-3">{{ task.description }}</p>
+                  <p class="small mb-3">{{ task.comentario || 'Sin comentarios' }}</p>
                   <div class="d-flex justify-content-between align-items-center">
                     <span
                       class="small"
                       :class="{
-                        'text-danger': task.status === 'pending' && task.isOverdue,
-                        'text-success': task.status === 'completed'
+                        'text-danger': task.estado === 'pendiente' && isOverdue(task.fechaEntrega),
+                        'text-success': task.estado === 'entregado'
                       }"
                     >
-                      <i class="far fa-clock me-1"></i>{{ task.dueDate }}
+                      <i class="far fa-clock me-1"></i>
+                      {{ task.fechaEntrega ? formatDate(task.fechaEntrega) : 'Sin fecha' }}
                     </span>
                     <button
                       class="btn btn-sm"
                       :class="{
-                        'btn-danger': task.status === 'pending' && task.isOverdue,
-                        'btn-primary': task.status === 'pending' && !task.isOverdue,
-                        'btn-success': task.status === 'completed'
+                        'btn-danger': task.estado === 'pendiente' && isOverdue(task.fechaEntrega),
+                        'btn-primary': task.estado === 'pendiente' && !isOverdue(task.fechaEntrega),
+                        'btn-success': task.estado === 'entregado'
                       }"
                     >
-                      {{ task.status === 'completed' ? 'Completada' : task.isOverdue ? 'Atrasada' : 'Pendiente' }}
+                      {{ task.estado === 'entregado' ? 'Entregada' : isOverdue(task.fechaEntrega) ? 'Atrasada' : 'Pendiente' }}
                     </button>
                   </div>
                 </div>
               </div>
-              <div v-if="filteredTasks.length === 0" class="col-12 text-center text-gray-600">
+              <div v-if="filteredHomework.length === 0" class="col-12 text-center text-gray-600">
                 No hay tareas disponibles para este estudiante.
               </div>
             </div>
@@ -146,23 +147,22 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Sidebar from '../components/Sidebar.vue';
-import WelcomeUser from '../components/WelcomeBanner.vue';
-import UserInfoCard from '../components/UserInfoCard.vue';
 import 'animate.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@/assets/parentDashboard.css';
 
-const parentName = ref('María González');
+// Datos del padre y estado del componente
+const parentName = ref('');
 const currentStudentIndex = ref(0);
+const isLoading = ref(true);
 
-const students = ref([
-  { id: 1, name: 'Ana González', grade: '5° Primaria', section: 'Sección A', avatar: null },
-  { id: 2, name: 'Carlos González', grade: '2° Secundaria', section: 'Sección B', avatar: null },
-  { id: 3, name: 'Lucía González', grade: '3° Primaria', section: 'Sección C', avatar: null }
-]);
+// Datos de estudiantes (se cargarán desde la API)
+const students = ref([]);
+const homework = ref([]); // Nuevo: Para almacenar las tareas del API
 
+// Datos de ejemplo para calificaciones
 const sampleGrades = ref([
   { id: 1, studentId: 1, subject: 'Matemáticas', score: 85, date: '15/03/2023' },
   { id: 2, studentId: 1, subject: 'Ciencias', score: 78, date: '10/03/2023' },
@@ -170,59 +170,103 @@ const sampleGrades = ref([
   { id: 4, studentId: 3, subject: 'Español', score: 65, date: '05/03/2023' }
 ]);
 
-const sampleTasks = ref([
-  {
-    id: 1,
-    studentId: 1,
-    title: 'Proyecto de Ciencias',
-    description: 'Investigación sobre el sistema solar con maqueta',
-    subject: 'Ciencias',
-    dueDate: '20/03/2023',
-    status: 'pending',
-    isOverdue: false
-  },
-  {
-    id: 2,
-    studentId: 2,
-    title: 'Ejercicios de Matemáticas',
-    description: 'Páginas 45-50 del libro de ejercicios',
-    subject: 'Matemáticas',
-    dueDate: '18/03/2023',
-    status: 'pending',
-    isOverdue: true
-  },
-  {
-    id: 3,
-    studentId: 2,
-    title: 'Ensayo literario',
-    description: 'Redactar un ensayo sobre la obra "Cien años de soledad"',
-    subject: 'Español',
-    dueDate: '22/03/2023',
-    status: 'pending',
-    isOverdue: false
-  },
-  {
-    id: 4,
-    studentId: 3,
-    title: 'Dibujo histórico',
-    description: 'Representar una escena de la independencia',
-    subject: 'Historia',
-    dueDate: '10/03/2023',
-    status: 'completed',
-    isOverdue: false
+// Obtener el ID del padre desde localStorage
+const userData = JSON.parse(localStorage.getItem("user"));
+const parentId = userData?.id;
+
+// Cargar los hijos del padre
+async function loadChildren() {
+  if (!parentId) {
+    console.error("No se encontró el ID del padre");
+    return;
   }
-]);
+  
+  try {
+    isLoading.value = true;
+    const response = await fetch(`http://localhost:8080/api/students/hijos/${parentId}`);
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    // Mapear los datos de la API al formato esperado
+    students.value = data.map(student => ({
+      id: student.id_estudiante,
+      name: `${student.nombre} ${student.apellido_paterno || ''} ${student.apellido_materno || ''}`.trim(),
+      grade: 'Grado no especificado',
+      section: 'Sección no especificada',
+      avatar: student.foto
+    }));
+    
+    // Establecer el nombre del padre para mostrar
+    parentName.value = `${userData.nombre} ${userData.apellido_paterno || ''}`.trim();
+    
+  } catch (error) {
+    console.error('Error al cargar los estudiantes:', error);
+    students.value = [
+      { id: 1, name: 'Ana González', grade: '5° Primaria', section: 'Sección A', avatar: null },
+      { id: 2, name: 'Carlos González', grade: '2° Secundaria', section: 'Sección B', avatar: null }
+    ];
+  } finally {
+    isLoading.value = false;
+  }
+}
 
-const currentStudent = computed(() => students.value[currentStudentIndex.value]);
+// Cargar las tareas desde el API
+async function loadHomework() {
+  try {
+    const response = await fetch('http://localhost:8080/api/homework/entregas');
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    homework.value = await response.json();
+  } catch (error) {
+    console.error('Error al cargar las tareas:', error);
+    homework.value = [];
+  }
+}
 
-const filteredGrades = computed(() =>
-  sampleGrades.value.filter((grade) => grade.studentId === currentStudent.value.id)
-);
+// Formatear fecha
+function formatDate(dateString) {
+  if (!dateString) return 'Sin fecha';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('es-ES');
+}
 
-const filteredTasks = computed(() =>
-  sampleTasks.value.filter((task) => task.studentId === currentStudent.value.id)
-);
+// Verificar si la tarea está vencida
+function isOverdue(dateString) {
+  if (!dateString) return false;
+  const dueDate = new Date(dateString);
+  const today = new Date();
+  return dueDate < today;
+}
 
+// Cargar los datos cuando el componente se monta
+onMounted(() => {
+  loadChildren();
+  loadHomework();
+});
+
+// Computed properties
+const currentStudent = computed(() => {
+  return students.value.length > 0 
+    ? students.value[currentStudentIndex.value] 
+    : { id: null };
+});
+
+const filteredGrades = computed(() => {
+  if (!currentStudent.value?.id) return [];
+  return sampleGrades.value.filter((grade) => grade.studentId === currentStudent.value.id);
+});
+
+const filteredHomework = computed(() => {
+  if (!currentStudent.value?.id) return [];
+  return homework.value.filter((task) => task.idEstudiante === currentStudent.value.id);
+});
+
+// Funciones del carrusel
 function prevStudent() {
   if (currentStudentIndex.value > 0) {
     currentStudentIndex.value--;
@@ -239,6 +283,7 @@ function selectStudent(index) {
   currentStudentIndex.value = index;
 }
 
+// Funciones de estilo
 function gradeClass(score) {
   return {
     'bg-danger': score < 60,
@@ -247,19 +292,19 @@ function gradeClass(score) {
   };
 }
 
-function taskStatusClass(task) {
+function homeworkStatusClass(task) {
   return {
-    'ausente-badge': task.status === 'pending' && task.isOverdue,
-    'tardanza-badge': task.status === 'pending' && !task.isOverdue,
-    'presente-badge': task.status === 'completed'
+    'ausente-badge': task.estado === 'pendiente' && isOverdue(task.fechaEntrega),
+    'tardanza-badge': task.estado === 'pendiente' && !isOverdue(task.fechaEntrega),
+    'presente-badge': task.estado === 'entregado'
   };
 }
 
-function taskStatusIcon(task) {
+function homeworkStatusIcon(task) {
   return {
-    'fas fa-exclamation-circle': task.status === 'pending' && task.isOverdue,
-    'far fa-clock': task.status === 'pending' && !task.isOverdue,
-    'fas fa-check-circle': task.status === 'completed'
+    'fas fa-exclamation-circle': task.estado === 'pendiente' && isOverdue(task.fechaEntrega),
+    'far fa-clock': task.estado === 'pendiente' && !isOverdue(task.fechaEntrega),
+    'fas fa-check-circle': task.estado === 'entregado'
   };
 }
 </script>

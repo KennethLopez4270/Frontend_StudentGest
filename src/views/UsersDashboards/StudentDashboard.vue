@@ -17,7 +17,6 @@
         <ResumenGeneral />
       </div>
       
-      
     </div>
   </div>
 </template>
