@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Botón de hamburguesa para móviles -->
+    <!-- Botón de hamburguesa siempre fijo -->
     <button 
       v-if="isMobile"
       class="hamburger-btn"
@@ -80,6 +80,12 @@ const checkScreenSize = () => {
 const toggleSidebar = () => {
   if (isMobile.value) {
     isSidebarOpen.value = !isSidebarOpen.value
+    // Bloquear/desbloquear scroll del body cuando el sidebar está abierto
+    if (isSidebarOpen.value) {
+      document.body.classList.add('no-scroll')
+    } else {
+      document.body.classList.remove('no-scroll')
+    }
   } else {
     isCollapsed.value = !isCollapsed.value
   }
@@ -89,6 +95,7 @@ const toggleSidebar = () => {
 const handleNavClick = () => {
   if (isMobile.value) {
     isSidebarOpen.value = false
+    document.body.classList.remove('no-scroll')
   }
 }
 
@@ -134,10 +141,10 @@ const loadMenuItems = () => {
   menuItems.value = roleBasedMenus[role] || []
 }
 
-// Observar cambios en la ruta
 watch(() => route.name, () => {
   if (isMobile.value) {
     isSidebarOpen.value = false
+    document.body.classList.remove('no-scroll')
   }
 })
 
@@ -149,17 +156,17 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkScreenSize)
+  document.body.classList.remove('no-scroll')
 })
 </script>
 
 <style scoped>
-/* Estructura principal */
 .sidebar {
   background: var(--color-primary);
   color: var(--color-light);
   height: 100vh;
   width: 245px;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, width 0.3s ease;
   overflow: hidden;
   position: fixed;
   display: flex;
@@ -176,9 +183,10 @@ onUnmounted(() => {
   border-radius: 0 40px 40px 0;
   z-index: 1000;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  top: 0;
+  left: 0;
 }
 
-/* Logo */
 .logo {
   display: flex;
   align-items: center;
@@ -213,7 +221,6 @@ onUnmounted(() => {
   object-fit: cover;
 }
 
-/* Navegación */
 nav {
   width: 100%;
   flex-grow: 1;
@@ -268,7 +275,6 @@ nav {
   font-size: 0.95rem;
 }
 
-/* Sidebar colapsado */
 .sidebar.collapsed {
   width: 65px;
 }
@@ -298,7 +304,6 @@ nav {
   transform: none;
 }
 
-/* Estilos para móviles */
 .hamburger-btn {
   position: fixed;
   top: 15px;
@@ -335,29 +340,41 @@ nav {
     transform: translateX(-100%);
     clip-path: none;
     border-radius: 0;
+    height: 100vh !important;
+    overflow-y: auto;
   }
-  
+
   .sidebar.mobile-open {
     transform: translateX(0);
   }
-  
+
   .sidebar.collapsed {
     width: 280px;
     transform: translateX(-100%);
   }
-  
+
   .sidebar.collapsed .label {
     opacity: 1;
     margin-left: 0.5rem;
   }
-  
+
   .sidebar.collapsed a {
     justify-content: flex-start;
   }
-  
+
   .sidebar.collapsed .logo {
     justify-content: flex-start;
     margin-left: 0.5rem;
   }
+}
+</style>
+
+<style>
+/* Estilo global para el body cuando el sidebar está abierto */
+.no-scroll {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
 }
 </style>

@@ -1,0 +1,26 @@
+:root[data-theme="dark"] {
+/* 🎨 Colores base (ajustados para contraste en fondo oscuro) */
+--color-primary: #7db9ff; /* Azul claro como principal sobre fondo oscuro */
+--color-secondary: #00d6c4; /* Turquesa más brillante */
+--color-accent: #4bb4f0; /* Azul celeste más vibrante para acentos */
+--color-accent-2: #7ee7e3; /* Acento suave más luminoso */
+--color-info: #b3eaff; /* Azul pastel claro, sigue siendo amigable */
+
+/* 🌫️ Colores neutros */
+--color-light: #0b192e; /* Azul muy oscuro para fondo general */
+--color-dark: #eaf4ff; /* Muy claro, se usa como contraste en textos o íconos */
+
+/* 🎨 Colores hover */
+--hover-primary: #a4ccff; /* Azul claro más saturado */
+--hover-secondary: #00b8ad; /* Turquesa fuerte */
+--hover-accent: #3aa6da; /* Azul medio */
+--hover-accent-2: #6fd4cf; /* Versión más viva del accent-2 */
+
+/* 🎯 Semánticos */
+--color-bg: var(--color-light);
+
+/* ✒️ Tipografías */
+--font-title: 'Playfair Display', serif;
+--font-body: 'Inter', sans-serif;
+}
+  

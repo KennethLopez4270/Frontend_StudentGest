@@ -1,22 +1,24 @@
 :root {
   /* 🎨 Colores base */
-  --color-primary: #1a2c44; /* Azul profundo, mantiene el carácter elegante */
-  --color-secondary: #a1744c; /* Marrón claro suave, más moderno */
-  --color-accent: #355e3b; /* Rojo terracota, cálido y llamativo */
-  --color-info: #f4a261; /* Naranja suave, complementa el terracota */
+  --color-primary: #042E5C; /* Azul profundo, profesional */
+  --color-secondary: #00C4B3; /* Turquesa vibrante, moderno */
+  --color-accent: #0485c7; /* Azul claro nuevo para acentos importantes */
+  --color-accent-2: #66d3cf; /* Nuevo color complementario para acentos suaves */
+  --color-info: #7dd4f7; /* Azul pastel muy claro, para info amigable */
 
   /* 🌫️ Colores neutros */
-  --color-light: #f4f3ff; /* Beige claro más neutral, para mejor contraste */
-  --color-dark: #1e1e2f; /* Azul casi negro, da un look más pro que gris puro */
-  
+  --color-light: #f4f8fc; /* Blanco ligeramente azulado, más suave para fondos */
+  --color-dark: #021a3a; /* Azul navy muy oscuro, más elegante que gris puro */
+
   /* 🎨 Colores hover */
-  --hover-primary: #2c3e5e; /* Más contraste en hover */
-  --hover-secondary: #8c5a34; /* Más elegante y suave al pasar el mouse */
-  --hover-accent: #d1503a; /* Más oscuro que el accent para marcar acción */
+  --hover-primary: #2c3e5e; /* Azul intermedio para hover de primary */
+  --hover-secondary: #009b96; /* Turquesa más profundo para hover de secondary */
+  --hover-accent: #036aa3; /* Azul más oscuro para el hover del nuevo accent */
+  --hover-accent-2: #4bb4b0; /* Hover para el accent-2, un turquesa más fuerte */
 
   /* 🎯 Semánticos */
   --color-bg: var(--color-light);
-  
+
   /* ✒️ Tipografías */
   --font-title: 'Playfair Display', serif;
   --font-body: 'Inter', sans-serif;

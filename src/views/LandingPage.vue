@@ -5,7 +5,6 @@
     <Features />
     <Plans />
     <Benefits />
-    <Stats />
     <Testimonials />
     <CallToAction />
     <Footer />
@@ -13,13 +12,12 @@
 </template>
 
 <script setup>
-
+import Navbar from '@/components/landing/Navbar.vue'
 import Hero from '@/components/landing/Hero.vue'
 import Features from '@/components/landing/Features.vue'
 import Plans from '@/components/landing/Plans.vue'
 import Benefits from '@/components/landing/Benefits.vue'
-import Stats from '@/components/landing/Stats.vue'
 import Testimonials from '@/components/landing/Testimonials.vue'
 import CallToAction from '@/components/landing/CallToAction.vue'
-
+import Footer from '@/components/landing/Footer.vue'
 </script>
