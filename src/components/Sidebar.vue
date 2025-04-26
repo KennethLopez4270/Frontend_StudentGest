@@ -162,8 +162,8 @@ onUnmounted(() => {
 
 <style scoped>
 .sidebar {
-  background: var(--color-primary);
-  color: var(--color-light);
+  background: var(--t-color-primary);
+  color: var(--t-color-light);
   height: 100vh;
   width: 245px;
   transition: transform 0.3s ease, width 0.3s ease;
@@ -197,7 +197,7 @@ onUnmounted(() => {
 }
 
 .logo-text {
-  font-family: var(--font-title);
+  font-family: var(--t-font-title);
   font-weight: 700;
   font-size: 1.6rem;
   color: var(--color-light);
@@ -232,7 +232,7 @@ nav {
   display: flex;
   align-items: center;
   padding: 0.75rem;
-  color: var(--color-light);
+  color: var(--t-color-light);
   text-decoration: none;
   border-radius: 6px;
   margin: 0.4rem 0.4rem 0.4rem 0;
@@ -240,13 +240,13 @@ nav {
 }
 
 .sidebar a:hover {
-  background: var(--hover-primary);
+  background: var(--t-hover-primary);
   color: white;
   transform: translateX(5px);
 }
 
 .sidebar a.active {
-  background: var(--color-accent);
+  background: var(--t-color-accent);
   color: white;
   font-weight: 600;
 }
@@ -254,7 +254,7 @@ nav {
 .sidebar i {
   min-width: 30px;
   text-align: center;
-  color: var(--color-light);
+  color: var(--t-color-light);
   font-size: 1.1rem;
   opacity: 0.8;
 }
@@ -270,7 +270,7 @@ nav {
 }
 
 .nav-label {
-  font-family: var(--font-body);
+  font-family: var(--t-font-body);
   margin-left: 0.5rem;
   font-size: 0.95rem;
 }
@@ -308,7 +308,7 @@ nav {
   position: fixed;
   top: 15px;
   left: 15px;
-  background: var(--color-accent);
+  background: var(--t-color-accent);
   color: white;
   border: none;
   border-radius: 50%;

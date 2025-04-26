@@ -147,7 +147,6 @@
   width: 70%;
   max-width: 400px;
   border-radius: 20px;
-  box-shadow: 0 15px 30px rgba(26, 46, 74, 0.4);
   transition: transform 0.4s ease;
   transform: rotate(5deg);
 }
