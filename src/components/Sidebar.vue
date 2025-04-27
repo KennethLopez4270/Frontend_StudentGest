@@ -172,6 +172,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   padding-top: 1.5rem;
+  /*
   clip-path: polygon(
     0 0,
     calc(100% - 50px) 0,
@@ -179,8 +180,7 @@ onUnmounted(() => {
     100% calc(100% - 50px),
     calc(100% - 50px) 100%,
     0 100%
-  );
-  border-radius: 0 40px 40px 0;
+  );*/
   z-index: 1000;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   top: 0;

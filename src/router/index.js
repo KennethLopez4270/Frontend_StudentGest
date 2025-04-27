@@ -17,8 +17,8 @@ import TeacherPerformanceReports from '../views/TeacherPerformanceReports.vue'; 
 import RestaurarPasswordForm from '../components/RestaurarPasswordForm.vue';
 
 import StudentDashboard from '../views/UsersDashboards/StudentDashboard.vue';
-//import ParentDashboard from '../views/UsersDashboards/ParentDashboard.vue';
-import ParentDashboard from '../views/ParentDashboard.vue';
+import ParentDashboard from '../views/UsersDashboards/ParentDashboard.vue';
+//import ParentDashboard from '../views/ParentDashboard.vue';
 import TeacherDashboard from '../views/UsersDashboards/TeacherDashboard.vue';
 import PersonalDashboard from '../views/UsersDashboards/PersonalDashboard.vue';
 import AdminDashboard from '../views/UsersDashboards/AdminDashboard.vue';
