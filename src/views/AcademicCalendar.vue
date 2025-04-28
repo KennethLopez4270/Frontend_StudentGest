@@ -1,13 +1,14 @@
 <template>
-  <div class="wrapper">
-  <!--SIDEBAR-->
-  <Sidebar />
-    <!-- Main Content -->
-    <div class="main-content">
-      <!-- Calendar Section -->
-      <div class="form-section animate__animated animate__fadeInUp">
-        <h2>Calendario Académico</h2>
-        <p class="text-sm text-gray-600 mb-4">Consulta las fechas clave para organizarte mejor.</p>
+  <div class="dashboard-layout">
+    <!-- Columna izquierda: Sidebar -->
+    <div class="sidebar-column">
+      
+    </div>
+
+    <!-- Columna derecha: Contenido principal -->
+    <div class="content-column">
+      <Sidebar />
+      <div class="content">
         <div class="calendar-app">
           <CalendarComponent
             :events="eventos"
@@ -25,66 +26,126 @@
   </div>
 </template>
 
-<script >
+<script setup>
 import 'animate.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { ref, onMounted } from 'vue';
 import CalendarComponent from '@/components/CalendarComponent.vue';
 import DateDetails from '@/components/DateDetails.vue';
 import Sidebar from '@/components/Sidebar.vue';
 
+const parentName = 'María González';
 
-export default {
-  name: 'AcademicCalendar',
-  components: { CalendarComponent, DateDetails, Sidebar },
-  data() {
-    const hoy = new Date();
-    const fechaStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
-    return {
-      parentName: 'María González',
-      students: [
-        { id: 1, name: 'Ana González', grade: '5° Primaria', section: 'Sección A' },
-        { id: 2, name: 'Carlos González', grade: '2° Secundaria', section: 'Sección B' },
-        { id: 3, name: 'Lucía González', grade: '3° Primaria', section: 'Sección C' },
-      ],
-      currentYear: hoy.getFullYear(),
-      currentMonth: hoy.getMonth(),
-      selectedDate: fechaStr,
-      eventos: [
-        { id: 1, date: '2025-04-16', titulo: 'Exámenes 2do Parcial', descripcion: 'Matemáticas', tipo: 'evaluación' },
-        { id: 2, date: '2025-04-16', titulo: 'Exámenes 2do Parcial', descripcion: 'Matemáticas', tipo: 'evaluación' },
-        { id: 3, date: '2025-04-17', titulo: 'Exámenes 2do Parcial', descripcion: 'Lenguaje', tipo: 'evaluación' },
-        { id: 4, date: '2025-04-21', titulo: 'Taller Creativo', descripcion: 'Actividad recreativa', tipo: 'evento' },
-        { id: 5, date: '2025-05-17', titulo: 'Exámenes 2do Parcial', descripcion: 'Lenguaje', tipo: 'evaluación' },
-        { id: 6, date: '2025-05-21', titulo: 'Taller Padres', descripcion: 'Actividad recreativa', tipo: 'evento' },
-      ],
-      eventosDelDia: [],
-      mensaje: '',
-    };
-  },
-  mounted() {
-    this.mostrarEventosDelDia(this.selectedDate);
-  },
-  methods: {
-    updateMonth(newMonth) {
-      this.currentMonth = newMonth;
-    },
-    updateYear(newYear) {
-      this.currentYear = newYear;
-    },
-    mostrarEventosDelDia(fecha) {
-      this.selectedDate = fecha;
-      const eventos = this.eventos.filter(e => e.date === fecha);
-      const hoy = new Date();
-      const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+const students = ref([
+  { id: 1, name: 'Ana González', grade: '5° Primaria', section: 'Sección A' },
+  { id: 2, name: 'Carlos González', grade: '2° Secundaria', section: 'Sección B' },
+  { id: 3, name: 'Lucía González', grade: '3° Primaria', section: 'Sección C' },
+]);
 
-      this.eventosDelDia = eventos;
-      this.mensaje = eventos.length
-        ? ''
-        : fecha === hoyStr
-        ? 'No hay actividades hoy'
-        : `No hay actividades para el ${fecha.split('-').reverse().join('/')}`;
-    },
-  },
-};
+const hoy = new Date();
+const fechaStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+
+const currentYear = ref(hoy.getFullYear());
+const currentMonth = ref(hoy.getMonth());
+const selectedDate = ref(fechaStr);
+
+const eventos = ref([]);
+const eventosDelDia = ref([]);
+const mensaje = ref('');
+
+async function cargarEventos() {
+  try {
+    const response = await fetch('http://localhost:8080/api/calendario/eventos');
+    const data = await response.json();
+    // Mapeamos para que todo trabaje con la misma estructura que esperas
+    eventos.value = data.map(e => ({
+      id: e.id,
+      date: e.fechaInicio, // usamos fechaInicio
+      titulo: e.titulo,
+      descripcion: e.descripcion,
+      tipo: 'evento', // Puedes adaptar esto si quieres manejar tipos (evento, evaluación, etc.)
+      rolDestinatario: e.rolDestinatario,
+    }));
+  } catch (error) {
+    console.error('Error cargando eventos:', error);
+  }
+}
+
+function updateMonth(newMonth) {
+  currentMonth.value = newMonth;
+}
+
+function updateYear(newYear) {
+  currentYear.value = newYear;
+}
+
+function mostrarEventosDelDia(fecha) {
+  selectedDate.value = fecha;
+  const eventosFiltrados = eventos.value.filter(e => e.date === fecha);
+  
+  const hoy = new Date();
+  const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+
+  eventosDelDia.value = eventosFiltrados;
+  mensaje.value = eventosFiltrados.length
+    ? ''
+    : fecha === hoyStr
+    ? 'No hay actividades hoy'
+    : `No hay actividades para el ${fecha.split('-').reverse().join('/')}`;
+}
+
+onMounted(async () => {
+  await cargarEventos();
+  mostrarEventosDelDia(selectedDate.value);
+});
 </script>
+
+<style scoped>
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+/* Sidebar */
+.sidebar-column {
+  width: 240px;
+  background-color: var(--color-sidebar);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenido */
+.content-column {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0 0 0 10px;
+}
+
+.content {
+  padding: 10px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .dashboard-layout {
+    flex-direction: column; /* Ya no lado a lado, sino arriba/abajo */
+  }
+
+  .sidebar-column {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    display: none; /* oculto el sidebar estático, ahora depende del burger */
+  }
+
+  .content-column {
+    width: 100%;
+    padding: 10px;
+  }
+}
+</style>

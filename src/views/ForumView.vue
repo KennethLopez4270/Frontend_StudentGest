@@ -1,19 +1,14 @@
 <template>
-  <div class="wrapper">
-    <!-- Sidebar -->
-    <Sidebar />
+  <div class="dashboard-layout">
+    <!-- Columna izquierda: Sidebar -->
+    <div class="sidebar-column">
+      
+    </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <div class="left-section">
-        <!-- Header -->
-        <div class="header animate__animated animate__fadeInDown">
-          <h1 class="animate__animated animate__pulse animate__infinite animate__slow">
-            Bienvenido {{ parentName }}
-          </h1>
-          <button @click="logout" class="btn btn-lg logout-btn">Cerrar Sesión</button>
-        </div>
-
+    <!-- Columna derecha: Contenido principal -->
+    <div class="content-column">
+      <Sidebar />
+      <div class="content">
         <!-- Forum Section -->
         <div class="form-section animate__animated animate__fadeInUp">
           <h2>Foro de la Comunidad</h2>
@@ -108,7 +103,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -363,3 +357,52 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+/* Sidebar */
+.sidebar-column {
+  width: 240px;
+  background-color: var(--color-sidebar);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenido */
+.content-column {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0 0 0 10px;
+}
+
+.content {
+  padding: 10px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .dashboard-layout {
+    flex-direction: column; /* Ya no lado a lado, sino arriba/abajo */
+  }
+
+  .sidebar-column {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    display: none; /* oculto el sidebar estático, ahora depende del burger */
+  }
+
+  .content-column {
+    width: 100%;
+    padding: 10px;
+  }
+}
+</style>

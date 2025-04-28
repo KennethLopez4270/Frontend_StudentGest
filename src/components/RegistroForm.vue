@@ -68,6 +68,7 @@
           </div>
 
           <!-- Subida de imagen -->
+           <!--
           <div
             class="mb-3 upload-area"
             @dragover.prevent
@@ -81,7 +82,7 @@
             </div>
             <div class="text-danger" v-if="imageError">{{ imageError }}</div>
           </div>
-
+          -->
           <!-- Rol -->
           <div class="mb-3">
             <select v-model="user.rol" class="form-control input-group" required>

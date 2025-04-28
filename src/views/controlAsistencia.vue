@@ -1,172 +1,180 @@
 <template>
-  <div class="wrapper">
-    <!-- Sidebar -->
-    <Sidebar />
-    <!-- Main Content -->
-    <div class="main-content">
-      <div class="left-section">
-        <div class="form-section animate__animated animate__fadeInUp">
-          <h2>Control de Asistencia</h2>
-          
-          <!-- Selector de Curso -->
-          <div class="mb-4">
-            <label class="form-label">Seleccionar Curso</label>
-            <select 
-              v-model="selectedCourse" 
-              class="form-select"
-              @change="loadStudentsForCourse"
-              :disabled="loadingCourses"
-            >
-              <option value="" disabled>-- Seleccionar curso --</option>
-              <option 
-                v-for="course in teacherCourses" 
-                :key="course.nombreCurso"
-                :value="course"
-              >
-                {{ course.nombreMateria }} - {{ course.nivel }} ({{ course.turno }})
-              </option>
-            </select>
-            <div v-if="loadingCourses" class="spinner-border spinner-border-sm mt-2" role="status">
-              <span class="visually-hidden">Cargando...</span>
-            </div>
-          </div>
+  <div class="dashboard-layout">
+    <!-- Columna izquierda: Sidebar -->
+    <div class="sidebar-column">
+      
+    </div>
 
-          <!-- Filtros -->
-          <div class="filter-section mb-4">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Fecha</label>
-                <input 
-                  type="date" 
-                  v-model="selectedDate" 
-                  class="form-control"
-                  :max="new Date().toISOString().split('T')[0]"
+    <!-- Columna derecha: Contenido principal -->
+    <div class="content-column">
+      <Sidebar />
+      <div class="content">
+          <div class="left-section">
+            <div class="form-section animate__animated animate__fadeInUp">
+              <h2>Control de Asistencia</h2>
+              
+              <!-- Selector de Curso -->
+              <div class="mb-4">
+                <label class="form-label">Seleccionar Curso</label>
+                <select 
+                  v-model="selectedCourse" 
+                  class="form-select"
+                  @change="loadStudentsForCourse"
+                  :disabled="loadingCourses"
                 >
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Filtrar por estado</label>
-                <select v-model="filterStatus" class="form-select">
-                  <option value="all">Todos</option>
-                  <option value="presente">Presente</option>
-                  <option value="ausente">Ausente</option>
-                  <option value="tardanza">Tardanza</option>
+                  <option value="" disabled>-- Seleccionar curso --</option>
+                  <option 
+                    v-for="course in teacherCourses" 
+                    :key="course.nombreCurso"
+                    :value="course"
+                  >
+                    {{ course.nombreMateria }} - {{ course.nivel }} ({{ course.turno }})
+                  </option>
                 </select>
+                <div v-if="loadingCourses" class="spinner-border spinner-border-sm mt-2" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+              </div>
+
+              <!-- Filtros -->
+              <div class="filter-section mb-4">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Fecha</label>
+                    <input 
+                      type="date" 
+                      v-model="selectedDate" 
+                      class="form-control"
+                      :max="new Date().toISOString().split('T')[0]"
+                    >
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Filtrar por estado</label>
+                    <select v-model="filterStatus" class="form-select">
+                      <option value="all">Todos</option>
+                      <option value="presente">Presente</option>
+                      <option value="ausente">Ausente</option>
+                      <option value="tardanza">Tardanza</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista de Estudiantes -->
+              <div class="student-table">
+                <div v-if="loadingStudents" class="text-center py-4">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                  </div>
+                  <p class="mt-2">Cargando estudiantes...</p>
+                </div>
+
+                <div v-else-if="filteredStudents.length === 0" class="text-center py-4 text-muted">
+                  No hay estudiantes para mostrar
+                </div>
+
+                <div v-else class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Estudiante</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="student in filteredStudents" :key="student.id">
+                        <td>{{ student.name }}</td>
+                        <td>
+                          <span class="badge" :class="statusBadgeClass(student.attendanceStatus)">
+                            {{ getStatusText(student.attendanceStatus) }}
+                          </span>
+                          <span v-if="student.excuse" class="small text-muted ms-2">
+                            <i class="fas fa-comment"></i> {{ student.excuse }}
+                          </span>
+                        </td>
+                        <td>
+                          <button 
+                            class="btn btn-sm btn-success me-1"
+                            :class="{ 'active': student.attendanceStatus === 'presente' }"
+                            @click="updateAttendance(student, 'presente')"
+                          >
+                            <i class="fas fa-check"></i>
+                          </button>
+                          <button 
+                            class="btn btn-sm btn-danger me-1"
+                            :class="{ 'active': student.attendanceStatus === 'ausente' }"
+                            @click="updateAttendance(student, 'ausente')"
+                          >
+                            <i class="fas fa-times"></i>
+                          </button>
+                          <button 
+                            class="btn btn-sm btn-warning me-1"
+                            :class="{ 'active': student.attendanceStatus === 'tardanza' }"
+                            @click="updateAttendance(student, 'tardanza')"
+                          >
+                            <i class="fas fa-clock"></i>
+                          </button>
+                          <button 
+                            class="btn btn-sm btn-info"
+                            @click="showExcuseModal(student)"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#excuseModal"
+                          >
+                            <i class="fas fa-comment-medical"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Lista de Estudiantes -->
-          <div class="student-table">
-            <div v-if="loadingStudents" class="text-center py-4">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
+          <!-- Resumen de Asistencia -->
+          <div class="right-section">
+            <div class="summary-card">
+              <h3>Resumen de Asistencia</h3>
+              <div v-if="selectedCourse" class="mt-3">
+                <p class="mb-1">
+                  <strong>Curso:</strong> {{ selectedCourse.nombreMateria }} - {{ selectedCourse.nivel }}
+                </p>
+                <p class="mb-1"><strong>Fecha:</strong> {{ formattedSelectedDate }}</p>
+                
+                <div class="mt-4">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Presentes:</span>
+                    <span class="badge bg-success">{{ attendanceSummary.present }}</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Ausentes:</span>
+                    <span class="badge bg-danger">{{ attendanceSummary.absent }}</span>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <span>Tardanzas:</span>
+                    <span class="badge bg-warning">{{ attendanceSummary.tardy }}</span>
+                  </div>
+                </div>
+
+                <button 
+                  class="btn btn-primary w-100 mt-4"
+                  @click="saveAllAttendances"
+                  :disabled="savingAttendances"
+                >
+                  <span v-if="savingAttendances" class="spinner-border spinner-border-sm" role="status"></span>
+                  {{ savingAttendances ? 'Guardando...' : 'Guardar Asistencias' }}
+                </button>
               </div>
-              <p class="mt-2">Cargando estudiantes...</p>
-            </div>
-
-            <div v-else-if="filteredStudents.length === 0" class="text-center py-4 text-muted">
-              No hay estudiantes para mostrar
-            </div>
-
-            <div v-else class="table-responsive">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>Estudiante</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="student in filteredStudents" :key="student.id">
-                    <td>{{ student.name }}</td>
-                    <td>
-                      <span class="badge" :class="statusBadgeClass(student.attendanceStatus)">
-                        {{ getStatusText(student.attendanceStatus) }}
-                      </span>
-                      <span v-if="student.excuse" class="small text-muted ms-2">
-                        <i class="fas fa-comment"></i> {{ student.excuse }}
-                      </span>
-                    </td>
-                    <td>
-                      <button 
-                        class="btn btn-sm btn-success me-1"
-                        :class="{ 'active': student.attendanceStatus === 'presente' }"
-                        @click="updateAttendance(student, 'presente')"
-                      >
-                        <i class="fas fa-check"></i>
-                      </button>
-                      <button 
-                        class="btn btn-sm btn-danger me-1"
-                        :class="{ 'active': student.attendanceStatus === 'ausente' }"
-                        @click="updateAttendance(student, 'ausente')"
-                      >
-                        <i class="fas fa-times"></i>
-                      </button>
-                      <button 
-                        class="btn btn-sm btn-warning me-1"
-                        :class="{ 'active': student.attendanceStatus === 'tardanza' }"
-                        @click="updateAttendance(student, 'tardanza')"
-                      >
-                        <i class="fas fa-clock"></i>
-                      </button>
-                      <button 
-                        class="btn btn-sm btn-info"
-                        @click="showExcuseModal(student)"
-                        data-bs-toggle="modal" 
-                        data-bs-target="#excuseModal"
-                      >
-                        <i class="fas fa-comment-medical"></i>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div v-else class="text-center text-muted py-4">
+                Selecciona un curso para ver el resumen
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Resumen de Asistencia -->
-      <div class="right-section">
-        <div class="summary-card">
-          <h3>Resumen de Asistencia</h3>
-          <div v-if="selectedCourse" class="mt-3">
-            <p class="mb-1">
-              <strong>Curso:</strong> {{ selectedCourse.nombreMateria }} - {{ selectedCourse.nivel }}
-            </p>
-            <p class="mb-1"><strong>Fecha:</strong> {{ formattedSelectedDate }}</p>
-            
-            <div class="mt-4">
-              <div class="d-flex justify-content-between mb-2">
-                <span>Presentes:</span>
-                <span class="badge bg-success">{{ attendanceSummary.present }}</span>
-              </div>
-              <div class="d-flex justify-content-between mb-2">
-                <span>Ausentes:</span>
-                <span class="badge bg-danger">{{ attendanceSummary.absent }}</span>
-              </div>
-              <div class="d-flex justify-content-between">
-                <span>Tardanzas:</span>
-                <span class="badge bg-warning">{{ attendanceSummary.tardy }}</span>
-              </div>
-            </div>
-
-            <button 
-              class="btn btn-primary w-100 mt-4"
-              @click="saveAllAttendances"
-              :disabled="savingAttendances"
-            >
-              <span v-if="savingAttendances" class="spinner-border spinner-border-sm" role="status"></span>
-              {{ savingAttendances ? 'Guardando...' : 'Guardar Asistencias' }}
-            </button>
-          </div>
-          <div v-else class="text-center text-muted py-4">
-            Selecciona un curso para ver el resumen
-          </div>
-        </div>
+        
       </div>
     </div>
+  </div>
 
     <!-- Modal para Excusa -->
     <div class="modal fade" id="excuseModal" tabindex="-1" aria-hidden="true">
@@ -199,6 +207,67 @@
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  
+  <!-- Historial de Asistencias -->
+  <div class="history-section">
+    <h3 class="text-center mb-4">Historial de Asistencias</h3>
+    
+    <div class="history-controls mb-3 text-center">
+      <button 
+        class="btn btn-primary"
+        @click="loadAttendanceHistory"
+        :disabled="loadingHistory"
+      >
+        <span v-if="loadingHistory" class="spinner-border spinner-border-sm" role="status"></span>
+        {{ loadingHistory ? 'Cargando...' : 'Generar Historial' }}
+      </button>
+    </div>
+
+    <div v-if="attendanceHistory.length > 0" class="table-container">
+      <div class="table-responsive fixed-size-table">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th class="fixed-side">Estudiante</th>
+              <th v-for="date in uniqueDates" :key="date" class="date-header">
+                {{ formatDateHeader(date) }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="student in students" :key="student.id">
+              <td class="fixed-side">{{ student.name }}</td>
+              <td v-for="date in uniqueDates" :key="`${student.id}-${date}`">
+                <div v-if="getAttendanceForStudent(student.id, date)" class="attendance-buttons">
+                  <button 
+                    class="btn btn-sm btn-success me-1"
+                    :class="{ 'active': getAttendanceForStudent(student.id, date).tipo === 'presente' }"
+                    @click="updateHistoricalAttendance(getAttendanceForStudent(student.id, date), 'presente')"
+                  >
+                    <i class="fas fa-check"></i>
+                  </button>
+                  <button 
+                    class="btn btn-sm btn-danger me-1"
+                    :class="{ 'active': getAttendanceForStudent(student.id, date).tipo === 'ausente' }"
+                    @click="updateHistoricalAttendance(getAttendanceForStudent(student.id, date), 'ausente')"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <button 
+                    class="btn btn-sm btn-warning"
+                    :class="{ 'active': getAttendanceForStudent(student.id, date).tipo === 'tardanza' }"
+                    @click="updateHistoricalAttendance(getAttendanceForStudent(student.id, date), 'tardanza')"
+                  >
+                    <i class="fas fa-clock"></i>
+                  </button>
+                </div>
+                <span v-else>-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -632,11 +701,6 @@ export default {
 </script>
 
 <style scoped>
-.wrapper {
-  display: flex;
-  min-height: 100vh;
-}
-
 .main-content {
   display: flex;
   flex: 1;
@@ -790,5 +854,51 @@ export default {
 
 .table-responsive::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+/* Sidebar */
+.sidebar-column {
+  width: 240px;
+  background-color: var(--color-sidebar);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenido */
+.content-column {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0 0 0 10px;
+}
+
+.content {
+  padding: 10px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .dashboard-layout {
+    flex-direction: column; /* Ya no lado a lado, sino arriba/abajo */
+  }
+
+  .sidebar-column {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    display: none; /* oculto el sidebar estático, ahora depende del burger */
+  }
+
+  .content-column {
+    width: 100%;
+    padding: 10px;
+  }
 }
 </style>
