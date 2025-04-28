@@ -3,6 +3,23 @@
     <h1 class="text-center mb-3 animate__bounceInDown">BIENVENIDO A STUDENT-GEST</h1>
 
     <form @submit.prevent="submitLogin" class="p-3">
+      <!-- Institución -->
+      <div class="input-group mb-3">
+        <span class="input-icon"><i class="fas fa-school"></i></span>
+        <select 
+          v-model="institution" 
+          class="form-control" 
+          required
+          style="padding-left: 40px; appearance: none;"
+        >
+          <option value="" disabled selected>Seleccione institución</option>
+          <option v-if="savedInstitution" :value="savedInstitution.nombre" selected>{{ savedInstitution.nombre }}</option>
+          <option v-for="(inst, index) in institutions" :key="index" :value="inst">
+            {{ inst }}
+          </option>
+        </select>
+      </div>
+
       <!-- Email -->
       <div class="input-group mb-3" :class="{ 'animate__shakeX': shake }">
         <span class="input-icon"><i class="fas fa-envelope"></i></span>
@@ -50,15 +67,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showSuccess, showError } from '@/utils/useAlert'
 
 const email = ref('')
 const password = ref('')
+const institution = ref('')
 const showPassword = ref(false)
 const shake = ref(false)
+const savedInstitution = ref(null)
+const institutions = ref(['Colegio 1', 'Colegio 2', 'Colegio 3']) // Ejemplo, puedes cargarlos de una API
 const router = useRouter()
+
+// Cargar institución guardada al montar el componente
+onMounted(() => {
+  const savedData = localStorage.getItem('currentInstitution')
+  if (savedData) {
+    savedInstitution.value = JSON.parse(savedData)
+    institution.value = savedInstitution.value.nombre
+  }
+})
 
 function togglePassword() {
   showPassword.value = !showPassword.value
@@ -69,7 +98,7 @@ function resetShake() {
 }
 
 async function submitLogin() {
-  if (!email.value || !password.value) {
+  if (!email.value || !password.value || !institution.value) {
     shake.value = true
     setTimeout(() => (shake.value = false), 500)
     return
@@ -79,7 +108,11 @@ async function submitLogin() {
     const response = await fetch("http://localhost:8080/api/users/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email.value, password: password.value }),
+      body: JSON.stringify({ 
+        email: email.value, 
+        password: password.value,
+        institution: institution.value 
+      }),
     })
 
     const data = await response.json()
@@ -92,6 +125,7 @@ async function submitLogin() {
     showSuccess('¡Bienvenido!', `Has iniciado sesión como ${data.rol.toLowerCase()}`)
 
     localStorage.setItem("user", JSON.stringify(data))
+    localStorage.setItem("institution", institution.value)
 
     const routeByRole = {
       PROFESOR: "/teacher-dashboard", 
@@ -114,7 +148,7 @@ async function submitLogin() {
   position: relative;
 }
 
-.input-group input {
+.input-group input, .input-group select {
   padding-left: 40px;
   padding-right: 45px;
   background-color: #ffffff9c;

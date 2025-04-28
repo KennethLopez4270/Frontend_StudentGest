@@ -22,11 +22,13 @@ import ParentDashboard from '../views/UsersDashboards/ParentDashboard.vue';
 import TeacherDashboard from '../views/UsersDashboards/TeacherDashboard.vue';
 import PersonalDashboard from '../views/UsersDashboards/PersonalDashboard.vue';
 import AdminDashboard from '../views/UsersDashboards/AdminDashboard.vue';
+import RegistroInstitucion from '../views/RegistrarInstitucionView.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: HomeView },
   { path: '/login', name: 'Login', component: LoginView },
   { path: '/registro', name: 'Registro', component: RegistroView },
+  { path: '/registro-institucion', name: 'RegistroInstitucion', component: RegistroInstitucion },
   { path: '/control-asistencia', name: 'ControlAsistencia', component: ControlAsistencia },
   { path: '/historial-academico', name: 'HistorialAcademico', component: HistorialAcademico },
   { path: '/justificar-ausencias', name: 'JustificarAusencias', component: JustificarAusencias },
