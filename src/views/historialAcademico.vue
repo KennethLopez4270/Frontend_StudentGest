@@ -1,22 +1,27 @@
 <template>
   <div class="wrapper">
     <!-- Sidebar -->
-    <Sidebar />
+    <Sidebar :class="{ 'mobile-sidebar': isMobile, 'active': sidebarOpen }" />
 
     <!-- Main Content -->
-    <div class="main-content">
+    <div class="main-content" :class="{ 'sidebar-collapsed': !sidebarOpen && isMobile }">
+      <!-- Mobile sidebar toggle button -->
+      <button class="mobile-sidebar-toggle btn btn-light" @click="toggleSidebar" v-if="isMobile">
+        <i class="fas fa-bars"></i>
+      </button>
+
       <div class="left-section">
         <!-- Header -->
         <div class="header animate__animated animate__fadeInDown">
           <h1>Notas & Tareas</h1>
-          <a href="#" class="btn">View Reports</a>
+          <a href="#" class="btn btn-view-reports">View Reports</a>
         </div>
 
         <!-- Form Section -->
         <div class="form-section animate__animated animate__fadeInUp">
           <h2>Registrar Notas y Tareas</h2>
           <div class="row g-3">
-            <div class="col-md-4">
+            <div class="col-md-4 col-12">
               <label for="studentSelect" class="form-label">Student</label>
               <select id="studentSelect" class="form-select" v-model="selectedStudent" @change="filterByStudent">
                 <option value="Ana Gómez">Ana Gómez</option>
@@ -24,26 +29,26 @@
                 <option value="María López">María López</option>
               </select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 col-12">
               <label for="typeSelect" class="form-label">Type</label>
               <select id="typeSelect" class="form-select" v-model="entryType" @change="toggleInputFields">
                 <option value="grade">Grade</option>
                 <option value="assignment">Assignment</option>
               </select>
             </div>
-            <div class="col-md-4" :class="{ 'd-none': entryType !== 'grade' }">
+            <div class="col-md-4 col-12" :class="{ 'd-none': entryType !== 'grade' }">
               <label for="gradeInput" class="form-label">Grade (0-100)</label>
               <input type="number" id="gradeInput" class="form-control" v-model="gradeInput" min="0" max="100" placeholder="Enter grade">
             </div>
-            <div class="col-md-4" :class="{ 'd-none': entryType !== 'assignment' }">
+            <div class="col-md-4 col-12" :class="{ 'd-none': entryType !== 'assignment' }">
               <label for="assignmentInput" class="form-label">Assignment Title</label>
               <input type="text" id="assignmentInput" class="form-control" v-model="assignmentInput" placeholder="Enter assignment title">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 col-12">
               <label for="dateInput" class="form-label">Date</label>
               <input type="date" id="dateInput" class="form-control" v-model="dateInput" @change="filterByDate">
             </div>
-            <div class="col-md-12">
+            <div class="col-12">
               <button class="btn btn-submit" @click="registerEntry">Register</button>
             </div>
           </div>
@@ -51,24 +56,26 @@
 
         <!-- History Table -->
         <div class="history-table animate__animated animate__fadeIn">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>Type</th>
-                <th>Detail</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(entry, index) in filteredHistory" :key="index" :data-student="entry.student" :data-date="entry.date">
-                <td>{{ entry.student }}</td>
-                <td>{{ entry.type }}</td>
-                <td>{{ entry.detail }}</td>
-                <td>{{ entry.formattedDate }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Type</th>
+                  <th>Detail</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(entry, index) in filteredHistory" :key="index" :data-student="entry.student" :data-date="entry.date">
+                  <td>{{ entry.student }}</td>
+                  <td>{{ entry.type }}</td>
+                  <td>{{ entry.detail }}</td>
+                  <td>{{ entry.formattedDate }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -106,7 +113,7 @@
     </div>
 
     <!-- Floating Button -->
-    <button class="floating-btn btn btn-primary btn-lg rounded-circle shadow-lg">
+    <button class="floating-btn btn btn-primary rounded-circle shadow-lg">
       <i class="fas fa-plus"></i>
     </button>
   </div>
@@ -141,7 +148,9 @@ export default {
       events: [
         { date: '2025-04-04', type: 'task' },
         { date: '2025-04-10', type: 'task' }
-      ]
+      ],
+      sidebarOpen: false,
+      isMobile: false
     };
   },
   computed: {
@@ -164,9 +173,23 @@ export default {
     }
   },
   mounted() {
+    this.checkIfMobile();
+    window.addEventListener('resize', this.checkIfMobile);
     this.renderCalendar();
   },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.checkIfMobile);
+  },
   methods: {
+    checkIfMobile() {
+      this.isMobile = window.innerWidth < 992;
+      if (!this.isMobile) {
+        this.sidebarOpen = true;
+      }
+    },
+    toggleSidebar() {
+      this.sidebarOpen = !this.sidebarOpen;
+    },
     toggleInputFields() {
       // La visibilidad se maneja con v-bind:class en el template
     },

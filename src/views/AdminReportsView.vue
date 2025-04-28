@@ -1,116 +1,116 @@
 <template>
-    <div class="wrapper">
-      <!-- Sidebar -->
-      <Sidebar />
-  
-      <!-- Main Content -->
-      <div class="main-content">
-        <div class="left-section">
+  <div class="wrapper">
+    <!-- Sidebar -->
+    <Sidebar />
 
-          <!-- Reports Section -->
-          <div class="form-section animate__animated animate__fadeInUp">
-            <h2>Generar Informes Administrativos</h2>
-            <p class="text-sm text-gray-600 mb-4">Rol: <strong>{{ adminRole.toUpperCase() }}</strong></p>
-  
-            <!-- Selector de Estudiante o Grupo -->
-            <div class="row g-3 mb-6 justify-content-center">
-              <div class="col-md-6">
-                <label for="selectionType" class="form-label">Tipo de Selección</label>
-                <select
-                  id="selectionType"
-                  v-model="selectionType"
-                  class="form-select form-select-lg shadow-sm"
-                  @change="resetSelection"
-                >
-                  <option value="individual">Estudiante Individual</option>
-                  <option value="group">Grupo de Estudiantes</option>
-                </select>
-              </div>
-  
-              <!-- Selección Individual -->
-              <div v-if="selectionType === 'individual'" class="col-md-6">
-                <label for="studentSelect" class="form-label">Seleccionar Estudiante</label>
-                <select
-                  id="studentSelect"
-                  v-model="selectedStudent"
-                  class="form-select form-select-lg shadow-sm"
-                  @change="fetchReports"
-                >
-                  <option value="" disabled>-- Seleccionar --</option>
-                  <option v-for="student in students" :key="student.id" :value="student">
-                    {{ student.name }}
-                  </option>
-                </select>
-              </div>
-  
-              <!-- Selección de Grupo -->
-              <div v-if="selectionType === 'group'" class="col-md-6">
-                <label for="groupSelect" class="form-label">Seleccionar Grupo</label>
-                <select
-                  id="groupSelect"
-                  v-model="selectedGroup"
-                  class="form-select form-select-lg shadow-sm"
-                  @change="fetchGroupReports"
-                >
-                  <option value="" disabled>-- Seleccionar --</option>
-                  <option v-for="group in groups" :key="group.id" :value="group">
-                    {{ group.name }}
-                  </option>
-                </select>
-              </div>
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="left-section">
+        <!-- Reports Section -->
+        <div class="form-section animate__animated animate__fadeInUp">
+          <h2>Generar Informes Administrativos</h2>
+          <p class="role-text">Rol: <strong>{{ adminRole.toUpperCase() }}</strong></p>
+
+          <!-- Selector de Estudiante o Grupo -->
+          <div class="selection-container">
+            <div class="form-group">
+              <label for="selectionType" class="form-label">Tipo de Selección</label>
+              <select
+                id="selectionType"
+                v-model="selectionType"
+                class="form-select"
+                @change="resetSelection"
+              >
+                <option value="individual">Estudiante Individual</option>
+                <option value="group">Grupo de Estudiantes</option>
+              </select>
             </div>
-  
-            <!-- Selección de Tipo de Informe -->
-            <div class="mb-6 d-flex justify-content-center flex-wrap gap-4 animate__animated animate__zoomIn">
-              <div class="form-check form-check-inline custom-radio">
-                <input
-                  type="radio"
-                  id="attendance"
-                  value="attendance"
-                  v-model="reportType"
-                  class="form-check-input"
-                  @change="fetchReports"
-                />
-                <label for="attendance" class="form-check-label">Asistencia</label>
-              </div>
-              <div class="form-check form-check-inline custom-radio">
-                <input
-                  type="radio"
-                  id="performance"
-                  value="performance"
-                  v-model="reportType"
-                  class="form-check-input"
-                  @change="fetchReports"
-                />
-                <label for="performance" class="form-check-label">Rendimiento</label>
-              </div>
-              <div class="form-check form-check-inline custom-radio">
-                <input
-                  type="radio"
-                  id="both"
-                  value="both"
-                  v-model="reportType"
-                  class="form-check-input"
-                  @change="fetchReports"
-                />
-                <label for="both" class="form-check-label">Ambos</label>
-              </div>
+
+            <!-- Selección Individual -->
+            <div v-if="selectionType === 'individual'" class="form-group">
+              <label for="studentSelect" class="form-label">Seleccionar Estudiante</label>
+              <select
+                id="studentSelect"
+                v-model="selectedStudent"
+                class="form-select"
+                @change="fetchReports"
+              >
+                <option value="" disabled>-- Seleccionar --</option>
+                <option v-for="student in students" :key="student.id" :value="student">
+                  {{ student.name }}
+                </option>
+              </select>
             </div>
-  
-            <!-- Resultados de Informes -->
-            <div v-if="showReport" class="report-table animate__animated animate__fadeIn">
-              <h3 class="text-center text-lg font-semibold mb-2 capitalize animate__animated animate__bounceIn">
-                Informe de {{ reportType === 'both' ? 'Asistencia y Rendimiento' : reportType }}
-              </h3>
-              <p class="text-sm text-gray-600 mb-4 text-center">
-                {{ selectionType === 'individual' ? 'Estudiante: ' + selectedStudent.name : 'Grupo: ' + selectedGroup.name }}<br />
-                Fecha de Generación: <strong>{{ today }}</strong>
-              </p>
-  
-              <!-- Informe de Asistencia -->
-              <div v-if="reportType === 'attendance' || reportType === 'both'" class="mb-5">
-                <h4 class="mb-3">Asistencia</h4>
-                <table class="table table-modern table-hover">
+
+            <!-- Selección de Grupo -->
+            <div v-if="selectionType === 'group'" class="form-group">
+              <label for="groupSelect" class="form-label">Seleccionar Grupo</label>
+              <select
+                id="groupSelect"
+                v-model="selectedGroup"
+                class="form-select"
+                @change="fetchGroupReports"
+              >
+                <option value="" disabled>-- Seleccionar --</option>
+                <option v-for="group in groups" :key="group.id" :value="group">
+                  {{ group.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Selección de Tipo de Informe -->
+          <div class="report-type-container">
+            <div class="form-check custom-radio">
+              <input
+                type="radio"
+                id="attendance"
+                value="attendance"
+                v-model="reportType"
+                class="form-check-input"
+                @change="fetchReports"
+              />
+              <label for="attendance" class="form-check-label">Asistencia</label>
+            </div>
+            <div class="form-check custom-radio">
+              <input
+                type="radio"
+                id="performance"
+                value="performance"
+                v-model="reportType"
+                class="form-check-input"
+                @change="fetchReports"
+              />
+              <label for="performance" class="form-check-label">Rendimiento</label>
+            </div>
+            <div class="form-check custom-radio">
+              <input
+                type="radio"
+                id="both"
+                value="both"
+                v-model="reportType"
+                class="form-check-input"
+                @change="fetchReports"
+              />
+              <label for="both" class="form-check-label">Ambos</label>
+            </div>
+          </div>
+
+          <!-- Resultados de Informes -->
+          <div v-if="showReport" class="report-table animate__animated animate__fadeIn">
+            <h3 class="report-title">
+              Informe de {{ reportType === 'both' ? 'Asistencia y Rendimiento' : reportType }}
+            </h3>
+            <p class="report-meta">
+              {{ selectionType === 'individual' ? 'Estudiante: ' + selectedStudent.name : 'Grupo: ' + selectedGroup.name }}<br />
+              Fecha de Generación: <strong>{{ today }}</strong>
+            </p>
+
+            <!-- Informe de Asistencia -->
+            <div v-if="reportType === 'attendance' || reportType === 'both'" class="report-section">
+              <h4>Asistencia</h4>
+              <div class="table-responsive">
+                <table class="table-modern">
                   <thead>
                     <tr>
                       <th v-if="selectionType === 'group'">Estudiante</th>
@@ -129,11 +129,13 @@
                   </tbody>
                 </table>
               </div>
-  
-              <!-- Informe de Rendimiento -->
-              <div v-if="reportType === 'performance' || reportType === 'both'">
-                <h4 class="mb-3">Rendimiento</h4>
-                <table class="table table-modern table-hover">
+            </div>
+
+            <!-- Informe de Rendimiento -->
+            <div v-if="reportType === 'performance' || reportType === 'both'" class="report-section">
+              <h4>Rendimiento</h4>
+              <div class="table-responsive">
+                <table class="table-modern">
                   <thead>
                     <tr>
                       <th v-if="selectionType === 'group'">Estudiante</th>
@@ -154,31 +156,32 @@
                   </tbody>
                 </table>
               </div>
-  
-              <!-- Botón de Exportar -->
-              <div class="text-center mt-4">
-                <button class="btn btn-primary" @click="exportReport">
-                  <i class="fas fa-download me-1"></i> Exportar Informe
-                </button>
-              </div>
+            </div>
+
+            <!-- Botón de Exportar -->
+            <div class="export-btn-container">
+              <button class="btn-export" @click="exportReport">
+                <i class="fas fa-download me-1"></i> Exportar Informe
+              </button>
             </div>
           </div>
         </div>
-  
-        <!-- Right Section -->
-        <div class="right-section">
-          <div class="profile-card animate__animated animate__fadeInRight">
-            <img src="https://i.pinimg.com/736x/bd/42/8e/bd428e6bb156d90045700dbf3e967c3e.jpg" alt="Profile" class="shadow-lg" />
-            <h3>{{ adminName }}</h3>
-            <p>Personal Administrativo</p>
-            <p><i class="fas fa-building me-1"></i> Academia Prestige</p>
-            <p><i class="fas fa-calendar-alt me-1"></i> Miembro desde: 01/01/2023</p>
-          </div>
+      </div>
+
+      <!-- Right Section -->
+      <div class="right-section">
+        <div class="profile-card animate__animated animate__fadeInRight">
+          <img src="https://i.pinimg.com/736x/bd/42/8e/bd428e6bb156d90045700dbf3e967c3e.jpg" alt="Profile" />
+          <h3>{{ adminName }}</h3>
+          <p>Personal Administrativo</p>
+          <p><i class="fas fa-building me-1"></i> Academia Prestige</p>
+          <p><i class="fas fa-calendar-alt me-1"></i> Miembro desde: 01/01/2023</p>
         </div>
       </div>
     </div>
-  </template>
-  
+  </div>
+</template>
+
 <script>
 import 'animate.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -193,10 +196,10 @@ export default {
     return {
       adminName: 'Claudia Ramírez',
       adminRole: 'administrativo',
-      selectionType: 'individual', // 'individual' o 'group'
+      selectionType: 'individual',
       selectedStudent: '',
       selectedGroup: '',
-      reportType: '', // 'attendance', 'performance', 'both'
+      reportType: '',
       today: new Date().toLocaleDateString('es-ES', {
         day: 'numeric',
         month: 'long',
@@ -232,7 +235,7 @@ export default {
       }
       this.showReport = true;
 
-      // Datos simulados para un estudiante individual
+      // Datos simulados
       if (this.reportType === 'attendance' || this.reportType === 'both') {
         this.attendanceRecords = [
           { id: 1, date: '2025-04-01', type: 'presente', excuse: null },
@@ -259,7 +262,7 @@ export default {
       }
       this.showReport = true;
 
-      // Datos simulados para un grupo de estudiantes
+      // Datos simulados
       if (this.reportType === 'attendance' || this.reportType === 'both') {
         this.attendanceRecords = [
           { id: 1, studentName: 'Ana González', date: '2025-04-01', type: 'presente', excuse: null },
@@ -288,7 +291,6 @@ export default {
       };
     },
     exportReport() {
-      // Simulación de exportación (en un sistema real, esto generaría un PDF o CSV)
       alert('Informe exportado exitosamente.');
     },
   },
