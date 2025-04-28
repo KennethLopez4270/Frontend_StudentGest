@@ -3,120 +3,134 @@
     <!-- Sidebar -->
     <Sidebar />
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <div class="left-section">
-        <!-- Task Management Section -->
-        <div class="form-section animate__animated animate__fadeInUp">
-          <h2>Gestión de Tareas</h2>
-          <p class="text-sm text-gray-600 mb-4">Registra nuevas tareas para tus cursos.</p>
+    <div class="dashboard-layout">
+    <!-- Columna izquierda: Sidebar -->
+    <div class="sidebar-column">
+      
+    </div>
 
-          <!-- Formulario para Registrar Nueva Tarea -->
-          <div class="new-task-form mb-5">
-            <h3>Registrar Nueva Tarea</h3>
-            <form @submit.prevent="addTask">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label for="taskTitle" class="form-label">Título de la Tarea</label>
-                  <input
-                    type="text"
-                    id="taskTitle"
-                    v-model="newTask.title"
-                    class="form-control shadow-sm"
-                    placeholder="Ej: Proyecto de Ciencias"
-                    required
-                  />
+    <!-- Columna derecha: Contenido principal -->
+    <div class="content-column">
+      <Sidebar />
+      <WelcomeBanner />
+      <div class="content">
+        <!-- Main Content -->
+        
+          <div class="left-section">
+            <!-- Task Management Section -->
+            <div class="form-section animate__animated animate__fadeInUp">
+              <h2>Gestión de Tareas</h2>
+              <p class="text-sm text-gray-600 mb-4">Registra nuevas tareas para tus cursos.</p>
+
+              <!-- Formulario para Registrar Nueva Tarea -->
+              <div class="new-task-form mb-5">
+                <h3>Registrar Nueva Tarea</h3>
+                <form @submit.prevent="addTask">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="taskTitle" class="form-label">Título de la Tarea</label>
+                      <input
+                        type="text"
+                        id="taskTitle"
+                        v-model="newTask.title"
+                        class="form-control shadow-sm"
+                        placeholder="Ej: Proyecto de Ciencias"
+                        required
+                      />
+                    </div>
+                    
+                    <div class="col-md-6">
+                      <label for="taskCourse" class="form-label">Curso</label>
+                      <select
+                        id="taskCourse"
+                        v-model="newTask.courseId"
+                        class="form-select shadow-sm"
+                        required
+                        :disabled="loadingCourses"
+                      >
+                        <option value="" disabled>-- Seleccionar --</option>
+                        <option 
+                          v-for="course in courses" 
+                          :key="course.nombreCurso"
+                          :value="course.nombreCurso"
+                        >
+                          {{ course.nombreMateria }} - {{ course.nivel }} ({{ course.turno }})
+                        </option>
+                      </select>
+                      <div v-if="loadingCourses" class="spinner-border spinner-border-sm mt-2" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                      </div>
+                    </div>
+                    
+                    <div class="col-md-12">
+                      <label for="taskDescription" class="form-label">Descripción</label>
+                      <textarea
+                        id="taskDescription"
+                        v-model="newTask.description"
+                        class="form-control shadow-sm"
+                        placeholder="Describe la tarea..."
+                        rows="3"
+                        required
+                      ></textarea>
+                    </div>
+                    
+                    <div class="col-md-6">
+                      <label for="taskDueDate" class="form-label">Fecha de Entrega</label>
+                      <input
+                        type="date"
+                        id="taskDueDate"
+                        v-model="newTask.dueDate"
+                        class="form-control shadow-sm"
+                        required
+                      />
+                    </div>
+                    
+                    <div class="col-md-12 text-center">
+                      <button 
+                        type="submit" 
+                        class="btn btn-primary mt-3"
+                        :disabled="loading"
+                      >
+                        <span v-if="loading" class="spinner-border spinner-border-sm" role="status"></span>
+                        <i v-else class="fas fa-plus me-1"></i> 
+                        {{ loading ? 'Registrando...' : 'Registrar Tarea' }}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Lista de Tareas Creadas -->
+              <div class="tasks-section">
+                <h3>Tareas Recientes</h3>
+                <div v-if="tasks.length === 0" class="no-tasks text-center text-gray-600">
+                  No hay tareas registradas.
                 </div>
-                
-                <div class="col-md-6">
-                  <label for="taskCourse" class="form-label">Curso</label>
-                  <select
-                    id="taskCourse"
-                    v-model="newTask.courseId"
-                    class="form-select shadow-sm"
-                    required
-                    :disabled="loadingCourses"
+                <div v-else class="tasks-list">
+                  <div
+                    v-for="task in tasks"
+                    :key="task.id"
+                    class="task-card animate__animated animate__fadeInUp"
                   >
-                    <option value="" disabled>-- Seleccionar --</option>
-                    <option 
-                      v-for="course in courses" 
-                      :key="course.nombreCurso"
-                      :value="course.nombreCurso"
-                    >
-                      {{ course.nombreMateria }} - {{ course.nivel }} ({{ course.turno }})
-                    </option>
-                  </select>
-                  <div v-if="loadingCourses" class="spinner-border spinner-border-sm mt-2" role="status">
-                    <span class="visually-hidden">Cargando...</span>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <h5>{{ task.title }}</h5>
+                      <span class="type-badge">
+                        {{ task.course }}
+                      </span>
+                    </div>
+                    <p class="small mb-2">
+                      <i class="fas fa-calendar-day me-1"></i>Entrega: {{ formatDate(task.dueDate) }}
+                    </p>
+                    <p class="small mb-3">{{ task.description }}</p>
                   </div>
                 </div>
-                
-                <div class="col-md-12">
-                  <label for="taskDescription" class="form-label">Descripción</label>
-                  <textarea
-                    id="taskDescription"
-                    v-model="newTask.description"
-                    class="form-control shadow-sm"
-                    placeholder="Describe la tarea..."
-                    rows="3"
-                    required
-                  ></textarea>
-                </div>
-                
-                <div class="col-md-6">
-                  <label for="taskDueDate" class="form-label">Fecha de Entrega</label>
-                  <input
-                    type="date"
-                    id="taskDueDate"
-                    v-model="newTask.dueDate"
-                    class="form-control shadow-sm"
-                    required
-                  />
-                </div>
-                
-                <div class="col-md-12 text-center">
-                  <button 
-                    type="submit" 
-                    class="btn btn-primary mt-3"
-                    :disabled="loading"
-                  >
-                    <span v-if="loading" class="spinner-border spinner-border-sm" role="status"></span>
-                    <i v-else class="fas fa-plus me-1"></i> 
-                    {{ loading ? 'Registrando...' : 'Registrar Tarea' }}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-
-          <!-- Lista de Tareas Creadas -->
-          <div class="tasks-section">
-            <h3>Tareas Recientes</h3>
-            <div v-if="tasks.length === 0" class="no-tasks text-center text-gray-600">
-              No hay tareas registradas.
-            </div>
-            <div v-else class="tasks-list">
-              <div
-                v-for="task in tasks"
-                :key="task.id"
-                class="task-card animate__animated animate__fadeInUp"
-              >
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h5>{{ task.title }}</h5>
-                  <span class="type-badge">
-                    {{ task.course }}
-                  </span>
-                </div>
-                <p class="small mb-2">
-                  <i class="fas fa-calendar-day me-1"></i>Entrega: {{ formatDate(task.dueDate) }}
-                </p>
-                <p class="small mb-3">{{ task.description }}</p>
               </div>
             </div>
           </div>
-        </div>
+        
       </div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -234,3 +248,51 @@ export default {
   }
 };
 </script>
+<style scoped>
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+/* Sidebar */
+.sidebar-column {
+  width: 240px;
+  background-color: var(--color-sidebar);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenido */
+.content-column {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0 0 0 10px;
+}
+
+.content {
+  padding: 10px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .dashboard-layout {
+    flex-direction: column; /* Ya no lado a lado, sino arriba/abajo */
+  }
+
+  .sidebar-column {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    display: none; /* oculto el sidebar estático, ahora depende del burger */
+  }
+
+  .content-column {
+    width: 100%;
+    padding: 10px;
+  }
+}
+</style>

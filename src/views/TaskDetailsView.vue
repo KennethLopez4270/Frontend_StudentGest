@@ -107,111 +107,156 @@
   </template>
   
   <script>
-  import 'animate.css';
-  import 'bootstrap/dist/css/bootstrap.min.css';
-  import '@fortawesome/fontawesome-free/css/all.min.css';
-  import '@/assets/taskDetails.css';
+import 'animate.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import '@/assets/taskDetails.css';
 import Sidebar from '../components/Sidebar.vue';
-  
-  export default {
-    name: 'TaskDetailsView',
-    components: { Sidebar },
-    data() {
+
+export default {
+  name: 'TaskDetailsView',
+  components: { Sidebar },
+  data() {
+    const userData = JSON.parse(localStorage.getItem('user'));
+    
+    return {
+      parentName: userData ? `${userData.nombre} ${userData.apellido}` : 'Usuario',
+      parentId: userData ? userData.id : null,
+      selectedStudent: null,
+      students: [],
+      tasks: [],
+      allCMP: [],
+      allDeliveries: [],
+      loading: false
+    };
+  },
+  async created() {
+    await this.fetchChildren();
+  },
+  methods: {
+    async fetchData(url) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        return null;
+      }
+    },
+
+    async fetchChildren() {
+      try {
+        this.loading = true;
+        const data = await this.fetchData(`http://localhost:8080/api/students/hijos/${this.parentId}`);
+        if (data) {
+          this.students = data.map(child => ({
+            id: child.id_estudiante,
+            userId: child.id_usuario,
+            name: `${child.nombre} ${child.apellido_paterno}`,
+            rawData: child
+          }));
+          console.log('Hijos obtenidos:', this.students);
+        }
+      } catch (error) {
+        console.error('Error al obtener hijos:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    async fetchTasks() {
+      if (!this.selectedStudent) return;
+      
+      try {
+        this.loading = true;
+        
+        // 1. Obtener cursos del estudiante
+        const courses = await this.fetchData(`http://localhost:8080/api/students/cursos/${this.selectedStudent.id}`);
+        console.log('Cursos del estudiante:', courses);
+        
+        if (!courses) return;
+        
+        // 2. Obtener todas las relaciones CMP
+        const allCMP = await this.fetchData('http://localhost:8080/api/students/curso_materia_profesor');
+        this.allCMP = allCMP || [];
+        console.log('Relaciones CMP:', this.allCMP);
+        
+        // 3. Obtener todas las tareas
+        const allTasks = await this.fetchData('http://localhost:8080/api/homework/tareas');
+        console.log('Todas las tareas:', allTasks);
+        
+        // 4. Obtener todas las entregas
+        const allDeliveries = await this.fetchData('http://localhost:8080/api/homework/entregas');
+        this.allDeliveries = allDeliveries || [];
+        console.log('Todas las entregas:', this.allDeliveries);
+        
+        // Filtrar CMP que pertenecen a los cursos del estudiante
+        const studentCourseIds = courses.map(c => c.id_curso);
+        const relevantCMP = this.allCMP.filter(cmp => 
+          studentCourseIds.includes(cmp.idCurso)
+        );
+        
+        // Filtrar tareas que pertenecen a los CMP relevantes
+        const relevantTasks = (allTasks || []).filter(task =>
+          relevantCMP.some(cmp => cmp.idCmp === task.idCmp)
+        );
+        
+        // Mapear a formato que espera el frontend
+        this.tasks = relevantTasks.map(task => {
+          const delivery = this.allDeliveries.find(d => 
+            d.idTarea === task.idTarea && d.idEstudiante === this.selectedStudent.id
+          );
+          
+          const cmp = relevantCMP.find(c => c.idCmp === task.idCmp);
+          
+          return {
+            id: task.idTarea,
+            studentId: this.selectedStudent.id,
+            title: task.titulo,
+            description: task.descripcion,
+            instructions: task.descripcion,
+            materials: 'No especificado',
+            subject: `Materia ${cmp.idMateria}`,
+            assignedDate: task.creadoEn,
+            dueDate: task.fechaEntrega,
+            status: delivery ? delivery.estado : 'pending',
+            isOverdue: this.isTaskOverdue(task.fechaEntrega),
+            comments: delivery ? delivery.comentario : null,
+            expanded: false
+          };
+        });
+        
+        console.log('Tareas procesadas:', this.tasks);
+      } catch (error) {
+        console.error('Error al obtener tareas:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    isTaskOverdue(dueDate) {
+      if (!dueDate) return false;
+      const today = new Date();
+      const due = new Date(dueDate);
+      return today > due;
+    },
+    
+    taskStatusClass(task) {
       return {
-        parentName: 'María González',
-        selectedStudent: '',
-        students: [
-          { id: 1, name: 'Ana González', grade: '5° Primaria', section: 'Sección A' },
-          { id: 2, name: 'Carlos González', grade: '2° Secundaria', section: 'Sección B' },
-          { id: 3, name: 'Lucía González', grade: '3° Primaria', section: 'Sección C' },
-        ],
-        tasks: [],
-        sampleTasks: [
-          {
-            id: 1,
-            studentId: 1,
-            title: 'Proyecto de Ciencias',
-            description: 'Investigación sobre el sistema solar con maqueta',
-            instructions: 'Realizar una investigación sobre los planetas y construir una maqueta del sistema solar.',
-            materials: 'Cartulinas, pinturas, esferas de poliestireno',
-            subject: 'Ciencias',
-            assignedDate: '10/04/2025',
-            dueDate: '20/04/2025',
-            status: 'pending',
-            isOverdue: false,
-            comments: 'Asegúrate de incluir datos sobre las órbitas de los planetas.',
-            expanded: false,
-          },
-          {
-            id: 2,
-            studentId: 2,
-            title: 'Ejercicios de Matemáticas',
-            description: 'Páginas 45-50 del libro de ejercicios',
-            instructions: 'Resolver los ejercicios de álgebra en las páginas indicadas.',
-            materials: 'Libro de matemáticas, calculadora',
-            subject: 'Matemáticas',
-            assignedDate: '08/04/2025',
-            dueDate: '14/04/2025',
-            status: 'pending',
-            isOverdue: true,
-            comments: 'Revisar los ejercicios de ecuaciones lineales con más cuidado.',
-            expanded: false,
-          },
-          {
-            id: 3,
-            studentId: 2,
-            title: 'Ensayo literario',
-            description: 'Redactar un ensayo sobre "Cien años de soledad"',
-            instructions: 'Escribir un ensayo de 500 palabras analizando los temas principales de la obra.',
-            materials: 'Libro "Cien años de soledad", computadora',
-            subject: 'Español',
-            assignedDate: '12/04/2025',
-            dueDate: '22/04/2025',
-            status: 'pending',
-            isOverdue: false,
-            comments: null,
-            expanded: false,
-          },
-          {
-            id: 4,
-            studentId: 3,
-            title: 'Dibujo histórico',
-            description: 'Representar una escena de la independencia',
-            instructions: 'Dibujar una escena representativa de la independencia de Bolivia.',
-            materials: 'Hojas de dibujo, lápices de colores',
-            subject: 'Historia',
-            assignedDate: '05/04/2025',
-            dueDate: '10/04/2025',
-            status: 'completed',
-            isOverdue: false,
-            comments: 'Excelente trabajo, muy detallado.',
-            expanded: false,
-          },
-        ],
+        'ausente-badge': task.status === 'pending' && task.isOverdue,
+        'tardanza-badge': task.status === 'pending' && !task.isOverdue,
+        'presente-badge': ['completed', 'entregado', 'calificado'].includes(task.status),
       };
     },
-    methods: {
-      fetchTasks() {
-        if (this.selectedStudent) {
-          this.tasks = this.sampleTasks.filter(task => task.studentId === this.selectedStudent.id);
-        } else {
-          this.tasks = [];
-        }
-      },
-      taskStatusClass(task) {
-        return {
-          'ausente-badge': task.status === 'pending' && task.isOverdue,
-          'tardanza-badge': task.status === 'pending' && !task.isOverdue,
-          'presente-badge': task.status === 'completed',
-        };
-      },
-      taskStatusIcon(task) {
-        return {
-          'fas fa-exclamation-circle': task.status === 'pending' && task.isOverdue,
-          'far fa-clock': task.status === 'pending' && !task.isOverdue,
-          'fas fa-check-circle': task.status === 'completed',
-        };
-      },
+    
+    taskStatusIcon(task) {
+      return {
+        'fas fa-exclamation-circle': task.status === 'pending' && task.isOverdue,
+        'far fa-clock': task.status === 'pending' && !task.isOverdue,
+        'fas fa-check-circle': ['completed', 'entregado', 'calificado'].includes(task.status),
+      };
     },
-  };
-  </script>
+  },
+};
+</script>

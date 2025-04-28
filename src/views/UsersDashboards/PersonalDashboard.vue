@@ -10,15 +10,8 @@
       <Sidebar />
       <WelcomeBanner />
       <div class="content">
-        <WelcomeBanner />
-        <WelcomeBanner />
-        <WelcomeBanner />
-        <WelcomeBanner />
-        <WelcomeBanner />
-        <WelcomeBanner />
-        <WelcomeBanner />
-        <WelcomeBanner />
-        <WelcomeBanner />
+        <!-- Contenido Aquiii -->
+
       </div>
     </div>
   </div>

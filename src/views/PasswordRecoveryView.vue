@@ -10,7 +10,7 @@
         <form @submit.prevent="submitRecovery" class="p-3">
           <!-- Campo de correo -->
           <div class="input-group mb-4 animate__animated animate__fadeInUp" :class="{ 'animate__shakeX': shake }">
-            <span class="input-icon"><i class="fas fa-envelope"></i></span>
+            <span class="input-icon"></span>
             <input
               type="email"
               v-model="email"
@@ -111,7 +111,7 @@ export default {
           email: this.email
           };
 
-        const emailResponse = await fetch('http://localhost:8080/api/users/reset-password', {
+        const emailResponse = await fetch('http://localhost:8080/api/notifications/email/send', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
