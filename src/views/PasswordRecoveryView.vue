@@ -1,6 +1,5 @@
 <template>
   <div class="wrapper">
-
     <!-- Main Content -->
     <div class="main-content d-flex justify-content-center align-items-center">
       <div class="login-box animate__animated animate__fadeInUp">
@@ -53,13 +52,7 @@
           {{ successMessage }}
         </div>
 
-        <!-- Mensaje de éxito -->
-        <div v-if="success" class="alert alert-success mt-3 animate__animated animate__fadeIn">
-          <i class="fas fa-check-circle me-2"></i>
-          {{ successMessage }}
-        </div>
-
-        <!-- Mensaje de error (nuevo) -->
+        <!-- Mensaje de error -->
         <div v-if="error" class="alert alert-danger mt-3 animate__animated animate__fadeIn">
           <i class="fas fa-exclamation-circle me-2"></i>
           {{ errorMessage }}

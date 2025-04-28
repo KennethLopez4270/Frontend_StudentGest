@@ -67,7 +67,7 @@ const isMobile = ref(false)
 
 // Verificar tamaño de pantalla
 const checkScreenSize = () => {
-  isMobile.value = window.innerWidth <= 768
+  isMobile.value = window.innerWidth <= 992 // Changed to 992px to include tablets
   if (isMobile.value) {
     isSidebarOpen.value = false
   } else {
@@ -153,6 +153,16 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Variables for consistency */
+:root {
+  --color-primary: #1a2e4a;
+  --color-accent: #d4c08a;
+  --color-light: #ffffff;
+  --hover-primary: #355e3b;
+  --font-title: 'Playfair Display', serif;
+  --font-body: 'Poppins', sans-serif;
+}
+
 /* Estructura principal */
 .sidebar {
   background: var(--color-primary);
@@ -298,7 +308,7 @@ nav {
   transform: none;
 }
 
-/* Estilos para móviles */
+/* Estilos para móviles y tabletas */
 .hamburger-btn {
   position: fixed;
   top: 15px;
@@ -329,9 +339,10 @@ nav {
   backdrop-filter: blur(3px);
 }
 
-@media (max-width: 768px) {
+/* Tablet y móvil (≤992px) */
+@media (max-width: 992px) {
   .sidebar {
-    width: 280px;
+    width: 245px;
     transform: translateX(-100%);
     clip-path: none;
     border-radius: 0;
@@ -342,7 +353,7 @@ nav {
   }
   
   .sidebar.collapsed {
-    width: 280px;
+    width: 245px;
     transform: translateX(-100%);
   }
   
@@ -358,6 +369,63 @@ nav {
   .sidebar.collapsed .logo {
     justify-content: flex-start;
     margin-left: 0.5rem;
+  }
+
+  .logo-text {
+    font-size: 1.4rem;
+  }
+
+  .school-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .nav-label {
+    font-size: 0.9rem;
+  }
+
+  .sidebar i {
+    font-size: 1rem;
+  }
+}
+
+/* Móvil (≤576px) */
+@media (max-width: 576px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar.collapsed {
+    width: 200px;
+  }
+
+  .logo-text {
+    font-size: 1.2rem;
+  }
+
+  .school-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .nav-label {
+    font-size: 0.85rem;
+  }
+
+  .sidebar i {
+    font-size: 0.9rem;
+  }
+
+  .hamburger-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    top: 10px;
+    left: 10px;
   }
 }
 </style>

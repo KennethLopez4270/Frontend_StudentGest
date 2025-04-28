@@ -11,16 +11,16 @@
           <h1 class="animate__animated animate__pulse animate__infinite animate__slow">
             Bienvenido {{ parentName }}
           </h1>
-          <a href="#" class="btn btn-lg">Cerrar Sesión</a>
+          <button @click="logout" class="btn btn-lg logout-btn">Cerrar Sesión</button>
         </div>
 
         <!-- Forum Section -->
         <div class="form-section animate__animated animate__fadeInUp">
           <h2>Foro de la Comunidad</h2>
-          <p class="text-sm text-gray-600 mb-4">Conecta con otros padres y profesores para discutir temas educativos.</p>
+          <p class="description">Conecta con otros padres y profesores para discutir temas educativos.</p>
 
           <!-- Lista de Temas -->
-          <div v-if="topics.length === 0" class="no-topics text-center text-gray-600">
+          <div v-if="topics.length === 0" class="no-topics">
             No hay temas disponibles en este momento.
           </div>
           <div v-else class="topics-list">
@@ -30,28 +30,28 @@
               class="topic-card animate__animated animate__fadeInUp"
               :class="{ 'animate__delay-1s': index % 2 === 0, 'animate__delay-2s': index % 2 !== 0 }"
             >
-              <div class="d-flex justify-content-between align-items-start mb-2">
+              <div class="topic-header">
                 <h3>{{ topic.title }}</h3>
                 <span class="type-badge">Creado por {{ topic.author }}</span>
               </div>
-              <p>{{ topic.content }}</p>
-              <p class="text-muted small mb-3">
+              <p class="topic-content">{{ topic.content }}</p>
+              <p class="topic-date">
                 <i class="far fa-calendar-alt me-1"></i>{{ topic.date }}
               </p>
-              <button @click="viewTopic(index)" class="btn btn-sm btn-primary">
+              <button @click="viewTopic(index)" class="btn btn-view">
                 {{ selectedTopic === index ? 'Ocultar' : 'Ver' }} Discusión
               </button>
 
               <!-- Respuestas -->
-              <div v-if="selectedTopic === index" class="replies-section mt-4">
+              <div v-if="selectedTopic === index" class="replies-section">
                 <h4>Respuestas</h4>
-                <div v-if="topic.replies.length === 0" class="no-replies text-center text-gray-600">
+                <div v-if="topic.replies.length === 0" class="no-replies">
                   No hay respuestas todavía. ¡Sé el primero en responder!
                 </div>
                 <div v-else class="replies-list">
                   <div v-for="(reply, replyIndex) in topic.replies" :key="replyIndex" class="reply-card">
-                    <p>{{ reply.content }}</p>
-                    <p class="text-muted small">
+                    <p class="reply-content">{{ reply.content }}</p>
+                    <p class="reply-meta">
                       <i class="fas fa-user me-1"></i>{{ reply.author }} | 
                       <i class="far fa-calendar-alt me-1"></i>{{ reply.date }}
                     </p>
@@ -59,19 +59,19 @@
                 </div>
 
                 <!-- Formulario para Responder -->
-                <form @submit.prevent="addReply(index)" class="reply-form mt-4">
-                  <div class="mb-3">
+                <form @submit.prevent="addReply(index)" class="reply-form">
+                  <div class="form-group">
                     <label for="replyTextarea" class="form-label">Escribe tu respuesta</label>
                     <textarea
                       id="replyTextarea"
                       v-model="newReply"
-                      class="form-control shadow-sm"
+                      class="form-control"
                       placeholder="Escribe tu respuesta aquí..."
                       required
                       rows="3"
                     ></textarea>
                   </div>
-                  <button type="submit" class="btn btn-primary"><i class="fas fa-reply me-1"></i> Responder</button>
+                  <button type="submit" class="btn btn-reply"><i class="fas fa-reply me-1"></i> Responder</button>
                 </form>
               </div>
             </div>
@@ -82,7 +82,7 @@
       <!-- Right Section -->
       <div class="right-section">
         <div class="profile-card animate__animated animate__fadeInRight">
-          <img src="https://i.pinimg.com/736x/bd/42/8e/bd428e6bb156d90045700dbf3e967c3e.jpg" alt="Profile" class="shadow-lg" />
+          <img src="https://i.pinimg.com/736x/bd/42/8e/bd428e6bb156d90045700dbf3e967c3e.jpg" alt="Profile" />
           <h3>{{ parentName }}</h3>
           <p>Tutor</p>
           <p><i class="fas fa-building me-1"></i> Academia Prestige</p>
@@ -135,6 +135,10 @@ export default {
     };
   },
   methods: {
+    logout() {
+      // Lógica para cerrar sesión
+      console.log('Sesión cerrada');
+    },
     viewTopic(index) {
       this.selectedTopic = this.selectedTopic === index ? null : index;
     },
@@ -146,7 +150,7 @@ export default {
       });
       this.topics[topicIndex].replies.push({
         content: this.newReply,
-        author: 'María González, Madre', // En un sistema real, esto vendría de la autenticación
+        author: 'María González, Madre',
         date: today,
       });
       this.newReply = '';
