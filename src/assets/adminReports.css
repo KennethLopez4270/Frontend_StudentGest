@@ -26,48 +26,55 @@ body {
 .wrapper {
   display: flex;
   min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* Main Content */
 .main-content {
   margin-left: 220px;
-  padding: 1.5rem;
+  padding: 2rem;
   display: flex;
-  flex-direction: column;
   gap: 1.5rem;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .left-section {
   flex: 2;
-  order: 1;
 }
 
 .right-section {
   flex: 1;
-  order: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 /* Form Section */
 .form-section {
   background: rgba(255, 255, 255, 0.95);
   border-radius: var(--border-radius);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-md);
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(26, 46, 74, 0.2);
   transition: var(--transition);
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1.5rem;
 }
 
 .form-section:hover {
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 6px 20px rgba(26, 46, 74, 0.25);
 }
 
 .form-section h2 {
   font-family: 'Playfair Display', serif;
-  font-size: 1.8rem;
+  font-size: 2.2rem;
   font-weight: 700;
   color: var(--color-primary);
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   position: relative;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .form-section h2::after {
@@ -92,6 +99,7 @@ body {
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
 .form-group {
@@ -99,7 +107,7 @@ body {
 }
 
 .form-label {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--color-gray);
   font-weight: 500;
   display: block;
@@ -109,17 +117,18 @@ body {
 .form-select {
   width: 100%;
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: 8px;
   background: var(--color-light);
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--color-gray);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(26, 46, 74, 0.3);
   transition: var(--transition);
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  box-sizing: border-box;
 }
 
 .form-select:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 12px rgba(26, 46, 74, 0.5);
 }
 
 /* Report Type */
@@ -128,6 +137,7 @@ body {
   flex-direction: column;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
 .custom-radio {
@@ -144,7 +154,7 @@ body {
 }
 
 .custom-radio .form-check-label {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--color-gray);
   padding: 0.5rem 1rem;
   border-radius: 20px;
@@ -156,7 +166,7 @@ body {
 .custom-radio .form-check-input:checked + .form-check-label {
   background: var(--color-secondary);
   color: var(--color-light);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(26, 46, 74, 0.3);
 }
 
 .custom-radio .form-check-label:hover {
@@ -168,22 +178,24 @@ body {
 .report-table {
   background: var(--color-light);
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 16px rgba(26, 46, 74, 0.2);
   overflow: hidden;
-  padding: 1.5rem;
+  padding: 2rem;
   transition: var(--transition);
+  width: 100%;
 }
 
 .report-table:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 6px 20px rgba(26, 46, 74, 0.25);
 }
 
 .report-title {
   font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: var(--color-primary);
   margin-bottom: 1rem;
   text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .report-meta {
@@ -199,9 +211,11 @@ body {
 
 .report-section h4 {
   font-family: 'Playfair Display', serif;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   color: var(--color-primary);
   margin-bottom: 1rem;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .table-responsive {
@@ -211,8 +225,7 @@ body {
 
 .table-modern {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 0.5rem;
+  border-collapse: collapse;
   min-width: 600px;
 }
 
@@ -220,13 +233,13 @@ body {
 .table-modern td {
   padding: 0.75rem;
   text-align: left;
-  vertical-align: middle;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .table-modern th {
   font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  font-size: 0.8rem;
+  font-weight: 600;
+  font-size: 0.875rem;
   color: var(--color-light);
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   text-transform: uppercase;
@@ -234,17 +247,19 @@ body {
 }
 
 .table-modern td {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   color: var(--color-gray);
   background: var(--color-light-bg);
+}
+
+.table-modern tbody tr {
   transition: var(--transition);
 }
 
-.table-modern tbody tr:hover td {
-  background: linear-gradient(135deg, #a3bffa 0%, var(--color-accent) 100%);
-  color: var(--color-primary);
-  transform: scale(1.02);
-  box-shadow: var(--shadow-sm);
+.table-modern tbody tr:hover {
+  background: #f1f8fe;
+  transform: scale(1.005);
+  box-shadow: 0 2px 8px rgba(26, 46, 74, 0.3);
 }
 
 /* Badges */
@@ -256,7 +271,7 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   transition: var(--transition);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .presente-badge {
@@ -279,6 +294,11 @@ body {
   color: var(--color-primary);
 }
 
+.type-badge:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 8px rgba(26, 46, 74, 0.3);
+}
+
 /* Export Button */
 .export-btn-container {
   text-align: center;
@@ -289,16 +309,19 @@ body {
   background: var(--color-primary);
   border: none;
   color: var(--color-light);
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--border-radius);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   transition: var(--transition);
-  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(26, 46, 74, 0.3);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .btn-export:hover {
-  background: var(--color-secondary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  background: var(--color-accent);
+  color: var(--color-primary);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(26, 46, 74, 0.5);
 }
 
 /* Profile Card */
@@ -306,45 +329,49 @@ body {
   background: var(--color-light);
   border-radius: var(--border-radius);
   padding: 1.5rem;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 16px rgba(26, 46, 74, 0.2);
   text-align: center;
   transition: var(--transition);
+  width: 100%;
 }
 
 .profile-card:hover {
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 6px 20px rgba(26, 46, 74, 0.25);
 }
 
 .profile-card img {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   transition: var(--transition);
   object-fit: cover;
-  border: 3px solid var(--color-accent);
+  box-shadow: 0 2px 8px rgba(26, 46, 74, 0.3);
 }
 
 .profile-card img:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-md);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(26, 46, 74, 0.5);
 }
 
 .profile-card h3 {
   font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: var(--color-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .profile-card p {
   color: var(--color-gray);
   font-size: 0.9rem;
+  font-weight: 300;
   margin-bottom: 0.5rem;
 }
 
 .profile-card i {
-  color: var(--color-secondary);
+  color: #8b2e3c;
+  margin-right: 0.5rem;
 }
 
 /* Responsive Design */
@@ -355,81 +382,257 @@ body {
   
   .selection-container {
     flex-direction: row;
+    gap: 1.5rem;
+    flex-wrap: wrap;
   }
   
   .report-type-container {
     flex-direction: row;
-    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .form-group {
+    flex: 1;
+    min-width: 200px;
   }
 }
 
-@media (max-width: 991px) {
+@media (max-width: 1200px) {
   .main-content {
+    flex-direction: column;
     margin-left: 0;
-    padding-top: 5rem;
+    padding: 1rem;
+  }
+  
+  .left-section, .right-section {
+    width: 100%;
+    flex: none;
   }
   
   .right-section {
-    order: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+    padding-top: 4rem;
   }
   
-  .left-section {
-    order: 2;
+  .form-section h2 {
+    font-size: 1.8rem;
+  }
+  
+  .profile-card h3 {
+    font-size: 1.5rem;
+  }
+
+  .selection-container {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .report-type-container {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }
 
 @media (max-width: 768px) {
-  .form-section h2 {
-    font-size: 1.6rem;
+  body {
+    font-size: 0.9rem;
   }
-  
+
+  .main-content {
+    padding: 0.5rem 0.5rem 0.5rem 0;
+    padding-top: 4rem;
+  }
+
+  .form-section {
+    padding: 1rem;
+    margin-left: 0;
+    margin-right: 0.5rem;
+  }
+
+  .form-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .form-select {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
+
+  .custom-radio .form-check-label {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .report-table {
+    padding: 1rem;
+    margin-left: 0;
+    margin-right: 0.5rem;
+  }
+
   .report-title {
+    font-size: 1.5rem;
+  }
+
+  .report-meta {
+    font-size: 0.8rem;
+  }
+
+  .report-section h4 {
     font-size: 1.3rem;
   }
-  
-  .report-section h4 {
-    font-size: 1.1rem;
+
+  .table-modern {
+    min-width: 100%;
   }
-  
+
+  .table-modern th,
+  .table-modern td {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .table-modern tbody tr {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .table-modern tbody td {
+    display: block;
+    text-align: left;
+    padding-left: 50%;
+    position: relative;
+  }
+
+  .table-modern tbody td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0.5rem;
+    width: 45%;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .type-badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.75rem;
+  }
+
+  .profile-card {
+    padding: 1rem;
+    margin-left: 0;
+    margin-right: 0.5rem;
+  }
+
   .profile-card img {
     width: 80px;
     height: 80px;
   }
-  
+
   .profile-card h3 {
     font-size: 1.3rem;
+  }
+
+  .profile-card p {
+    font-size: 0.85rem;
+  }
+
+  .btn-export {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 576px) {
+  body {
+    font-size: 0.85rem;
+  }
+
+  .main-content {
+    padding: 0.25rem 0.25rem 0.25rem 0;
+    padding-top: 4rem;
+  }
+
   .form-section {
-    padding: 1rem;
+    padding: 0.75rem;
+    margin-left: 0;
+    margin-right: 0.25rem;
   }
-  
+
   .form-section h2 {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
-  
+
+  .form-select {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .form-label {
+    font-size: 0.85rem;
+  }
+
+  .custom-radio .form-check-label {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .report-table {
+    padding: 0.75rem;
+    margin-left: 0;
+    margin-right: 0.25rem;
+  }
+
   .report-title {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
-  
+
+  .report-section h4 {
+    font-size: 1.1rem;
+  }
+
   .profile-card {
-    padding: 1rem;
+    padding: 0.75rem;
+    margin-left: 0;
+    margin-right: 0.25rem;
   }
-  
+
+  .profile-card img {
+    width: 60px;
+    height: 60px;
+  }
+
   .profile-card h3 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
-  
+
   .table-modern th,
   .table-modern td {
     padding: 0.5rem;
-    font-size: 0.8rem;
-  }
-  
-  .type-badge {
     font-size: 0.7rem;
-    padding: 0.25rem 0.75rem;
+  }
+
+  .type-badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .btn-export {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
   }
 }
