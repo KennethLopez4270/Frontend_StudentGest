@@ -54,7 +54,7 @@ const features = [
 
 <style scoped>
 .features-section {
-  background-color: var(--color-bg);
+  background: linear-gradient(to bottom right, var(--color-bg) 60%, #f0f4f8 100%);
   padding: 4rem 1rem;
   font-family: var(--font-body);
   text-align: center;
@@ -63,32 +63,36 @@ const features = [
 .title {
   font-family: var(--font-title);
   font-size: 2.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   color: var(--color-primary);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2.5rem;
+  justify-items: center;
 }
 
 .feature-card {
   background-color: white;
-  border-radius: 1.5rem;
-  padding: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 2rem;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 350px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s;
   cursor: pointer;
 }
 
 .feature-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-10px);
+  background-color: var(--color-bg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 }
 
 .feature-icon {
-  font-size: 2.5rem;
+  font-size: 3rem;
   color: var(--color-secondary);
   margin-bottom: 1rem;
 }
@@ -96,12 +100,20 @@ const features = [
 .feature-title {
   font-family: var(--font-title);
   color: var(--color-primary);
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.6rem;
+  margin-bottom: 0.7rem;
 }
 
 .feature-description {
   font-size: 1rem;
   color: var(--color-dark);
+  padding: 0 1rem;
+}
+
+/* Responsive pequeño ajuste para centrar los últimos cards */
+@media (max-width: 768px) {
+  .grid {
+    justify-content: center;
+  }
 }
 </style>

@@ -12,7 +12,8 @@ import { Chart as ChartJS, registerables } from 'chart.js'
 ChartJS.register(...registerables)
 
 // Para colores y más >^. .^<
-import './assets/themes/light-theme.css'; // Tema predeterminado
+import './assets/themes/landing-theme.css'; // Tema para landing page 
+import './assets/themes/tendant-theme.css';
 
 const app = createApp(App);
 app.use(router);

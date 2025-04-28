@@ -211,11 +211,101 @@ export default {
 .btn-outline-primary {
   border-color: #3b5998;
   color: #3b5998;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
   transition: all 0.3s ease;
 }
 
 .btn-outline-primary:hover {
   background: #3b5998;
   color: #ffffff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .calendario {
+    padding: 1rem;
+  }
+
+  .calendar-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .month-year {
+    font-size: 1.3rem;
+  }
+
+  .btn-outline-primary {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .days-of-week {
+    margin-bottom: 0.3rem;
+  }
+
+  .day-header {
+    padding: 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  .days-grid {
+    gap: 1px;
+  }
+
+  .day {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .event-indicator {
+    bottom: 3px;
+    right: 3px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .calendario {
+    padding: 0.75rem;
+  }
+
+  .calendar-header {
+    margin-bottom: 0.5rem;
+  }
+
+  .month-year {
+    font-size: 1.1rem;
+  }
+
+  .btn-outline-primary {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .days-of-week {
+    margin-bottom: 0.2rem;
+  }
+
+  .day-header {
+    padding: 0.3rem;
+    font-size: 0.7rem;
+  }
+
+  .days-grid {
+    gap: 1px;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .day {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .event-indicator {
+    bottom: 2px;
+    right: 2px;
+    font-size: 0.6rem;
+  }
 }
 </style>

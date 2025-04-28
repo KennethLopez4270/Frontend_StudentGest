@@ -11,13 +11,13 @@
           <h1 class="animate__animated animate__pulse animate__infinite animate__slow">
             Bienvenido {{ parentName }}
           </h1>
-          <a href="#" class="btn btn-lg">Cerrar Sesión</a>
+          <button @click="logout" class="btn btn-lg logout-btn">Cerrar Sesión</button>
         </div>
 
         <!-- Forum Section -->
         <div class="form-section animate__animated animate__fadeInUp">
           <h2>Foro de la Comunidad</h2>
-          <p class="text-sm text-gray-600 mb-4">Conecta con otros padres y profesores para discutir temas educativos.</p>
+          <p class="description">Conecta con otros padres y profesores para discutir temas educativos.</p>
 
           <!-- Selector de Curso -->
           <div class="mb-4">
@@ -109,17 +109,6 @@
         </div>
       </div>
 
-      <!-- Right Section -->
-      <div class="right-section">
-        <div class="profile-card animate__animated animate__fadeInRight">
-          <img src="https://i.pinimg.com/736x/bd/42/8e/bd428e6bb156d90045700dbf3e967c3e.jpg" alt="Profile" class="shadow-lg" />
-          <h3>{{ parentName }}</h3>
-          <p>Tutor</p>
-          <p><i class="fas fa-building me-1"></i> Academia Prestige</p>
-          <p><i class="fas fa-calendar-alt me-1"></i> Miembro desde: 01/01/2023</p>
-          <p><i class="fas fa-users me-1"></i> {{ children.length }} Estudiantes</p>
-        </div>
-      </div>
     </div>
   </div>
 </template>
