@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
-//import HomeView from '../views/LandingPage.vue';
+//import HomeView from '../views/HomeView.vue';
+import HomeView from '../views/LandingPage.vue';
 import LoginView from '../views/LoginView.vue';
 import RegistroView from '../views/RegistroView.vue';
 import ControlAsistencia from '../views/controlAsistencia.vue';
@@ -17,8 +17,8 @@ import TeacherPerformanceReports from '../views/TeacherPerformanceReports.vue'; 
 import RestaurarPasswordForm from '../components/RestaurarPasswordForm.vue';
 
 import StudentDashboard from '../views/UsersDashboards/StudentDashboard.vue';
-//import ParentDashboard from '../views/UsersDashboards/ParentDashboard.vue';
-import ParentDashboard from '../views/ParentDashboard.vue';
+import ParentDashboard from '../views/UsersDashboards/ParentDashboard.vue';
+//import ParentDashboard from '../views/ParentDashboard.vue';
 import TeacherDashboard from '../views/UsersDashboards/TeacherDashboard.vue';
 import PersonalDashboard from '../views/UsersDashboards/PersonalDashboard.vue';
 import AdminDashboard from '../views/UsersDashboards/AdminDashboard.vue';

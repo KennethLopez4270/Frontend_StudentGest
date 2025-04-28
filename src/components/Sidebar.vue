@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Botón de hamburguesa para móviles -->
+    <!-- Botón de hamburguesa siempre fijo -->
     <button 
       v-if="isMobile"
       class="hamburger-btn"
@@ -67,7 +67,7 @@ const isMobile = ref(false)
 
 // Verificar tamaño de pantalla
 const checkScreenSize = () => {
-  isMobile.value = window.innerWidth <= 768
+  isMobile.value = window.innerWidth <= 992 // Changed to 992px to include tablets
   if (isMobile.value) {
     isSidebarOpen.value = false
   } else {
@@ -80,6 +80,12 @@ const checkScreenSize = () => {
 const toggleSidebar = () => {
   if (isMobile.value) {
     isSidebarOpen.value = !isSidebarOpen.value
+    // Bloquear/desbloquear scroll del body cuando el sidebar está abierto
+    if (isSidebarOpen.value) {
+      document.body.classList.add('no-scroll')
+    } else {
+      document.body.classList.remove('no-scroll')
+    }
   } else {
     isCollapsed.value = !isCollapsed.value
   }
@@ -89,6 +95,7 @@ const toggleSidebar = () => {
 const handleNavClick = () => {
   if (isMobile.value) {
     isSidebarOpen.value = false
+    document.body.classList.remove('no-scroll')
   }
 }
 
@@ -134,10 +141,10 @@ const loadMenuItems = () => {
   menuItems.value = roleBasedMenus[role] || []
 }
 
-// Observar cambios en la ruta
 watch(() => route.name, () => {
   if (isMobile.value) {
     isSidebarOpen.value = false
+    document.body.classList.remove('no-scroll')
   }
 })
 
@@ -149,22 +156,23 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkScreenSize)
+  document.body.classList.remove('no-scroll')
 })
 </script>
 
 <style scoped>
-/* Estructura principal */
 .sidebar {
-  background: var(--color-primary);
-  color: var(--color-light);
+  background: var(--t-color-primary);
+  color: var(--t-color-light);
   height: 100vh;
   width: 245px;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, width 0.3s ease;
   overflow: hidden;
   position: fixed;
   display: flex;
   flex-direction: column;
   padding-top: 1.5rem;
+  /*
   clip-path: polygon(
     0 0,
     calc(100% - 50px) 0,
@@ -172,13 +180,13 @@ onUnmounted(() => {
     100% calc(100% - 50px),
     calc(100% - 50px) 100%,
     0 100%
-  );
-  border-radius: 0 40px 40px 0;
+  );*/
   z-index: 1000;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  top: 0;
+  left: 0;
 }
 
-/* Logo */
 .logo {
   display: flex;
   align-items: center;
@@ -189,7 +197,7 @@ onUnmounted(() => {
 }
 
 .logo-text {
-  font-family: var(--font-title);
+  font-family: var(--t-font-title);
   font-weight: 700;
   font-size: 1.6rem;
   color: var(--color-light);
@@ -213,7 +221,6 @@ onUnmounted(() => {
   object-fit: cover;
 }
 
-/* Navegación */
 nav {
   width: 100%;
   flex-grow: 1;
@@ -225,7 +232,7 @@ nav {
   display: flex;
   align-items: center;
   padding: 0.75rem;
-  color: var(--color-light);
+  color: var(--t-color-light);
   text-decoration: none;
   border-radius: 6px;
   margin: 0.4rem 0.4rem 0.4rem 0;
@@ -233,13 +240,13 @@ nav {
 }
 
 .sidebar a:hover {
-  background: var(--hover-primary);
+  background: var(--t-hover-primary);
   color: white;
   transform: translateX(5px);
 }
 
 .sidebar a.active {
-  background: var(--color-accent);
+  background: var(--t-color-accent);
   color: white;
   font-weight: 600;
 }
@@ -247,7 +254,7 @@ nav {
 .sidebar i {
   min-width: 30px;
   text-align: center;
-  color: var(--color-light);
+  color: var(--t-color-light);
   font-size: 1.1rem;
   opacity: 0.8;
 }
@@ -263,12 +270,11 @@ nav {
 }
 
 .nav-label {
-  font-family: var(--font-body);
+  font-family: var(--t-font-body);
   margin-left: 0.5rem;
   font-size: 0.95rem;
 }
 
-/* Sidebar colapsado */
 .sidebar.collapsed {
   width: 65px;
 }
@@ -298,12 +304,11 @@ nav {
   transform: none;
 }
 
-/* Estilos para móviles */
 .hamburger-btn {
   position: fixed;
   top: 15px;
   left: 15px;
-  background: var(--color-accent);
+  background: var(--t-color-accent);
   color: white;
   border: none;
   border-radius: 50%;
@@ -329,35 +334,105 @@ nav {
   backdrop-filter: blur(3px);
 }
 
-@media (max-width: 768px) {
+/* Tablet y móvil (≤992px) */
+@media (max-width: 992px) {
   .sidebar {
-    width: 280px;
+    width: 245px;
     transform: translateX(-100%);
     clip-path: none;
     border-radius: 0;
+    height: 100vh !important;
+    overflow-y: auto;
   }
-  
+
   .sidebar.mobile-open {
     transform: translateX(0);
   }
-  
+
   .sidebar.collapsed {
-    width: 280px;
+    width: 245px;
     transform: translateX(-100%);
   }
-  
+
   .sidebar.collapsed .label {
     opacity: 1;
     margin-left: 0.5rem;
   }
-  
+
   .sidebar.collapsed a {
     justify-content: flex-start;
   }
-  
+
   .sidebar.collapsed .logo {
     justify-content: flex-start;
     margin-left: 0.5rem;
   }
+
+  .logo-text {
+    font-size: 1.4rem;
+  }
+
+  .school-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .nav-label {
+    font-size: 0.9rem;
+  }
+
+  .sidebar i {
+    font-size: 1rem;
+  }
+}
+
+/* Móvil (≤576px) */
+@media (max-width: 576px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar.collapsed {
+    width: 200px;
+  }
+
+  .logo-text {
+    font-size: 1.2rem;
+  }
+
+  .school-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .nav-label {
+    font-size: 0.85rem;
+  }
+
+  .sidebar i {
+    font-size: 0.9rem;
+  }
+
+  .hamburger-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    top: 10px;
+    left: 10px;
+  }
+}
+</style>
+
+<style>
+/* Estilo global para el body cuando el sidebar está abierto */
+.no-scroll {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
 }
 </style>

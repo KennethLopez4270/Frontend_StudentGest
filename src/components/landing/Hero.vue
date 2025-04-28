@@ -10,14 +10,18 @@
           que transforma la gestión académica con eficiencia, innovación y facilidad.
         </p>
         <div class="hero-buttons animate__animated animate__fadeInUp">
-          <a href="/login" class="hero-btn primary-btn">Ver planes</a>
-          <a href="/contactos" class="hero-btn primary-btn">Contáctanos</a>
+          <a href="/login" class="hero-btn primary-btn">
+            Ver planes
+          </a>
+          <a href="/contactos" class="hero-btn secondary-btn">
+            Contáctanos
+          </a>
         </div>
       </div>
       <div class="hero-image animate__animated animate__fadeInRight">
         <img
           src="@/assets/images/capibara_coding.png"
-          alt="Estudiantes usando StudentGest"
+          alt="Capibara usando StudentGest"
         />
       </div>
     </div>
@@ -25,14 +29,14 @@
 </template>
 
 <script setup>
-// Nada por ahora 
+
 </script>
 
 <style scoped>
 .hero-section {
   background-color: var(--color-primary);
   font-family: var(--font-body);
-  padding: 2rem;
+  padding: 4rem 2rem;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -42,42 +46,46 @@
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 @media (min-width: 768px) {
   .hero-container {
     flex-direction: row;
+    justify-content: space-between;
   }
 }
 
 .hero-text {
   flex: 1;
-  max-width: 850px;
   text-align: center;
+  padding: 0 1rem;
 }
 
 @media (min-width: 768px) {
   .hero-text {
     text-align: left;
+    padding-left: 1.8rem;
   }
 }
 
 .hero-title {
   font-family: 'Playfair Display', serif;
-  font-size: 3.5rem;
+  font-size: 3rem;
   color: var(--color-light);
   margin-bottom: 1.5rem;
   text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
   background: linear-gradient(135deg, var(--color-light), var(--color-accent));
   background-clip: text;
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .hero-subtitle {
   font-size: 1.25rem;
-  font-family: var(--font-body);
   color: var(--color-subtle-text, #e0e7ff);
   margin-bottom: 2rem;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
@@ -101,6 +109,10 @@
   border-radius: 1rem;
   font-weight: bold;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
   transition: all 0.3s ease;
 }
 
@@ -115,12 +127,14 @@
 }
 
 .secondary-btn {
-  background-color: var(--color-accent);
+  background-color: transparent;
   color: var(--color-light);
+  border: 2px solid var(--color-light);
 }
 
 .secondary-btn:hover {
-  background-color: var(--hover-secondary);
+  background-color: var(--color-light);
+  color: var(--color-primary);
   transform: scale(1.05);
 }
 
@@ -130,17 +144,20 @@
 }
 
 .hero-image img {
-  width: 60%;
+  width: 70%;
   max-width: 400px;
   border-radius: 20px;
-  box-shadow: 0 15px 30px rgba(26, 46, 74, 0.4);
   transition: transform 0.4s ease;
-  /*border: 5px solid var(--color-accent);*/
   transform: rotate(5deg);
-  margin-right: 0;
 }
 
 .hero-image img:hover {
   transform: rotate(0deg) scale(1.05);
+}
+
+@media (max-width: 480px) {
+  .hero-image {
+    display: none;
+  }
 }
 </style>

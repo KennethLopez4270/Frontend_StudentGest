@@ -1,6 +1,6 @@
 <template>
   <div class="welcome-banner">
-    <h1>¡Bienvenid@ de nuevo, {{ firstName }}!</h1>
+    <h1>¡Bienvenid@ de nuevo, <span>{{ firstName }}</span>!</h1>
   </div>
 </template>
 
@@ -19,28 +19,27 @@ onMounted(() => {
 
 <style scoped>
 .welcome-banner {
-  background-color: var(--color-primary);
-  color: var(--color-light);
-  padding: 1.2rem 2rem;
-  border-radius: 0 0 0 30px;
-  /*
-  clip-path: polygon(
-    30px 0%,   // esquina superior izquierda cortada
-    100% 0%, 
-    100% 100%, 
-    30px 100%, // esquina inferior izquierda cortada 
-    0% 0%,    // triángulo inferior 
-    0% 0%     // triángulo superior 
-  ); */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  margin-bottom: 5px;
+  background-color: var(--t-color-primary);
+  color: var(--t-color-light);
+  padding: 1.5rem 2rem;
+  /*border-radius: 0 0 30px 30px;*/
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease;
+  margin-bottom: 1.5rem;
+  text-align: center; /*cambiar como se vea mejor*/ 
 }
 
 .welcome-banner h1 {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: bold;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--t-font-title);
+  letter-spacing: 0.5px;
+}
+
+.welcome-banner h1 span {
+  color: var(--t-color-accent-2);
+  font-family: var(--t-font-body);
+  font-weight: 600;
 }
 </style>

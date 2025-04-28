@@ -1,21 +1,14 @@
 <template>
   <div class="dashboard-layout">
-    <!-- Sidebar (se manejará de forma responsive dentro del componente) -->
-    <Sidebar ref="sidebar" />
-    
-    <!-- Contenido principal -->
-    <div class="content-column" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
-      <!-- Botón de hamburguesa solo para móviles -->
-      <button 
-        v-if="isMobile"
-        class="mobile-menu-btn"
-        @click="toggleSidebar"
-      >
-        <i class="fas fa-bars"></i>
-      </button>
-
-      <WelcomeBanner />
+    <!-- Columna izquierda: Sidebar -->
+    <div class="sidebar-column">
       
+    </div>
+
+    <!-- Columna derecha: Contenido principal -->
+    <div class="content-column">
+      <Sidebar />
+      <WelcomeBanner />
       <div class="content">
         <!-- Resumen de materias y cursos -->
         <CourseSummaryCards />
@@ -31,39 +24,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
 import WelcomeBanner from '@/components/WelcomeBanner.vue'
 import CourseSummaryCards from '@/components/CourseSummaryCards.vue'
-import RecentHomeworkCarousel from '@/components/RecentHomeworkCarousel.vue'
-import CoursePerformanceCharts from '@/components/CoursePerformanceCharts.vue'
+import RecentHomeworkCarousel from '@/components/RecentHomeworkCarousel.vue'  
+import CoursePerformanceCharts from '@/components/CoursePerformanceCharts.vue'  
 
-const sidebar = ref(null)
-const isMobile = ref(false)
-const isSidebarCollapsed = ref(false)
-
-// Verificar tamaño de pantalla
-const checkScreenSize = () => {
-  isMobile.value = window.innerWidth <= 768
-  isSidebarCollapsed.value = isMobile.value
-}
-
-// Alternar sidebar
-const toggleSidebar = () => {
-  if (sidebar.value) {
-    sidebar.value.toggleSidebar()
-  }
-  isSidebarCollapsed.value = !isSidebarCollapsed.value
-}
-
-onMounted(() => {
-  checkScreenSize()
-  window.addEventListener('resize', checkScreenSize)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', checkScreenSize)
-})
 </script>
 
 <style scoped>
@@ -71,74 +37,46 @@ onUnmounted(() => {
   display: flex;
   min-height: 100vh;
   background-color: var(--color-bg);
-  position: relative;
 }
 
+/* Sidebar */
+.sidebar-column {
+  width: 240px;
+  background-color: var(--color-sidebar);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenido */
 .content-column {
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 0;
-  transition: margin-left 0.3s ease;
+  padding: 0 0 0 10px;
 }
 
 .content {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  padding: 10px;
 }
 
-/* Botón de menú móvil */
-.mobile-menu-btn {
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  background: var(--color-accent);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 1.2rem;
-  z-index: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-}
-
-/* Estilos responsivos */
-@media (min-width: 769px) {
-  .content-column {
-    margin-left: 240px;
-  }
-  
-  .content-column.sidebar-collapsed {
-    margin-left: 65px;
-  }
-}
-
+/* --- RESPONSIVE --- */
 @media (max-width: 768px) {
-  .content-column {
-    margin-left: 0;
+  .dashboard-layout {
+    flex-direction: column; /* Ya no lado a lado, sino arriba/abajo */
+  }
+
+  .sidebar-column {
     width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    display: none; /* oculto el sidebar estático, ahora depende del burger */
   }
-  
-  .mobile-menu-btn {
-    display: flex;
+
+  .content-column {
+    width: 100%;
+    padding: 10px;
   }
-}
-
-/* Transiciones suaves */
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform 0.3s ease;
-}
-
-.slide-enter-from,
-.slide-leave-to {
-  transform: translateX(-100%);
 }
 </style>
