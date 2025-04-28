@@ -2,7 +2,6 @@
   <div class="wrapper">
     <!-- Sidebar -->
     <Sidebar />
-
     <!-- Main Content -->
     <div class="main-content">
       <div class="left-section">
@@ -203,6 +202,67 @@
       </div>
     </div>
   </div>
+  <!-- Historial de Asistencias -->
+  <div class="history-section">
+    <h3 class="text-center mb-4">Historial de Asistencias</h3>
+    
+    <div class="history-controls mb-3 text-center">
+      <button 
+        class="btn btn-primary"
+        @click="loadAttendanceHistory"
+        :disabled="loadingHistory"
+      >
+        <span v-if="loadingHistory" class="spinner-border spinner-border-sm" role="status"></span>
+        {{ loadingHistory ? 'Cargando...' : 'Generar Historial' }}
+      </button>
+    </div>
+
+    <div v-if="attendanceHistory.length > 0" class="table-container">
+      <div class="table-responsive fixed-size-table">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th class="fixed-side">Estudiante</th>
+              <th v-for="date in uniqueDates" :key="date" class="date-header">
+                {{ formatDateHeader(date) }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="student in students" :key="student.id">
+              <td class="fixed-side">{{ student.name }}</td>
+              <td v-for="date in uniqueDates" :key="`${student.id}-${date}`">
+                <div v-if="getAttendanceForStudent(student.id, date)" class="attendance-buttons">
+                  <button 
+                    class="btn btn-sm btn-success me-1"
+                    :class="{ 'active': getAttendanceForStudent(student.id, date).tipo === 'presente' }"
+                    @click="updateHistoricalAttendance(getAttendanceForStudent(student.id, date), 'presente')"
+                  >
+                    <i class="fas fa-check"></i>
+                  </button>
+                  <button 
+                    class="btn btn-sm btn-danger me-1"
+                    :class="{ 'active': getAttendanceForStudent(student.id, date).tipo === 'ausente' }"
+                    @click="updateHistoricalAttendance(getAttendanceForStudent(student.id, date), 'ausente')"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <button 
+                    class="btn btn-sm btn-warning"
+                    :class="{ 'active': getAttendanceForStudent(student.id, date).tipo === 'tardanza' }"
+                    @click="updateHistoricalAttendance(getAttendanceForStudent(student.id, date), 'tardanza')"
+                  >
+                    <i class="fas fa-clock"></i>
+                  </button>
+                </div>
+                <span v-else>-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -233,9 +293,14 @@ export default {
     const loadingStudents = ref(false);
     const savingAttendances = ref(false);
 
+    const allCourses = ref([]); // Para almacenar todos los cursos disponibles
+    const attendanceHistory = ref([]); // Para el historial de asistencias
+    const loadingHistory = ref(false); // Loading state para el historial
+
     // Cargar cursos del profesor al montar el componente
     onMounted(async () => {
       await loadTeacherCourses();
+      await loadAllCourses();
     });
 
     // Cargar cursos del profesor
@@ -409,7 +474,129 @@ export default {
         'tardanza': 'Tardanza'
       }[status] || status;
     }
+    // Función para cargar todos los cursos disponibles
+    async function loadAllCourses() {
+      try {
+        const response = await fetch('http://localhost:8080/api/students/curso');
+        if (!response.ok) throw new Error('Error al cargar cursos');
+        allCourses.value = await response.json();
+      } catch (error) {
+        console.error(error);
+        showError('Error', 'No se pudieron cargar los cursos disponibles');
+      }
+    }
 
+    // Función para encontrar el id_curso comparando los datos
+    function findCourseId(selectedCourse) {
+      if (!selectedCourse || !allCourses.value.length) return null;
+      
+      return allCourses.value.find(course => 
+        course.nombre === selectedCourse.nombreCurso &&
+        course.nivel === selectedCourse.nivel &&
+        course.turno === selectedCourse.turno &&
+        course.gestion == selectedCourse.gestion // Usamos == para manejar string/number
+      )?.id_curso || null;
+    }
+
+    // Función para cargar el historial de asistencias
+    async function loadAttendanceHistory() {
+      if (!selectedCourse.value) return;
+      
+      const courseId = findCourseId(selectedCourse.value);
+      if (!courseId) {
+        console.error("No se pudo encontrar el ID del curso seleccionado");
+        return;
+      }
+
+      try {
+        loadingHistory.value = true;
+        const response = await fetch(`http://localhost:8080/api/asistencia/curso/${courseId}`);
+        
+        if (!response.ok) throw new Error('Error al cargar el historial');
+        
+        const data = await response.json();
+        console.log("Datos de asistencia recibidos:", data);
+        attendanceHistory.value = processAttendanceData(data);
+        
+      } catch (error) {
+        console.error(error);
+        showError('Error', error.message);
+      } finally {
+        loadingHistory.value = false;
+      }
+    }
+
+    // Procesa los datos de asistencia para quedarse con el último registro por día
+    function processAttendanceData(data) {
+      const grouped = {};
+      
+      data.forEach(item => {
+        const key = `${item.studentId}_${item.fecha}`;
+        if (!grouped[key] || new Date(item.createdAt) > new Date(grouped[key].createdAt)) {
+          grouped[key] = item;
+        }
+      });
+      
+      return Object.values(grouped);
+    }
+    // Obtiene fechas únicas ordenadas
+    const uniqueDates = computed(() => {
+      const dates = [...new Set(attendanceHistory.value.map(item => item.fecha))];
+      return dates.sort((a, b) => new Date(b) - new Date(a)); // Más reciente primero
+    });
+
+    // Obtiene la asistencia de un estudiante en una fecha específica
+    function getAttendanceForStudent(studentId, date) {
+      return attendanceHistory.value.find(
+        item => item.studentId == studentId && item.fecha === date
+      );
+    }
+
+    // Formatea la fecha para los headers
+    function formatDateHeader(dateStr) {
+      const date = new Date(dateStr);
+      const day = date.getDate();
+      const month = date.toLocaleString('es-ES', { month: 'short' });
+      return `${day} ${month}`;
+    }
+
+    // Convierte el status a símbolo
+    function getStatusSymbol(status) {
+      return {
+        'presente': 'P',
+        'ausente': 'A',
+        'tardanza': 'T'
+      }[status] || status;
+    }
+    async function updateHistoricalAttendance(attendanceRecord, newStatus) {
+      try {
+        const payload = {
+          tipo: newStatus,
+          excusa: "", // Siempre vacío como solicitaste
+          usuarioId: teacherId // ID del profesor automático
+        };
+
+        const response = await fetch(`http://localhost:8080/api/asistencia/editar/${attendanceRecord.id_asistencia}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al actualizar la asistencia');
+        }
+
+        // Actualización local inmediata
+        attendanceRecord.tipo = newStatus;
+        showSuccess('Éxito', 'Asistencia actualizada correctamente');
+        
+      } catch (error) {
+        console.error(error);
+        showError('Error', error.message);
+      }
+    }
     return {
       teacherCourses,
       selectedCourse,
@@ -429,7 +616,16 @@ export default {
       saveExcuse,
       saveAllAttendances,
       statusBadgeClass,
-      getStatusText
+      getStatusText,
+      // ... tus propiedades existentes ...
+      attendanceHistory,
+      loadingHistory,
+      uniqueDates,
+      // ... tus métodos existentes ...
+      loadAttendanceHistory,
+      getAttendanceForStudent,
+      formatDateHeader,
+      updateHistoricalAttendance
     };
   }
 };
@@ -487,5 +683,112 @@ export default {
 .badge {
   font-size: 0.85em;
   padding: 5px 10px;
+}
+.history-section {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.history-section th {
+  white-space: nowrap;
+  text-align: center;
+}
+
+.history-section td {
+  text-align: center;
+}
+.attendance-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.attendance-buttons .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.attendance-buttons .btn.active {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+
+.attendance-buttons .btn-sm {
+  min-width: 28px;
+}
+.history-section {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin: 20px auto;
+  max-width: 95%;
+}
+
+.table-container {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.fixed-size-table {
+  width: 100%;
+  overflow-x: auto;
+  display: block;
+  max-height: 500px;
+}
+
+.fixed-side {
+  position: sticky;
+  left: 0;
+  background: white;
+  z-index: 2;
+  min-width: 200px;
+  max-width: 200px;
+}
+
+.date-header {
+  min-width: 120px;
+  text-align: center;
+}
+
+.attendance-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px;
+}
+
+/* Mantenemos tus estilos de botones */
+.attendance-buttons .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.attendance-buttons .btn.active {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+
+/* Scrollbar styling */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 </style>
