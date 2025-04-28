@@ -271,6 +271,67 @@
       </div>
     </div>
   </div>
+  <!-- Historial de Asistencias -->
+  <div class="history-section">
+    <h3 class="text-center mb-4">Historial de Asistencias</h3>
+    
+    <div class="history-controls mb-3 text-center">
+      <button 
+        class="btn btn-primary"
+        @click="loadAttendanceHistory"
+        :disabled="loadingHistory"
+      >
+        <span v-if="loadingHistory" class="spinner-border spinner-border-sm" role="status"></span>
+        {{ loadingHistory ? 'Cargando...' : 'Generar Historial' }}
+      </button>
+    </div>
+
+    <div v-if="attendanceHistory.length > 0" class="table-container">
+      <div class="table-responsive fixed-size-table">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th class="fixed-side">Estudiante</th>
+              <th v-for="date in uniqueDates" :key="date" class="date-header">
+                {{ formatDateHeader(date) }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="student in students" :key="student.id">
+              <td class="fixed-side">{{ student.name }}</td>
+              <td v-for="date in uniqueDates" :key="`${student.id}-${date}`">
+                <div v-if="getAttendanceForStudent(student.id, date)" class="attendance-buttons">
+                  <button 
+                    class="btn btn-sm btn-success me-1"
+                    :class="{ 'active': getAttendanceForStudent(student.id, date).tipo === 'presente' }"
+                    @click="updateHistoricalAttendance(getAttendanceForStudent(student.id, date), 'presente')"
+                  >
+                    <i class="fas fa-check"></i>
+                  </button>
+                  <button 
+                    class="btn btn-sm btn-danger me-1"
+                    :class="{ 'active': getAttendanceForStudent(student.id, date).tipo === 'ausente' }"
+                    @click="updateHistoricalAttendance(getAttendanceForStudent(student.id, date), 'ausente')"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <button 
+                    class="btn btn-sm btn-warning"
+                    :class="{ 'active': getAttendanceForStudent(student.id, date).tipo === 'tardanza' }"
+                    @click="updateHistoricalAttendance(getAttendanceForStudent(student.id, date), 'tardanza')"
+                  >
+                    <i class="fas fa-clock"></i>
+                  </button>
+                </div>
+                <span v-else>-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>

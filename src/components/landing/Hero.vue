@@ -10,8 +10,11 @@
           que transforma la gestión académica con eficiencia, innovación y facilidad.
         </p>
         <div class="hero-buttons animate__animated animate__fadeInUp">
-          <a href="/login" class="hero-btn primary-btn">
-            Ver planes
+          <a href="/registro-institucion" class="hero-btn primary-btn">
+            Registrar Institución
+          </a>
+          <a href="/login" class="hero-btn secondary-btn">
+            Inscribirse
           </a>
           <a href="/contactos" class="hero-btn secondary-btn">
             Contáctanos
