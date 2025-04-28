@@ -640,11 +640,6 @@ export default {
 </script>
 
 <style scoped>
-.wrapper {
-  display: flex;
-  min-height: 100vh;
-}
-
 .main-content {
   display: flex;
   flex: 1;
