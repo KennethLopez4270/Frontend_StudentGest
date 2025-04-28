@@ -1,97 +1,104 @@
 <template>
-  <div class="wrapper">
-    <!-- Sidebar -->
-    <Sidebar />
-    
-    <!-- Main Content -->
-    <div class="main-content">
-      <div class="left-section">
-        <!-- Header -->
-        <div class="header animate__animated animate__fadeInDown">
-          <h1>Justificar Ausencias</h1>
-          <router-link to="/historial-asistencias" class="btn">Ver Historial Completo</router-link>
-        </div>
 
-        <!-- Selector de hijo -->
-        <div class="form-section animate__animated animate__fadeInUp">
-          <h2>Selecciona un Hijo</h2>
-          <div class="row g-3 justify-content-center">
-            <div class="col-md-6">
-              <label for="hijoSelect" class="form-label">Hijo</label>
-              <select 
-                id="hijoSelect" 
-                v-model="hijoSeleccionado" 
-                class="form-select"
-                :disabled="loadingHijos"
-              >
-                <option disabled value="">-- Seleccionar --</option>
-                <option v-for="hijo in hijos" :key="hijo.id" :value="hijo">
-                  {{ hijo.nombre }} {{ hijo.apellido }}
-                </option>
-              </select>
-              <div v-if="loadingHijos" class="spinner-border spinner-border-sm mt-2" role="status">
-                <span class="visually-hidden">Cargando...</span>
+    <div class="dashboard-layout">
+      <!-- Columna izquierda: Sidebar -->
+      <div class="sidebar-column">
+        
+      </div>
+
+      <!-- Columna derecha: Contenido principal -->
+      <div class="content-column">
+        <Sidebar />
+        <div class="content">
+          <div class="left-section">
+            <!-- Header -->
+            <div class="header animate__animated animate__fadeInDown">
+              <h1>Justificar Ausencias</h1>
+              <router-link to="/historial-asistencias" class="btn">Ver Historial Completo</router-link>
+            </div>
+
+            <!-- Selector de hijo -->
+            <div class="form-section animate__animated animate__fadeInUp">
+              <h2>Selecciona un Hijo</h2>
+              <div class="row g-3 justify-content-center">
+                <div class="col-md-6">
+                  <label for="hijoSelect" class="form-label">Hijo</label>
+                  <select 
+                    id="hijoSelect" 
+                    v-model="hijoSeleccionado" 
+                    class="form-select"
+                    :disabled="loadingHijos"
+                  >
+                    <option disabled value="">-- Seleccionar --</option>
+                    <option v-for="hijo in hijos" :key="hijo.id" :value="hijo">
+                      {{ hijo.nombre }} {{ hijo.apellido }}
+                    </option>
+                  </select>
+                  <div v-if="loadingHijos" class="spinner-border spinner-border-sm mt-2" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Tabla de Asistencias -->
-        <div v-if="hijoSeleccionado" class="history-table animate__animated animate__fadeIn">
-          <div v-if="loadingAsistencias" class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Cargando...</span>
+            <!-- Tabla de Asistencias -->
+            <div v-if="hijoSeleccionado" class="history-table animate__animated animate__fadeIn">
+              <div v-if="loadingAsistencias" class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2">Cargando asistencias...</p>
+              </div>
+
+              <div v-else-if="asistencias.length === 0" class="text-center py-4 text-muted">
+                No hay registros de asistencia para este estudiante
+              </div>
+
+              <table v-else class="table table-modern">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Justificación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(asistencia, index) in asistencias" :key="index" class="history-row">
+                    <td>{{ formatDate(asistencia.fecha) }}</td>
+                    <td>
+                      <span :class="estadoClase(asistencia.estado)" class="type-badge">
+                        {{ asistencia.estado }}
+                      </span>
+                    </td>
+                    <td>
+                      <div v-if="asistencia.estado !== 'presente'">
+                        <div v-if="asistencia.justificacion">
+                          <span class="justification-text">{{ asistencia.justificacion }}</span>
+                          <button 
+                            class="btn-edit" 
+                            @click="editarJustificacion(index)"
+                            :disabled="savingJustification"
+                          >
+                            Editar
+                          </button>
+                        </div>
+                        <div v-else>
+                          <button 
+                            class="btn-justify" 
+                            @click="justificar(index)"
+                            :disabled="savingJustification"
+                          >
+                            Justificar
+                          </button>
+                        </div>
+                      </div>
+                      <span v-else>-</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <p class="mt-2">Cargando asistencias...</p>
           </div>
-
-          <div v-else-if="asistencias.length === 0" class="text-center py-4 text-muted">
-            No hay registros de asistencia para este estudiante
-          </div>
-
-          <table v-else class="table table-modern">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Estado</th>
-                <th>Justificación</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(asistencia, index) in asistencias" :key="index" class="history-row">
-                <td>{{ formatDate(asistencia.fecha) }}</td>
-                <td>
-                  <span :class="estadoClase(asistencia.estado)" class="type-badge">
-                    {{ asistencia.estado }}
-                  </span>
-                </td>
-                <td>
-                  <div v-if="asistencia.estado !== 'presente'">
-                    <div v-if="asistencia.justificacion">
-                      <span class="justification-text">{{ asistencia.justificacion }}</span>
-                      <button 
-                        class="btn-edit" 
-                        @click="editarJustificacion(index)"
-                        :disabled="savingJustification"
-                      >
-                        Editar
-                      </button>
-                    </div>
-                    <div v-else>
-                      <button 
-                        class="btn-justify" 
-                        @click="justificar(index)"
-                        :disabled="savingJustification"
-                      >
-                        Justificar
-                      </button>
-                    </div>
-                  </div>
-                  <span v-else>-</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
@@ -135,7 +142,7 @@
         </div>
       </div>
     </div>
-  </div>
+  
 </template>
 
 <script>
@@ -491,5 +498,51 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+}
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+/* Sidebar */
+.sidebar-column {
+  width: 240px;
+  background-color: var(--color-sidebar);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenido */
+.content-column {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0 0 0 10px;
+}
+
+.content {
+  padding: 10px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .dashboard-layout {
+    flex-direction: column; /* Ya no lado a lado, sino arriba/abajo */
+  }
+
+  .sidebar-column {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    display: none; /* oculto el sidebar estático, ahora depende del burger */
+  }
+
+  .content-column {
+    width: 100%;
+    padding: 10px;
+  }
 }
 </style>
