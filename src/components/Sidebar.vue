@@ -115,7 +115,7 @@ const loadMenuItems = () => {
     ESTUDIANTE: [
       { route: '/student-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
       { route: '/tareas', name: 'MisTareas', icon: 'fas fa-tasks', label: 'Mis Tareas' },
-      { route: '/calificaciones', name: 'Notas', icon: 'fas fa-star', label: 'Mis Calificaciones' },
+      //{ route: '/calificaciones', name: 'Notas', icon: 'fas fa-star', label: 'Mis Calificaciones' },
       { route: '/foro', name: 'Forum', icon: 'fas fa-comments', label: 'Foro' },
       { route: '/calendario', name: 'AcademicCalendar', icon: 'fas fa-calendar-alt', label: 'Calendario' }
     ],
@@ -127,14 +127,16 @@ const loadMenuItems = () => {
       { route: '/calendario', name: 'AcademicCalendar', icon: 'fas fa-calendar-alt', label: 'Calendario' }
     ],
     DIRECTOR: [
-      { route: '/admin-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
-      { route: '/gestion-usuarios', name: 'Usuarios', icon: 'fas fa-users-cog', label: 'Gestión de Usuarios' },
-      { route: '/reportes', name: 'Reportes', icon: 'fas fa-chart-line', label: 'Reportes Generales' }
+      //{ route: '/admin-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
+      { route: '/reportes', name: 'Reportes', icon: 'fas fa-chart-line', label: 'Reportes Generales' },
+      { route: '/eventos', name: 'Eventos', icon: 'fas fa-bullhorn', label: 'Eventos' },
+      { route: '/gestion-padres', name: 'GestionPadres', icon: 'fas fa-users', label: 'Gestion Padres' }
     ],
     PERSONAL: [
-      { route: '/personal-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
+      //{ route: '/personal-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
       { route: '/calendario', name: 'Calendario', icon: 'fas fa-calendar-alt', label: 'Calendario Escolar' },
-      { route: '/eventos', name: 'Eventos', icon: 'fas fa-bullhorn', label: 'Eventos' }
+      { route: '/eventos', name: 'Eventos', icon: 'fas fa-bullhorn', label: 'Eventos' },
+      { route: '/gestion-padres', name: 'GestionPadres', icon: 'fas fa-users', label: 'Gestion Padres' }
     ]
   }
 

@@ -15,6 +15,7 @@ import TeacherTasksView from '../views/TeacherTasksView.vue';
 import AcademicCalendar from '../views/AcademicCalendar.vue';
 import TeacherPerformanceReports from '../views/TeacherPerformanceReports.vue'; // Nueva vista
 import RestaurarPasswordForm from '../components/RestaurarPasswordForm.vue';
+import CrearEventos from '../views/CrearEventos.vue';
 
 import StudentDashboard from '../views/UsersDashboards/StudentDashboard.vue';
 import ParentDashboard from '../views/UsersDashboards/ParentDashboard.vue';
@@ -23,6 +24,7 @@ import TeacherDashboard from '../views/UsersDashboards/TeacherDashboard.vue';
 import PersonalDashboard from '../views/UsersDashboards/PersonalDashboard.vue';
 import AdminDashboard from '../views/UsersDashboards/AdminDashboard.vue';
 import RegistroInstitucion from '../views/RegistrarInstitucionView.vue';
+import GestionPadres from '../views/GestionPadresView.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: HomeView },
@@ -40,6 +42,8 @@ const routes = [
   { path: '/teacher-tasks', name: 'TeacherTasks', component: TeacherTasksView },
   { path: '/calendario', name: 'AcademicCalendar', component: AcademicCalendar },
   { path: '/teacher-performance-reports', name: 'TeacherPerformanceReports', component: TeacherPerformanceReports }, // Nueva ruta
+  { path: '/gestion-padres', name: 'GestionPadres', component: GestionPadres },
+  { path: '/eventos', name: 'Crear Eventos', component: CrearEventos },
   { path: '/restaurar-password/:id', name: 'RestaurarPasword', component: RestaurarPasswordForm, props: true },
 
 

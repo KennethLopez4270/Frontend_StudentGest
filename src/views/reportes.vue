@@ -134,17 +134,6 @@
           </div>
         </div>
   
-        <!-- Right Section -->
-        <div class="right-section">
-          <div class="profile-card animate__animated animate__fadeInRight">
-            <img src="https://i.pinimg.com/736x/bd/42/8e/bd428e6bb156d90045700dbf3e967c3e.jpg" alt="Profile" class="shadow-lg" />
-            <h3>{{ usuario.nombre }} {{ usuario.apellido_paterno }}</h3>
-            <p>{{ usuario.rol.charAt(0).toUpperCase() + usuario.rol.slice(1) }}</p>
-            <p><i class="fas fa-building me-1"></i> Academia Prestige</p>
-            <p><i class="fas fa-calendar-alt me-1"></i> Miembro desde: 01/01/2023</p>
-            <p><i class="fas fa-users me-1"></i> {{ estudiantes.length }} Estudiantes</p>
-          </div>
-        </div>
       </div>
     </div>
   </template>

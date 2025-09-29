@@ -33,6 +33,7 @@
               </option>
             </select>
           </div>
+          
 
           <!-- Lista de Temas -->
           <div v-if="loading" class="text-center">
@@ -210,7 +211,7 @@ export default {
       for (const course of this.uniqueCourses) {
         console.log(`Cargando foros para curso ID: ${course.id_curso}`);
         try {
-          const response = await fetch(`http://localhost:8080/api/foro/curso/${course.id_curso}`);
+          const response = await fetch(`http://localhost:8088/api/foro/curso/${course.id_curso}`);
           const courseForums = await response.json();
           console.log(`Foros para curso ${course.id_curso}:`, courseForums);
           this.forums.push(...courseForums);
@@ -234,7 +235,7 @@ export default {
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/foro/curso/${this.selectedCourse}`);
+        const response = await fetch(`http://localhost:8088/api/foro/curso/${this.selectedCourse}`);
         this.forums = await response.json();
         console.log(`Foros para curso ${this.selectedCourse}:`, this.forums);
       } catch (error) {
@@ -260,7 +261,7 @@ export default {
       this.forumMessagesLoading = true;
       try {
         console.log(`Cargando mensajes para foro ID: ${forumId}`);
-        const response = await fetch(`http://localhost:8080/api/foro/${forumId}/mensajes`);
+        const response = await fetch(`http://localhost:8088/api/foro/${forumId}/mensajes`);
         const messages = await response.json();
         console.log(`Mensajes para foro ${forumId}:`, messages);
         
@@ -286,7 +287,7 @@ export default {
   }
 
   try {
-    const response = await fetch(`http://localhost:8080/api/foro/${forumId}/comentar`, {
+    const response = await fetch(`http://localhost:8088/api/foro/${forumId}/comentar`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -300,7 +301,7 @@ export default {
     if (response.ok) {
       console.log('Mensaje enviado con éxito');
       // Recargar los mensajes del foro
-      const updatedMessages = await fetch(`http://localhost:8080/api/foro/${forumId}/mensajes`).then(res => res.json());
+      const updatedMessages = await fetch(`http://localhost:8088/api/foro/${forumId}/mensajes`).then(res => res.json());
       
       // Actualizar reactivamente los mensajes
       this.forumMessages = {
