@@ -30,6 +30,7 @@
           class="form-control"
           required
           @focus="resetShake"
+          maxlength="100"
         />
       </div>
 
@@ -43,15 +44,30 @@
           class="form-control"
           required
           @focus="resetShake"
+          maxlength="100"
         />
         <span class="toggle-password" @click="togglePassword">
           <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
         </span>
       </div>
 
+      <!-- Recordar sesión (opcional) -->
+      <div class="mb-3 form-check">
+        <input 
+          type="checkbox" 
+          class="form-check-input" 
+          id="rememberMe" 
+          v-model="rememberMe"
+        >
+        <label class="form-check-label small" for="rememberMe">
+          Recordar esta sesión
+        </label>
+      </div>
+
       <!-- Botón -->
-      <button type="submit" class="btn btn-primary w-100">
-        <i class="fas fa-sign-in-alt me-2"></i> Iniciar sesión
+      <button type="submit" class="btn btn-primary w-100" :disabled="loading">
+        <i class="fas fa-sign-in-alt me-2"></i> 
+        {{ loading ? 'Iniciando sesión...' : 'Iniciar sesión' }}
       </button>
     </form>
 
@@ -63,6 +79,14 @@
     <p class="text-center">
       <router-link to="/recuperar-contrasena" class="text-primary fw-bold">Olvidé mi contraseña</router-link>
     </p>
+
+    <!-- Información de seguridad -->
+    <div class="security-info mt-3 p-3 bg-light rounded">
+      <small class="text-muted">
+        <i class="fas fa-info-circle me-1"></i>
+        Por seguridad, tu sesión se cerrará automáticamente después de 15 minutos de inactividad.
+      </small>
+    </div>
   </div>
 </template>
 
@@ -77,7 +101,9 @@ const institution = ref('')
 const showPassword = ref(false)
 const shake = ref(false)
 const savedInstitution = ref(null)
-const institutions = ref(['Colegio 1', 'Colegio 2', 'Colegio 3']) // Ejemplo, puedes cargarlos de una API
+const rememberMe = ref(false)
+const loading = ref(false)
+const institutions = ref(['Colegio 1', 'Colegio 2', 'Colegio 3'])
 const router = useRouter()
 
 // Cargar institución guardada al montar el componente
@@ -87,6 +113,9 @@ onMounted(() => {
     savedInstitution.value = JSON.parse(savedData)
     institution.value = savedInstitution.value.nombre
   }
+
+  // Inicializar el sistema de timeout de sesión
+  initializeSessionTimeout()
 })
 
 function togglePassword() {
@@ -97,15 +126,23 @@ function resetShake() {
   shake.value = false
 }
 
+function initializeSessionTimeout() {
+  // Esta función se llamará desde el componente principal de la app
+  console.log('Sistema de timeout de sesión inicializado')
+}
+
 async function submitLogin() {
   if (!email.value || !password.value || !institution.value) {
     shake.value = true
     setTimeout(() => (shake.value = false), 500)
+    showError('Error', 'Por favor complete todos los campos.')
     return
   }
 
+  loading.value = true
+
   try {
-    const response = await fetch("http://localhost:8080/api/users/login", {
+    const response = await fetch("http://localhost:8084/api/users/login", {  // ← Cambiado a 8084
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
@@ -117,15 +154,35 @@ async function submitLogin() {
 
     const data = await response.json()
 
-    if (!response.ok || data.message) {
-      showError('Error de inicio de sesión', data.message || 'Correo o contraseña incorrectos')
-      throw new Error(data.message || 'Credenciales inválidas')
+    if (!response.ok || !data.success) {
+      let errorMessage = data.message || 'Correo o contraseña incorrectos'
+      
+      if (data.message && data.message.includes('bloqueada')) {
+        errorMessage = 'Cuenta bloqueada por múltiples intentos fallidos. Contacte al administrador.'
+      } else if (data.message && data.message.includes('no activa')) {
+        errorMessage = 'Cuenta pendiente de aprobación. Contacte al administrador.'
+      }
+      
+      showError('Error de inicio de sesión', errorMessage)
+      throw new Error(errorMessage)
     }
 
     showSuccess('¡Bienvenido!', `Has iniciado sesión como ${data.rol.toLowerCase()}`)
 
+    // Guardar token y datos de usuario
+    localStorage.setItem("authToken", data.token)
     localStorage.setItem("user", JSON.stringify(data))
     localStorage.setItem("institution", institution.value)
+    localStorage.setItem("lastActivity", Date.now().toString())
+
+    // Configurar headers para futuras requests
+    setupAuthHeader(data.token)
+
+    // Si requiere cambio de contraseña, redirigir a esa página
+    if (data.requiresPasswordChange) {
+      router.push("/cambio-contrasena-forzado")
+      return
+    }
 
     const routeByRole = {
       PROFESOR: "/teacher-dashboard", 
@@ -133,12 +190,28 @@ async function submitLogin() {
       PADRE: "/parent-dashboard", 
       ESTUDIANTE: "/student-dashboard", 
       PERSONAL: "/personal-dashboard", 
-      
     }
 
     router.push(routeByRole[data.rol] || "/inicio")
   } catch (error) {
     console.error("Error en el login:", error.message)
+  } finally {
+    loading.value = false
+  }
+}
+
+function setupAuthHeader(token) {
+  // Interceptar futuras requests para agregar el token
+  const originalFetch = window.fetch
+  window.fetch = function(...args) {
+    const [url, options = {}] = args
+    if (typeof url === 'string' && url.startsWith('http://localhost:8084')) {  // ← Cambiado a 8084
+      options.headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${token}`
+      }
+    }
+    return originalFetch(url, options)
   }
 }
 </script>
@@ -190,8 +263,12 @@ h1 {
   background-color: var(--color-primary) !important;
   border-color: var(--color-primary) !important;
 }
+.btn-primary:disabled {
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
+}
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background-color: var(--hover-primary) !important;
   border-color: var(--hover-primary) !important;
 }
@@ -213,6 +290,11 @@ h1 {
   max-width: 420px;
   color: #000;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.security-info {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 526px) {

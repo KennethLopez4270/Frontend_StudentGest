@@ -7,6 +7,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'animate.css';
 import 'font-awesome/css/font-awesome.min.css';
 import '@fortawesome/fontawesome-free/css/all.css';
+import { initializeSessionTimeout, validateSessionOnLoad } from './utils/sessionManager'
 
 import { Chart as ChartJS, registerables } from 'chart.js'
 ChartJS.register(...registerables)
@@ -17,4 +18,7 @@ import './assets/themes/tendant-theme.css';
 
 const app = createApp(App);
 app.use(router);
+if (validateSessionOnLoad()) {
+    initializeSessionTimeout()
+  }
 app.mount('#app');

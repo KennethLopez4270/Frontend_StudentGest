@@ -8,93 +8,147 @@
         <form @submit.prevent="submitRegister">
           <!-- Nombre -->
           <div class="mb-3 input-group">
-            <input v-model="user.nombre" type="text" class="form-control" placeholder="Nombre(s)" required />
+            <input 
+              v-model="user.nombre" 
+              type="text" 
+              class="form-control" 
+              placeholder="Nombre(s)" 
+              required 
+              maxlength="100"
+            />
           </div>
 
           <!-- Apellidos -->
           <div class="mb-3 row">
             <div class="col input-group">
-              <input v-model="user.apellido_paterno" type="text" class="form-control" placeholder="Apellido Paterno" required />
+              <input 
+                v-model="user.apellido_paterno" 
+                type="text" 
+                class="form-control" 
+                placeholder="Apellido Paterno" 
+                required 
+                maxlength="100"
+              />
             </div>
             <div class="col input-group">
-              <input v-model="user.apellido_materno" type="text" class="form-control" placeholder="Apellido Materno" required />
+              <input 
+                v-model="user.apellido_materno" 
+                type="text" 
+                class="form-control" 
+                placeholder="Apellido Materno" 
+                required 
+                maxlength="100"
+              />
             </div>
           </div>
 
           <!-- Email -->
           <div class="mb-3 input-group">
-            <input v-model="user.email" type="email" class="form-control" placeholder="Correo electrónico" required />
+            <input 
+              v-model="user.email" 
+              type="email" 
+              class="form-control" 
+              placeholder="Correo electrónico" 
+              required 
+              maxlength="100"
+            />
           </div>
 
           <!-- Contraseñas -->
-          <div class="mb-3 row">
-            <div class="col position-relative input-group">
-              <input
-                :type="showPassword ? 'text' : 'password'"
-                v-model="user.password"
-                class="form-control"
-                placeholder="Contraseña"
-                @input="checkPasswordStrength"
-                required
-              />
-              <span class="toggle-password" @click="togglePassword">
-                <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-              </span>
-              
-            </div>
-            <div class="password-strength-container mt-1">
-                <div class="password-strength-bar">
-                  <div
-                    :style="{ width: passwordStrength + '%', backgroundColor: passwordStrengthColor }"
-                    class="strength-bar"
-                  ></div>
-                </div>
-                <p class="password-strength-text mt-1" :class="passwordStrengthClass">
-                  {{ passwordStrengthLabel }}
-                </p>
+          <div class="mb-3">
+            <div class="row">
+              <div class="col position-relative input-group">
+                <input
+                  :type="showPassword ? 'text' : 'password'"
+                  v-model="user.password"
+                  class="form-control"
+                  placeholder="Contraseña"
+                  @input="checkPasswordStrength"
+                  required
+                  minlength="8"
+                  maxlength="100"
+                />
+                <span class="toggle-password" @click="togglePassword">
+                  <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                </span>
               </div>
-            <div class="col position-relative input-group">
-              <input
-                :type="showConfirm ? 'text' : 'password'"
-                v-model="confirmPassword"
-                class="form-control"
-                placeholder="Confirmar contraseña"
-                required
-              />
-              <span class="toggle-password" @click="toggleConfirm">
-                <i :class="showConfirm ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-              </span>
+              <div class="col position-relative input-group">
+                <input
+                  :type="showConfirm ? 'text' : 'password'"
+                  v-model="confirmPassword"
+                  class="form-control"
+                  placeholder="Confirmar contraseña"
+                  required
+                  minlength="8"
+                  maxlength="100"
+                />
+                <span class="toggle-password" @click="toggleConfirm">
+                  <i :class="showConfirm ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                </span>
+              </div>
+            </div>
+            
+            <!-- Indicador de fuerza de contraseña -->
+            <div class="password-strength-container mt-2">
+              <div class="password-strength-bar">
+                <div
+                  :style="{ width: passwordStrength + '%', backgroundColor: passwordStrengthColor }"
+                  class="strength-bar"
+                ></div>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mt-1">
+                <small :class="passwordStrengthClass">
+                  {{ passwordStrengthLabel }}
+                </small>
+                <small class="text-muted">{{ passwordStrength }}%</small>
+              </div>
+            </div>
+
+            <!-- Requisitos de contraseña -->
+            <div class="password-requirements mt-2">
+              <small class="text-muted">La contraseña debe incluir:</small>
+              <ul class="ps-3 mb-0 small">
+                <li :class="{'text-success': hasMinLength}">Mínimo 12 caracteres</li>
+                <li :class="{'text-success': hasUppercase}">Una letra mayúscula</li>
+                <li :class="{'text-success': hasLowercase}">Una letra minúscula</li>
+                <li :class="{'text-success': hasNumber}">Un número</li>
+                <li :class="{'text-success': hasSpecial}">Un símbolo (@$!%*?&)</li>
+              </ul>
             </div>
           </div>
 
-          <!-- Subida de imagen -->
-           <!--
-          <div
-            class="mb-3 upload-area"
-            @dragover.prevent
-            @drop.prevent="handleDrop"
-            @click="triggerFileInput"
-          >
-            <p class="text-muted mb-1" v-if="!previewImage">Selecciona o arrastra una imagen</p>
-            <input type="file" ref="fileInput" class="d-none" @change="handleImageUpload" accept="image/*" />
-            <div class="preview-img mt-2" v-if="previewImage">
-              <img :src="previewImage" class="img-fluid rounded" alt="Previsualización" />
-            </div>
-            <div class="text-danger" v-if="imageError">{{ imageError }}</div>
-          </div>
-          -->
           <!-- Rol -->
           <div class="mb-3">
             <select v-model="user.rol" class="form-control input-group" required>
               <option disabled value="">Registrarse como:</option>
               <option value="ESTUDIANTE">Estudiante</option>
               <option value="PROFESOR">Profesor</option>
-              <option value="PERSONAL">Personal</option>
+              <option value="DIRECTOR">Director</option>
+              <option value="PADRE">Padre/Madre</option>
             </select>
           </div>
 
-          <button type="submit" class="btn btn-primary w-100">
-            <i class="fas fa-user-plus me-2"></i> Registrarse
+          <!-- Términos y condiciones -->
+          <div class="mb-3 form-check">
+            <input 
+              type="checkbox" 
+              class="form-check-input" 
+              id="terms" 
+              v-model="acceptedTerms"
+              required
+            >
+            <label class="form-check-label small" for="terms">
+              Acepto los <a href="#" @click.prevent="showTerms = true">términos y condiciones</a> y la <a href="#" @click.prevent="showPrivacy = true">política de privacidad</a>
+            </label>
+          </div>
+
+          <button 
+            type="submit" 
+            class="btn btn-primary w-100"
+            :disabled="!acceptedTerms || passwordStrength < 75"
+          >
+            <i class="fas fa-user-plus me-2"></i> 
+            {{ loading ? 'Registrando...' : 'Registrarse' }}
           </button>
 
           <p class="text-center mt-3">
@@ -111,15 +165,40 @@
       <!-- Columna derecha -->
       <div class="col-md-5">
         <div class="consejos-box">
-          <h4><i class="fas fa-lightbulb me-2 text-warning"></i> Consejos</h4>
+          <h4><i class="fas fa-lightbulb me-2 text-warning"></i> Consejos de Seguridad</h4>
           <ul class="ps-3">
             <li>Usa un correo válido y accesible.</li>
-            <li>Contraseña segura (mín. 8 caracteres).</li>
+            <li>Contraseña segura (mín. 12 caracteres).</li>
             <li>Incluye mayúsculas, minúsculas, números y símbolos.</li>
+            <li>No reutilices contraseñas de otras cuentas.</li>
             <li>Confirma tu contraseña correctamente.</li>
-            <li>La imagen es opcional (máx. 2MB, formatos JPG, PNG, etc.).</li>
-            <li>Puedes subirla más adelante si lo prefieres.</li>
+            <li>Tu cuenta será verificada antes de la activación.</li>
           </ul>
+          
+          <div class="security-features mt-3 pt-3 border-top">
+            <h6><i class="fas fa-shield-alt me-2 text-info"></i> Características de Seguridad</h6>
+            <ul class="ps-3 small">
+              <li>Autenticación segura con JWT</li>
+              <li>Contraseñas encriptadas</li>
+              <li>Protección contra ataques</li>
+              <li>Sesión automática de 15 minutos</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Términos -->
+    <div v-if="showTerms" class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Términos y Condiciones</h5>
+            <button type="button" class="btn-close" @click="showTerms = false"></button>
+          </div>
+          <div class="modal-body">
+            <p>Contenido de términos y condiciones...</p>
+          </div>
         </div>
       </div>
     </div>
@@ -127,6 +206,8 @@
 </template>
 
 <script>
+import { showSuccess, showError } from '@/utils/useAlert'
+
 export default {
   name: "RegistroForm",
   data() {
@@ -138,16 +219,18 @@ export default {
         email: "",
         password: "",
         rol: "",
-        foto: null,
+        minPasswordLength: 12
       },
       confirmPassword: "",
-      previewImage: null,
-      imageError: "",
       showPassword: false,
       showConfirm: false,
       passwordStrength: 0,
       statusMessage: "",
       statusType: "",
+      loading: false,
+      acceptedTerms: false,
+      showTerms: false,
+      showPrivacy: false,
     };
   },
   computed: {
@@ -158,14 +241,29 @@ export default {
     },
     passwordStrengthLabel() {
       if (!this.user.password) return "";
-      if (this.passwordStrength < 40) return "Contraseña débil";
-      if (this.passwordStrength < 75) return "Contraseña media";
-      return "Contraseña fuerte";
+      if (this.passwordStrength < 40) return "Débil";
+      if (this.passwordStrength < 75) return "Media";
+      return "Fuerte";
     },
     passwordStrengthClass() {
       if (this.passwordStrength < 40) return "text-danger";
       if (this.passwordStrength < 75) return "text-warning";
       return "text-success";
+    },
+    hasMinLength() {
+      return this.user.password.length >= 12;
+    },
+    hasUppercase() {
+      return /[A-Z]/.test(this.user.password);
+    },
+    hasLowercase() {
+      return /[a-z]/.test(this.user.password);
+    },
+    hasNumber() {
+      return /[0-9]/.test(this.user.password);
+    },
+    hasSpecial() {
+      return /[@$!%*?&]/.test(this.user.password);
     },
   },
   methods: {
@@ -175,73 +273,56 @@ export default {
     toggleConfirm() {
       this.showConfirm = !this.showConfirm;
     },
-    handleImageUpload(event) {
-      const file = event.target.files[0];
-      this.validateImage(file);
-    },
-    handleDrop(event) {
-      const file = event.dataTransfer.files[0];
-      this.validateImage(file);
-    },
-    triggerFileInput() {
-      this.$refs.fileInput.click();
-    },
-    validateImage(file) {
-      if (!file) return;
-      if (!file.type.startsWith("image/")) {
-        this.imageError = "Formato no válido. Usa JPG, PNG, etc.";
-        return;
-      }
-      if (file.size > 2 * 1024 * 1024) {
-        this.imageError = "La imagen no debe superar los 2MB.";
-        return;
-      }
-
-      this.imageError = "";
-      this.user.foto = file;
-      this.previewImage = URL.createObjectURL(file);
-    },
     checkPasswordStrength() {
       const pwd = this.user.password;
       let strength = 0;
-      if (pwd.length >= 8) strength += 25;
-      if (/[A-Z]/.test(pwd)) strength += 25;
-      if (/[a-z]/.test(pwd)) strength += 20;
-      if (/[0-9]/.test(pwd)) strength += 15;
-      if (/[\W_]/.test(pwd)) strength += 15;
+      if (this.hasMinLength) strength += 25;
+      if (this.hasUppercase) strength += 25;
+      if (this.hasLowercase) strength += 20;
+      if (this.hasNumber) strength += 15;
+      if (this.hasSpecial) strength += 15;
       this.passwordStrength = Math.min(strength, 100);
     },
     async submitRegister() {
       if (this.user.password !== this.confirmPassword) {
-        this.statusType = "error";
-        this.statusMessage = "Las contraseñas no coinciden.";
+        showError('Error', 'Las contraseñas no coinciden.');
         return;
       }
 
-      const userToSend = { ...this.user, foto: null };
+      if (this.passwordStrength < 75) {
+        showError('Error', 'La contraseña no es lo suficientemente fuerte.');
+        return;
+      }
+
+      if (!this.acceptedTerms) {
+        showError('Error', 'Debe aceptar los términos y condiciones.');
+        return;
+      }
+
+      this.loading = true;
 
       try {
-        const response = await fetch("http://localhost:8080/api/users", {
+        const response = await fetch("http://localhost:8084/api/users", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(userToSend),
+          body: JSON.stringify(this.user),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-          this.statusType = "error";
-          this.statusMessage = data.message || "Error al registrar usuario";
-          throw new Error(this.statusMessage);
+          throw new Error(data.error || data.message || "Error al registrar usuario");
         }
 
-        this.statusType = "success";
-        this.statusMessage = "Usuario registrado con éxito";
-        setTimeout(() => this.$router.push("/login"), 1500);
+        showSuccess('Éxito', 'Usuario registrado correctamente. Será activado después de la verificación.');
+        setTimeout(() => this.$router.push("/login"), 2000);
       } catch (error) {
         console.error("Registro fallido:", error.message);
+        showError('Error', error.message);
+      } finally {
+        this.loading = false;
       }
     },
   },
@@ -263,7 +344,7 @@ export default {
 .input-group {
   background-color: #ffffff9c;
 }
-.input-group input {
+.input-group input, .input-group select {
   background-color: #ffffff9c;
 }
 
@@ -283,10 +364,15 @@ h1 {
 
 /* Consejos */
 .consejos-box {
-  padding: 50px;
+  padding: 30px;
   background-color: #213547;
   color: white;
   border-radius: 20px;
+  height: 100%;
+}
+
+.security-features {
+  border-color: rgba(255,255,255,0.2) !important;
 }
 
 ul {
@@ -307,23 +393,6 @@ ul {
   color: #213547;
 }
 
-.upload-area {
-  border: 2px dashed #ccc;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: 0.3s;
-}
-.upload-area:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.preview-img img {
-  max-height: 120px;
-  object-fit: contain;
-}
-
 /* Fuerza de contraseña */
 .password-strength-container {
   display: flex;
@@ -342,9 +411,21 @@ ul {
   transition: width 0.3s ease;
 }
 
+.password-requirements ul {
+  list-style: none;
+  padding-left: 0;
+}
+.password-requirements li {
+  transition: color 0.3s ease;
+}
+
 .btn-primary {
   background-color: #213547 !important;
   border-color: #213547 !important;
+}
+.btn-primary:disabled {
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
 }
 
 @media (max-width: 526px) {
@@ -354,9 +435,14 @@ ul {
   }
   .consejos-box {
     margin-top: 20px;
+    padding: 20px;
   }
   h1 {
     font-size: 24px;
   }
+}
+
+.modal {
+  background-color: rgba(0,0,0,0.5);
 }
 </style>
