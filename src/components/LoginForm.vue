@@ -94,6 +94,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showSuccess, showError } from '@/utils/useAlert'
+import { sessionTimeoutManager } from '@/utils/sessionTimeout' 
 
 const email = ref('')
 const password = ref('')
@@ -116,6 +117,7 @@ onMounted(() => {
 
   // Inicializar el sistema de timeout de sesión
   initializeSessionTimeout()
+  sessionTimeoutManager.destroy()
 })
 
 function togglePassword() {
@@ -174,6 +176,8 @@ async function submitLogin() {
     localStorage.setItem("user", JSON.stringify(data))
     localStorage.setItem("institution", institution.value)
     localStorage.setItem("lastActivity", Date.now().toString())
+    // ✅ NUEVO: Iniciar el monitor de inactividad
+    sessionTimeoutManager.resetTimer()
 
     // Configurar headers para futuras requests
     setupAuthHeader(data.token)
