@@ -1,7 +1,14 @@
 class SessionTimeoutManager {
     constructor() {
-        this.timeout = 2 * 60 * 1000; // 15 minutos en milisegundos
-        this.warningTime = 1 * 60 * 1000; // 5 minutos antes de mostrar advertencia
+        // Verificar si el usuario está autenticado antes de iniciar
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            console.log('Usuario no autenticado, timeout desactivado');
+            return; // No iniciar si no hay sesión
+        }
+        
+        this.timeout = 15 * 60 * 1000;
+        this.warningTime = 5 * 60 * 1000;
         this.timer = null;
         this.warningTimer = null;
         this.isWarningShown = false;
