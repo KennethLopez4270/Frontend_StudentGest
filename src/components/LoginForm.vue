@@ -115,9 +115,8 @@ onMounted(() => {
     institution.value = savedInstitution.value.nombre
   }
 
-  // Inicializar el sistema de timeout de sesión
+  // ✅ SOLUCIÓN: Solo inicializar, NO destruir
   initializeSessionTimeout()
-  sessionTimeoutManager.destroy()
 })
 
 function togglePassword() {
@@ -129,8 +128,7 @@ function resetShake() {
 }
 
 function initializeSessionTimeout() {
-  // Esta función se llamará desde el componente principal de la app
-  console.log('Sistema de timeout de sesión inicializado')
+  console.log('✅ Sistema de timeout de sesión inicializado en Login')
 }
 
 async function submitLogin() {
@@ -144,7 +142,7 @@ async function submitLogin() {
   loading.value = true
 
   try {
-    const response = await fetch("http://localhost:8084/api/users/login", {  // ← Cambiado a 8084
+    const response = await fetch("http://localhost:8084/api/users/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
@@ -171,16 +169,25 @@ async function submitLogin() {
 
     showSuccess('¡Bienvenido!', `Has iniciado sesión como ${data.rol.toLowerCase()}`)
 
-    // Guardar token y datos de usuario
+    // ✅ GUARDAR TOKEN Y DATOS CORRECTAMENTE
     localStorage.setItem("authToken", data.token)
     localStorage.setItem("user", JSON.stringify(data))
     localStorage.setItem("institution", institution.value)
     localStorage.setItem("lastActivity", Date.now().toString())
-    // ✅ NUEVO: Iniciar el monitor de inactividad
-    sessionTimeoutManager.resetTimer()
-
-    // Configurar headers para futuras requests
+    
+    // ✅ CONFIGURAR INTERCEPTOR DE FETCH PRIMERO
     setupAuthHeader(data.token)
+    
+    // ✅ INICIAR EL MONITOR DE INACTIVIDAD DESPUÉS DE GUARDAR EL TOKEN
+    console.log('🎯 Iniciando session timeout manager después del login')
+    if (typeof sessionTimeoutManager !== 'undefined' && sessionTimeoutManager.resetTimer) {
+      sessionTimeoutManager.resetTimer()
+    } else {
+      console.warn('❌ SessionTimeoutManager no disponible')
+    }
+
+    // ✅ VERIFICAR INMEDIATAMENTE CON EL BACKEND
+    await verifyTokenWithBackend(data.token)
 
     // Si requiere cambio de contraseña, redirigir a esa página
     if (data.requiresPasswordChange) {
@@ -199,22 +206,82 @@ async function submitLogin() {
     router.push(routeByRole[data.rol] || "/inicio")
   } catch (error) {
     console.error("Error en el login:", error.message)
+    // ❌ LIMPIAR DATOS EN CASO DE ERROR
+    localStorage.removeItem("authToken")
+    localStorage.removeItem("user")
+    localStorage.removeItem("lastActivity")
   } finally {
     loading.value = false
   }
 }
 
+// ✅ NUEVA FUNCIÓN: Verificar token con backend inmediatamente
+async function verifyTokenWithBackend(token) {
+  try {
+    console.log('🔐 Verificando token con backend...');
+    
+    const response = await fetch('http://localhost:8084/api/users/verify-session', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    console.log('🔍 Respuesta de verify-session:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok
+    });
+    
+    if (response.ok) {
+      const sessionData = await response.json();
+      console.log('✅ Sesión verificada:', sessionData);
+      
+      // ✅ ACTUALIZAR EL TOKEN SI VIENE UNO NUEVO
+      const newToken = response.headers.get('X-New-Token');
+      if (newToken) {
+        console.log('🔄 Token actualizado recibido');
+        localStorage.setItem('authToken', newToken);
+      }
+      
+      return true;
+    } else {
+      console.warn('⚠️ Error en verificación de sesión:', response.status);
+      return false;
+    }
+    
+  } catch (error) {
+    console.error('❌ Error verificando sesión:', error);
+    return false;
+  }
+}
+
 function setupAuthHeader(token) {
+  console.log('🔧 Configurando interceptor de fetch con token')
+  
+  // Guardar el token original para referencia
+  const originalToken = token
+  
   // Interceptar futuras requests para agregar el token
   const originalFetch = window.fetch
   window.fetch = function(...args) {
     const [url, options = {}] = args
-    if (typeof url === 'string' && url.startsWith('http://localhost:8084')) {  // ← Cambiado a 8084
+    
+    // Solo agregar header a requests a nuestro backend
+    if (typeof url === 'string' && url.startsWith('http://localhost:8084')) {
+      const currentToken = localStorage.getItem('authToken') || originalToken
+      
       options.headers = {
         ...options.headers,
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${currentToken}`
       }
+      
+      console.log(`🌐 Request a: ${url}`, {
+        hasToken: !!currentToken,
+        tokenLength: currentToken ? currentToken.length : 0
+      })
     }
+    
     return originalFetch(url, options)
   }
 }
