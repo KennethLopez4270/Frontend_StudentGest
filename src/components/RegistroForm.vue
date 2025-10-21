@@ -418,19 +418,19 @@ async tryLoadFromBackend() {
       
       // Longitud (usar configuración de BD)
       const hasMinLength = pwd.length >= config.minLength;
-      if (hasMinLength) strength += 25;
+      if (hasMinLength) strength += 55;
       
       // Mayúsculas (usar configuración de BD)
       const hasUppercase = !config.requiresUppercase || /[A-Z]/.test(pwd);
-      if (hasUppercase && config.requiresUppercase) strength += 25;
+      if (hasUppercase && config.requiresUppercase) strength += 10;
       
       // Minúsculas (usar configuración de BD)
       const hasLowercase = !config.requiresLowercase || /[a-z]/.test(pwd);
-      if (hasLowercase && config.requiresLowercase) strength += 20;
+      if (hasLowercase && config.requiresLowercase) strength += 10;
       
       // Números (usar configuración de BD)
       const hasNumber = !config.requiresNumbers || /[0-9]/.test(pwd);
-      if (hasNumber && config.requiresNumbers) strength += 15;
+      if (hasNumber && config.requiresNumbers) strength += 10;
       
       // Símbolos (usar configuración de BD)
       const specialCharsRegex = new RegExp(`[${this.escapeRegExp(config.allowedSpecialChars || '@$!%*?&')}]`);
