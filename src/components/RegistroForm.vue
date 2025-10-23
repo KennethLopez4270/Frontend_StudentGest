@@ -48,10 +48,17 @@
               v-model="user.email" 
               type="email" 
               class="form-control" 
+              :class="{ 'is-invalid': showDomainError }"
               placeholder="Correo electrónico" 
               required 
               maxlength="100"
+              @blur="validateEmailRealTime"
+              @input="showDomainError = false"
             />
+            <div v-if="showDomainError" class="invalid-feedback d-block">
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              {{ domainErrorMessage }}
+            </div>
           </div>
 
           <!-- Contraseñas -->
@@ -128,6 +135,27 @@
             </select>
           </div>
 
+          <!-- Google reCAPTCHA -->
+          <div v-if="captchaEnabled" class="mb-3">
+            <div class="captcha-container">
+              <VueRecaptcha
+                :sitekey="recaptchaSiteKey"
+                :loadRecaptchaScript="true"
+                @verify="onCaptchaVerified"
+                @error="onCaptchaError"
+                @expire="onCaptchaExpired"
+              />
+              <div v-if="captchaError" class="text-danger small mt-2">
+                <i class="fas fa-exclamation-triangle me-1"></i>{{ captchaError }}
+              </div>
+              <small class="text-muted mt-2 d-block">
+                Este sitio está protegido por reCAPTCHA y se aplican la 
+                <a href="https://policies.google.com/privacy" target="_blank">Política de Privacidad</a> y 
+                <a href="https://policies.google.com/terms" target="_blank">Términos de Servicio</a> de Google.
+              </small>
+            </div>
+          </div>
+
           <!-- Términos y condiciones -->
           <div class="mb-3 form-check">
             <input 
@@ -145,7 +173,7 @@
           <button 
             type="submit" 
             class="btn btn-primary w-100"
-            :disabled="!acceptedTerms || passwordStrength < currentConfig.minStrength"
+            :disabled="!acceptedTerms || passwordStrength < currentConfig.minStrength || (captchaEnabled && !captchaVerified)"
           >
             <i class="fas fa-user-plus me-2"></i> 
             {{ loading ? 'Registrando...' : 'Registrarse' }}
@@ -162,28 +190,31 @@
         </form>
       </div>
 
-       <!-- Columna derecha - ACTUALIZADA -->
-       <div class="col-md-5">
+      <!-- Columna derecha -->
+      <div class="col-md-5">
         <div class="consejos-box">
           <h4><i class="fas fa-lightbulb me-2 text-warning"></i> Consejos de Seguridad</h4>
           <ul class="ps-3">
-            <li>Usa un correo válido y accesible.</li>
-            <li>Contraseña segura (mín. {{ currentConfig.minLength }} caracteres).</li>
+            <li>Usa un correo con dominio permitido: 
+              <strong>gmail.com, hotmail.com, yahoo.com, outlook.com, edu.bo</strong>
+            </li>
+            <li>El correo debe ser válido y accesible para verificación</li>
+            <li>Contraseña segura (mín. {{ currentConfig.minLength }} caracteres)</li>
             <li v-if="currentConfig.requiresUppercase || currentConfig.requiresLowercase">Incluye mayúsculas y minúsculas</li>
             <li v-if="currentConfig.requiresNumbers">Incluye números</li>
             <li v-if="currentConfig.requiresSpecial">Incluye símbolos ({{ currentConfig.allowedSpecialChars }})</li>
-            <li>No reutilices contraseñas de otras cuentas.</li>
-            <li>Confirma tu contraseña correctamente.</li>
-            <li>Tu cuenta será verificada antes de la activación.</li>
+            <li>No reutilices contraseñas de otras cuentas</li>
+            <li>Confirma tu contraseña correctamente</li>
+            <li>Tu cuenta requiere <strong>aprobación administrativa</strong> y <strong>verificación de email</strong></li>
           </ul>
           
           <div class="security-features mt-3 pt-3 border-top">
-            <h6><i class="fas fa-shield-alt me-2 text-info"></i> Características de Seguridad</h6>
+            <h6><i class="fas fa-shield-alt me-2 text-info"></i> Proceso de Verificación</h6>
             <ul class="ps-3 small">
-              <li>Autenticación segura con JWT</li>
-              <li>Contraseñas encriptadas</li>
-              <li>Protección contra ataques</li>
-              <li>Políticas configurables desde BD</li>
+              <li>✅ Registro exitoso</li>
+              <li>📧 Verificación de email requerida</li>
+              <li>👨‍💼 Aprobación administrativa pendiente</li>
+              <li>🔑 Acceso al sistema después de ambas verificaciones</li>
             </ul>
           </div>
         </div>
@@ -209,9 +240,13 @@
 
 <script>
 import { showSuccess, showError } from '@/utils/useAlert'
+import VueRecaptcha from 'vue3-recaptcha2'
 
 export default {
   name: "RegistroForm",
+  components: {
+    VueRecaptcha
+  },
   data() {
     return {
       user: {
@@ -232,6 +267,16 @@ export default {
       acceptedTerms: false,
       showTerms: false,
       showPrivacy: false,
+      
+      // reCAPTCHA
+      captchaEnabled: false,
+      recaptchaSiteKey: "",
+      captchaVerified: false,
+      captchaToken: "",
+      captchaError: "",
+      showDomainError: false,
+      domainErrorMessage: '',
+      emailValid: false,
       // Configuración por defecto (se actualizará desde BD)
       currentConfig: {
         minLength: 12,
@@ -242,6 +287,7 @@ export default {
         allowedSpecialChars: '@$!%*?&',
         minStrength: 75
       }
+      
     };
   },
   computed: {
@@ -286,99 +332,89 @@ export default {
       this.showConfirm = !this.showConfirm;
     },
     
-    async loadPasswordPolicy() {
-  try {
-    console.log("🔄 Cargando política de contraseñas...");
-    
-    // PRIMERO intentar cargar desde el endpoint que SÍ funciona
-    const response = await fetch("http://localhost:8084/api/users/public/password-policy");
-    
-    if (response.ok) {
-      const data = await response.json();
-      console.log("✅ Datos recibidos del backend:", data);
-      
-      if (data.success) {
-        this.currentConfig = {
-          minLength: data.minLength,
-          requiresUppercase: data.requiresUppercase,
-          requiresLowercase: data.requiresLowercase,
-          requiresNumbers: data.requiresNumbers,
-          requiresSpecial: data.requiresSpecial,
-          allowedSpecialChars: data.allowedSpecialChars,
-          minStrength: 75
-        };
-        console.log("🎯 Configuración actualizada desde BD:", this.currentConfig);
-        return;
-      }
-    }
-    
-    // Si falla, usar valores por defecto
-    console.warn("⚠️ Usando configuración por defecto");
-    this.currentConfig = {
-      minLength: 12,
-      requiresUppercase: true,
-      requiresLowercase: true,
-      requiresNumbers: true,
-      requiresSpecial: true,
-      allowedSpecialChars: '@$!%*?&',
-      minStrength: 75
-    };
-    
-  } catch (error) {
-    console.error("❌ Error al cargar política:", error);
-    // Valores por defecto seguros
-    this.currentConfig = {
-      minLength: 12,
-      requiresUppercase: true,
-      requiresLowercase: true,
-      requiresNumbers: true,
-      requiresSpecial: true,
-      allowedSpecialChars: '@$!%*?&',
-      minStrength: 75
-    };
-  }
-},
-
-async tryLoadFromBackend() {
-  try {
-    console.log("🔄 Intentando conectar con backend...");
-    
-    // PRIMERO probar el endpoint simple
-    const simpleResponse = await fetch("http://localhost:8084/api/users/simple-policy");
-    console.log("🔍 Simple endpoint status:", simpleResponse.status);
-    
-    if (simpleResponse.ok) {
-      const simpleData = await simpleResponse.json();
-      console.log("✅ Simple endpoint funciona:", simpleData);
-      
-      if (simpleData.success) {
-        this.currentConfig = {
-          minLength: simpleData.minLength,
-          requiresUppercase: simpleData.requiresUppercase,
-          requiresLowercase: simpleData.requiresLowercase,
-          requiresNumbers: simpleData.requiresNumbers,
-          requiresSpecial: simpleData.requiresSpecial,
-          allowedSpecialChars: simpleData.allowedSpecialChars,
-          minStrength: 75
-        };
-        console.log("🎯 Configuración actualizada desde simple endpoint");
-        return;
-      }
-    }
-    
-    // Si el simple falla, probar otros
-    const endpoints = [
-      "/api/users/public/password-policy",
-      "/api/security-config/password-policy"
-    ];
-    
-    for (const endpoint of endpoints) {
+    // reCAPTCHA METHODS
+    async loadCaptchaConfig() {
       try {
-        const response = await fetch(`http://localhost:8084${endpoint}`);
+        const response = await fetch("http://localhost:8084/api/captcha/config");
         if (response.ok) {
           const data = await response.json();
+          this.captchaEnabled = data.enabled;
+          this.recaptchaSiteKey = data.siteKey;
+          console.log('🎯 reCAPTCHA Config Registro:', data);
+        }
+      } catch (error) {
+        console.warn('⚠️ No se pudo cargar config reCAPTCHA registro:', error);
+        this.captchaEnabled = false;
+      }
+    },
+
+    onCaptchaVerified(response) {
+      console.log('✅ reCAPTCHA verificado:', response);
+      this.captchaToken = response;
+      this.captchaVerified = true;
+      this.captchaError = '';
+    },
+
+    onCaptchaError() {
+      console.error('❌ Error en reCAPTCHA');
+      this.captchaVerified = false;
+      this.captchaToken = '';
+      this.captchaError = 'Error verificando reCAPTCHA. Intenta de nuevo.';
+    },
+
+    onCaptchaExpired() {
+      console.warn('⚠️ reCAPTCHA expirado');
+      this.captchaVerified = false;
+      this.captchaToken = '';
+      this.captchaError = 'reCAPTCHA expirado. Completa el desafío nuevamente.';
+    },
+
+    async validateCaptcha() {
+      if (!this.captchaToken) {
+        this.captchaError = 'Por favor, completa el reCAPTCHA';
+        return false;
+      }
+
+      try {
+        const response = await fetch("http://localhost:8084/api/captcha/verify", {
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            recaptchaResponse: this.captchaToken,
+            clientIp: '' // El backend puede obtener la IP
+          })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok && data.valid) {
+          this.captchaError = '';
+          return true;
+        } else {
+          this.captchaError = data.message || 'Error validando reCAPTCHA. Intenta de nuevo.';
+          this.captchaVerified = false;
+          this.captchaToken = '';
+          return false;
+        }
+      } catch (error) {
+        this.captchaError = 'Error validando reCAPTCHA';
+        this.captchaVerified = false;
+        this.captchaToken = '';
+        return false;
+      }
+    },
+
+    // MÉTODOS EXISTENTES
+    async loadPasswordPolicy() {
+      try {
+        console.log("🔄 Cargando política de contraseñas...");
+        const response = await fetch("http://localhost:8084/api/users/public/password-policy");
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log("✅ Datos recibidos del backend:", data);
+          
           if (data.success) {
-            console.log(`✅ Configuración desde ${endpoint}:`, data);
             this.currentConfig = {
               minLength: data.minLength,
               requiresUppercase: data.requiresUppercase,
@@ -388,23 +424,108 @@ async tryLoadFromBackend() {
               allowedSpecialChars: data.allowedSpecialChars,
               minStrength: 75
             };
+            console.log("🎯 Configuración actualizada desde BD:", this.currentConfig);
             return;
           }
         }
-      } catch (e) {
-        console.log(`❌ ${endpoint} falló:`, e.message);
+        
+        // Fallback a valores por defecto
+        this.currentConfig = {
+          minLength: 12,
+          requiresUppercase: true,
+          requiresLowercase: true,
+          requiresNumbers: true,
+          requiresSpecial: true,
+          allowedSpecialChars: '@$!%*?&',
+          minStrength: 75
+        };
+        
+      } catch (error) {
+        console.error("❌ Error al cargar política:", error);
+        this.currentConfig = {
+          minLength: 12,
+          requiresUppercase: true,
+          requiresLowercase: true,
+          requiresNumbers: true,
+          requiresSpecial: true,
+          allowedSpecialChars: '@$!%*?&',
+          minStrength: 75
+        };
       }
-    }
-    
-    console.log("🔧 Todos los endpoints fallaron, usando configuración temporal");
-    
-  } catch (error) {
-    console.log("💥 Error general al conectar con backend:", error);
-  }
-},
-    
-    checkPasswordStrength() {
-      this.recalculatePasswordStrength(this.currentConfig);
+    },
+    async validateEmailRealTime() {
+      if (!this.user.email) return;
+      
+      try {
+        const email = this.user.email.trim();
+        if (email.length < 5) return;
+        
+        console.log('📧 Validando email en tiempo real:', email);
+        const response = await fetch("http://localhost:8084/api/email/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email })
+        });
+        
+        const data = await response.json();
+        console.log('🔍 Respuesta validación tiempo real:', data);
+        
+        if (!data.valid) {
+          // Mostrar tooltip o mensaje con dominios permitidos
+          this.showDomainError = true;
+          this.domainErrorMessage = data.requirements || 'Dominio no permitido';
+        } else {
+          this.showDomainError = false;
+        }
+        
+      } catch (error) {
+        console.error("Error validando email en tiempo real:", error);
+      }
+    },
+
+    async validateEmail() {
+      try {
+        console.log('📧 Email a validar:', this.user.email); 
+        const response = await fetch("http://localhost:8084/api/email/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: this.user.email })
+        });
+        
+        const data = await response.json();
+        console.log('🔍 Respuesta validación email:', data);
+        return data.valid;
+      } catch (error) {
+        console.error("Error validando email:", error);
+        return false;
+      }
+    },
+
+    async checkPasswordStrength() {
+      const pwd = this.user.password;
+      if (!pwd) {
+        this.passwordStrength = 0;
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:8084/api/password-strength/evaluate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: pwd })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            this.passwordStrength = data.score;
+          }
+        } else {
+          this.recalculatePasswordStrength(this.currentConfig);
+        }
+      } catch (error) {
+        this.recalculatePasswordStrength(this.currentConfig);
+      }
     },
     
     recalculatePasswordStrength(config) {
@@ -416,23 +537,18 @@ async tryLoadFromBackend() {
       
       let strength = 0;
       
-      // Longitud (usar configuración de BD)
       const hasMinLength = pwd.length >= config.minLength;
       if (hasMinLength) strength += 55;
       
-      // Mayúsculas (usar configuración de BD)
       const hasUppercase = !config.requiresUppercase || /[A-Z]/.test(pwd);
       if (hasUppercase && config.requiresUppercase) strength += 10;
       
-      // Minúsculas (usar configuración de BD)
       const hasLowercase = !config.requiresLowercase || /[a-z]/.test(pwd);
       if (hasLowercase && config.requiresLowercase) strength += 10;
       
-      // Números (usar configuración de BD)
       const hasNumber = !config.requiresNumbers || /[0-9]/.test(pwd);
       if (hasNumber && config.requiresNumbers) strength += 10;
       
-      // Símbolos (usar configuración de BD)
       const specialCharsRegex = new RegExp(`[${this.escapeRegExp(config.allowedSpecialChars || '@$!%*?&')}]`);
       const hasSpecial = !config.requiresSpecial || specialCharsRegex.test(pwd);
       if (hasSpecial && config.requiresSpecial) strength += 15;
@@ -445,65 +561,92 @@ async tryLoadFromBackend() {
     },
     
     async submitRegister() {
-    // Validaciones básicas
-    if (this.user.password !== this.confirmPassword) {
-      showError('Error', 'Las contraseñas no coinciden.');
-      return;
-    }
-
-    // Validar longitud mínima con configuración ACTUAL
-    if (this.user.password.length < this.currentConfig.minLength) {
-      showError('Error', `La contraseña debe tener al menos ${this.currentConfig.minLength} caracteres.`);
-      return;
-    }
-
-    // Validar fuerza de contraseña
-    if (this.passwordStrength < this.currentConfig.minStrength) {
-      showError('Error', 'La contraseña no es lo suficientemente fuerte.');
-      return;
-    }
-
-    if (!this.acceptedTerms) {
-      showError('Error', 'Debe aceptar los términos y condiciones.');
-      return;
-    }
-
-    this.loading = true;
-
-    try {
-      const response = await fetch("http://localhost:8084/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(this.user),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || data.message || "Error al registrar usuario");
+      // Validar reCAPTCHA si está habilitado
+      if (this.captchaEnabled) {
+        const isValidCaptcha = await this.validateCaptcha();
+        if (!isValidCaptcha) {
+          return;
+        }
       }
 
-      showSuccess('Éxito', 'Usuario registrado correctamente. Será activado después de la verificación.');
-      setTimeout(() => this.$router.push("/login"), 2000);
-    } catch (error) {
-      console.error("Registro fallido:", error.message);
-      showError('Error', error.message);
-    } finally {
-      this.loading = false;
-    }
-  },
+      // Validaciones básicas
+      if (this.user.password !== this.confirmPassword) {
+        showError('Error', 'Las contraseñas no coinciden.');
+        return;
+      }
+      console.log('📧 Validando email antes del registro...'); // ✅ LOG
+      if (!await this.validateEmail()) {
+        showError('Error', 'El email no es válido o no está permitido.');
+        return;
+      }
+
+      this.loading = true;
+
+      if (this.user.password.length < this.currentConfig.minLength) {
+        showError('Error', `La contraseña debe tener al menos ${this.currentConfig.minLength} caracteres.`);
+        return;
+      }
+
+      if (this.passwordStrength < this.currentConfig.minStrength) {
+        showError('Error', 'La contraseña no es lo suficientemente fuerte.');
+        return;
+      }
+
+      if (!this.acceptedTerms) {
+        showError('Error', 'Debe aceptar los términos y condiciones.');
+        return;
+      }
+
+      if (!await this.validateEmail()) {
+        showError('Error', 'El email no es válido o no está permitido.');
+        return;
+      }
+
+      this.loading = true;
+
+      try {
+        const response = await fetch("http://localhost:8084/api/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(this.user),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || data.message || "Error al registrar usuario");
+        }
+
+        showSuccess('Éxito', 'Usuario registrado correctamente. Será activado después de la verificación.');
+        setTimeout(() => this.$router.push("/login"), 2000);
+      } catch (error) {
+        console.error("Registro fallido:", error.message);
+        showError('Error', error.message);
+      } finally {
+        this.loading = false;
+      }
+    },
   },
   async mounted() {
-    // Cargar configuración cuando el componente se monta
     await this.loadPasswordPolicy();
+    await this.loadCaptchaConfig();
   }
 };
 </script>
 
 <style scoped>
-/* Tus estilos existentes se mantienen igual */
+/* Estilos reCAPTCHA */
+.captcha-container {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  background: #f8f9fa;
+  text-align: center;
+}
+
+/* Estilos existentes se mantienen igual */
 .register-glass {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -536,7 +679,6 @@ h1 {
   color: #172b3a !important;
 }
 
-/* Consejos */
 .consejos-box {
   padding: 30px;
   background-color: #213547;
@@ -567,7 +709,6 @@ ul {
   color: #213547;
 }
 
-/* Fuerza de contraseña */
 .password-strength-container {
   display: flex;
   flex-direction: column;
@@ -602,15 +743,17 @@ ul {
   border-color: #6c757d !important;
 }
 
-@media (max-width: 526px) {
+@media (max-width: 768px) {
   .register-glass {
     padding: 30px 20px;
-    max-width: 90%;
+    max-width: 95%;
   }
+  
   .consejos-box {
     margin-top: 20px;
     padding: 20px;
   }
+  
   h1 {
     font-size: 24px;
   }
@@ -619,4 +762,4 @@ ul {
 .modal {
   background-color: rgba(0,0,0,0.5);
 }
-</style>
+</style>  

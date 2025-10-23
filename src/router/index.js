@@ -25,7 +25,7 @@ import PersonalDashboard from '../views/UsersDashboards/PersonalDashboard.vue';
 import AdminDashboard from '../views/UsersDashboards/AdminDashboard.vue';
 import RegistroInstitucion from '../views/RegistrarInstitucionView.vue';
 import GestionPadres from '../views/GestionPadresView.vue';
-
+import VerifyEmail from '../views/VerifyEmail.vue';
 const routes = [
   { path: '/', name: 'Home', component: HomeView },
   { path: '/login', name: 'Login', component: LoginView },
@@ -45,7 +45,8 @@ const routes = [
   { path: '/gestion-padres', name: 'GestionPadres', component: GestionPadres },
   { path: '/eventos', name: 'Crear Eventos', component: CrearEventos },
   { path: '/restaurar-password/:id', name: 'RestaurarPasword', component: RestaurarPasswordForm, props: true },
-
+  { path: '/verify-email', name: 'VerifyEmail', component: VerifyEmail },
+  
 
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFound.vue')},
 

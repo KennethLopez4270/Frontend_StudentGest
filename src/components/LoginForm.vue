@@ -51,6 +51,27 @@
         </span>
       </div>
 
+      <!-- Google reCAPTCHA -->
+      <div v-if="captchaEnabled" class="mb-3">
+        <div class="captcha-container">
+          <VueRecaptcha
+            :sitekey="recaptchaSiteKey"
+            :loadRecaptchaScript="true"
+            @verify="onCaptchaVerified"
+            @error="onCaptchaError"
+            @expire="onCaptchaExpired"
+          />
+          <div v-if="captchaError" class="text-danger small mt-2">
+            <i class="fas fa-exclamation-triangle me-1"></i>{{ captchaError }}
+          </div>
+          <small class="text-muted mt-2 d-block">
+            Este sitio está protegido por reCAPTCHA y se aplican la 
+            <a href="https://policies.google.com/privacy" target="_blank">Política de Privacidad</a> y 
+            <a href="https://policies.google.com/terms" target="_blank">Términos de Servicio</a> de Google.
+          </small>
+        </div>
+      </div>
+
       <!-- Recordar sesión (opcional) -->
       <div class="mb-3 form-check">
         <input 
@@ -65,11 +86,26 @@
       </div>
 
       <!-- Botón -->
-      <button type="submit" class="btn btn-primary w-100" :disabled="loading">
+      <button type="submit" class="btn btn-primary w-100" :disabled="loading || (captchaEnabled && !captchaVerified)">
         <i class="fas fa-sign-in-alt me-2"></i> 
         {{ loading ? 'Iniciando sesión...' : 'Iniciar sesión' }}
       </button>
     </form>
+
+    <!-- ✅ NUEVO: Botón de reenvío de verificación -->
+    <div v-if="showResendButton" class="text-center mt-3">
+      <button 
+        @click="resendVerification" 
+        class="btn btn-outline-warning btn-sm"
+        :disabled="resending"
+      >
+        <i class="fas fa-redo-alt me-1" :class="{ 'fa-spin': resending }"></i>
+        {{ resending ? 'Enviando...' : 'Reenviar email de verificación' }}
+      </button>
+      <small class="d-block text-muted mt-1">
+        ¿No recibiste el email? Haz clic para reenviarlo
+      </small>
+    </div>
 
     <!-- Enlaces -->
     <p class="text-center mt-3">
@@ -95,6 +131,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showSuccess, showError } from '@/utils/useAlert'
 import { sessionTimeoutManager } from '@/utils/sessionTimeout' 
+import VueRecaptcha from 'vue3-recaptcha2'
 
 const email = ref('')
 const password = ref('')
@@ -107,31 +144,155 @@ const loading = ref(false)
 const institutions = ref(['Colegio 1', 'Colegio 2', 'Colegio 3'])
 const router = useRouter()
 
+// reCAPTCHA
+const captchaEnabled = ref(false)
+const recaptchaSiteKey = ref("")
+const captchaVerified = ref(false)
+const captchaToken = ref("")
+const captchaError = ref("")
+
+// ✅ NUEVO: Variables para reenvío de verificación
+const showResendButton = ref(false)
+const resending = ref(false)
+
+// reCAPTCHA METHODS
+const loadCaptchaConfig = async () => {
+  try {
+    const response = await fetch("http://localhost:8084/api/captcha/config")
+    if (response.ok) {
+      const data = await response.json()
+      captchaEnabled.value = data.enabled
+      recaptchaSiteKey.value = data.siteKey
+      console.log('🎯 reCAPTCHA Config Login:', data)
+    }
+  } catch (error) {
+    console.warn('⚠️ No se pudo cargar config reCAPTCHA login:', error)
+    captchaEnabled.value = false
+  }
+}
+
+const onCaptchaVerified = (response) => {
+  console.log('✅ reCAPTCHA verificado:', response)
+  captchaToken.value = response
+  captchaVerified.value = true
+  captchaError.value = ''
+}
+
+const onCaptchaError = () => {
+  console.error('❌ Error en reCAPTCHA')
+  captchaVerified.value = false
+  captchaToken.value = ''
+  captchaError.value = 'Error verificando reCAPTCHA. Intenta de nuevo.'
+}
+
+const onCaptchaExpired = () => {
+  console.warn('⚠️ reCAPTCHA expirado')
+  captchaVerified.value = false
+  captchaToken.value = ''
+  captchaError.value = 'reCAPTCHA expirado. Completa el desafío nuevamente.'
+}
+
+const validateCaptcha = async () => {
+  if (!captchaToken.value) {
+    captchaError.value = 'Por favor, completa el reCAPTCHA'
+    return false
+  }
+
+  try {
+    const response = await fetch("http://localhost:8084/api/captcha/verify", {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        recaptchaResponse: captchaToken.value,
+        clientIp: '' // El backend puede obtener la IP
+      })
+    })
+
+    const data = await response.json()
+    
+    if (response.ok && data.valid) {
+      captchaError.value = ''
+      return true
+    } else {
+      captchaError.value = data.message || 'Error validando reCAPTCHA. Intenta de nuevo.'
+      captchaVerified.value = false
+      captchaToken.value = ''
+      return false
+    }
+  } catch (error) {
+    captchaError.value = 'Error validando reCAPTCHA'
+    captchaVerified.value = false
+    captchaToken.value = ''
+    return false
+  }
+}
+
+// ✅ NUEVO: Método para reenviar verificación
+const resendVerification = async () => {
+  if (!email.value) {
+    showError('Error', 'Por favor ingresa tu email primero');
+    return;
+  }
+
+  resending.value = true;
+  
+  try {
+    const response = await fetch("http://localhost:8084/api/email-verification/resend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.value })
+    });
+
+    const data = await response.json();
+    
+    if (data.success) {
+      showSuccess('Éxito', 'Email de verificación reenviado. Revisa tu bandeja de entrada.');
+    } else {
+      showError('Error', data.message || 'Error al reenviar email de verificación');
+    }
+  } catch (error) {
+    console.error('❌ Error reenviando verificación:', error);
+    showError('Error', 'Error de conexión. Intenta más tarde.');
+  } finally {
+    resending.value = false;
+  }
+}
+
 // Cargar institución guardada al montar el componente
-onMounted(() => {
+onMounted(async () => {
   const savedData = localStorage.getItem('currentInstitution')
   if (savedData) {
     savedInstitution.value = JSON.parse(savedData)
     institution.value = savedInstitution.value.nombre
   }
 
-  // ✅ SOLUCIÓN: Solo inicializar, NO destruir
+  await loadCaptchaConfig()
   initializeSessionTimeout()
 })
 
-function togglePassword() {
+const togglePassword = () => {
   showPassword.value = !showPassword.value
 }
 
-function resetShake() {
+const resetShake = () => {
   shake.value = false
 }
 
-function initializeSessionTimeout() {
+const initializeSessionTimeout = () => {
   console.log('✅ Sistema de timeout de sesión inicializado en Login')
 }
 
-async function submitLogin() {
+const submitLogin = async () => {
+  // Validar reCAPTCHA si está habilitado
+  if (captchaEnabled.value) {
+    const isValidCaptcha = await validateCaptcha()
+    if (!isValidCaptcha) {
+      shake.value = true
+      setTimeout(() => (shake.value = false), 500)
+      return
+    }
+  }
+
   if (!email.value || !password.value || !institution.value) {
     shake.value = true
     setTimeout(() => (shake.value = false), 500)
@@ -140,6 +301,7 @@ async function submitLogin() {
   }
 
   loading.value = true
+  showResendButton.value = false // Resetear el botón
 
   try {
     const response = await fetch("http://localhost:8084/api/users/login", {
@@ -148,65 +310,90 @@ async function submitLogin() {
       body: JSON.stringify({ 
         email: email.value, 
         password: password.value,
-        institution: institution.value 
+        institution: institution.value
       }),
     })
 
-    const data = await response.json()
+    // ✅ MEJORADO: Manejar mejor el 401
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      console.error('❌ Error parseando respuesta:', parseError);
+      throw new Error('Error en la respuesta del servidor');
+    }
 
-    if (!response.ok || !data.success) {
+    console.log('🔍 Respuesta login:', { status: response.status, data });
+
+    if (!response.ok) {
+      // ✅ Manejar específicamente el error de email no verificado
+      if (data.message && data.message.includes('no verificado')) {
+        showResendButton.value = true; // Mostrar botón de reenvío
+      }
+      
       let errorMessage = data.message || 'Correo o contraseña incorrectos'
       
       if (data.message && data.message.includes('bloqueada')) {
         errorMessage = 'Cuenta bloqueada por múltiples intentos fallidos. Contacte al administrador.'
       } else if (data.message && data.message.includes('no activa')) {
         errorMessage = 'Cuenta pendiente de aprobación. Contacte al administrador.'
+      } else if (data.message && data.message.includes('no verificado')) {
+        errorMessage = 'Email pendiente de verificación. Revisa tu bandeja de entrada o reenvía el email.';
       }
       
       showError('Error de inicio de sesión', errorMessage)
       throw new Error(errorMessage)
     }
 
-    showSuccess('¡Bienvenido!', `Has iniciado sesión como ${data.rol.toLowerCase()}`)
+    // Si llegamos aquí, el login fue exitoso
+    if (data.success) {
+      // Limpiar reCAPTCHA después de login exitoso
+      captchaToken.value = ''
+      captchaVerified.value = false
+      captchaError.value = ''
+      
+      showSuccess('¡Bienvenido!', `Has iniciado sesión como ${data.rol.toLowerCase()}`)
 
-    // ✅ GUARDAR TOKEN Y DATOS CORRECTAMENTE
-    localStorage.setItem("authToken", data.token)
-    localStorage.setItem("user", JSON.stringify(data))
-    localStorage.setItem("institution", institution.value)
-    localStorage.setItem("lastActivity", Date.now().toString())
+      // Guardar datos de sesión
+      localStorage.setItem("authToken", data.token)
+      localStorage.setItem("user", JSON.stringify(data))
+      localStorage.setItem("institution", institution.value)
+      localStorage.setItem("lastActivity", Date.now().toString())
+      
+      // Configurar interceptor de fetch
+      setupAuthHeader(data.token)
+      
+      // Iniciar monitor de inactividad
+      console.log('🎯 Iniciando session timeout manager después del login')
+      if (typeof sessionTimeoutManager !== 'undefined' && sessionTimeoutManager.resetTimer) {
+        sessionTimeoutManager.resetTimer()
+      } else {
+        console.warn('❌ SessionTimeoutManager no disponible')
+      }
+
+      // Verificar token con backend
+      await verifyTokenWithBackend(data.token)
+
+      // Si requiere cambio de contraseña, redirigir
+      if (data.requiresPasswordChange) {
+        router.push("/cambio-contrasena-forzado")
+        return
+      }
+
+      const routeByRole = {
+        PROFESOR: "/teacher-dashboard", 
+        DIRECTOR: "/admin-dashboard", 
+        PADRE: "/parent-dashboard", 
+        ESTUDIANTE: "/student-dashboard", 
+        PERSONAL: "/personal-dashboard", 
+      }
+
+      router.push(routeByRole[data.rol] || "/inicio")
+    }
     
-    // ✅ CONFIGURAR INTERCEPTOR DE FETCH PRIMERO
-    setupAuthHeader(data.token)
-    
-    // ✅ INICIAR EL MONITOR DE INACTIVIDAD DESPUÉS DE GUARDAR EL TOKEN
-    console.log('🎯 Iniciando session timeout manager después del login')
-    if (typeof sessionTimeoutManager !== 'undefined' && sessionTimeoutManager.resetTimer) {
-      sessionTimeoutManager.resetTimer()
-    } else {
-      console.warn('❌ SessionTimeoutManager no disponible')
-    }
-
-    // ✅ VERIFICAR INMEDIATAMENTE CON EL BACKEND
-    await verifyTokenWithBackend(data.token)
-
-    // Si requiere cambio de contraseña, redirigir a esa página
-    if (data.requiresPasswordChange) {
-      router.push("/cambio-contrasena-forzado")
-      return
-    }
-
-    const routeByRole = {
-      PROFESOR: "/teacher-dashboard", 
-      DIRECTOR: "/admin-dashboard", 
-      PADRE: "/parent-dashboard", 
-      ESTUDIANTE: "/student-dashboard", 
-      PERSONAL: "/personal-dashboard", 
-    }
-
-    router.push(routeByRole[data.rol] || "/inicio")
   } catch (error) {
     console.error("Error en el login:", error.message)
-    // ❌ LIMPIAR DATOS EN CASO DE ERROR
+    // Limpiar datos en caso de error
     localStorage.removeItem("authToken")
     localStorage.removeItem("user")
     localStorage.removeItem("lastActivity")
@@ -215,8 +402,8 @@ async function submitLogin() {
   }
 }
 
-// ✅ NUEVA FUNCIÓN: Verificar token con backend inmediatamente
-async function verifyTokenWithBackend(token) {
+// Función para verificar token con backend
+const verifyTokenWithBackend = async (token) => {
   try {
     console.log('🔐 Verificando token con backend...');
     
@@ -237,7 +424,7 @@ async function verifyTokenWithBackend(token) {
       const sessionData = await response.json();
       console.log('✅ Sesión verificada:', sessionData);
       
-      // ✅ ACTUALIZAR EL TOKEN SI VIENE UNO NUEVO
+      // Actualizar token si viene uno nuevo
       const newToken = response.headers.get('X-New-Token');
       if (newToken) {
         console.log('🔄 Token actualizado recibido');
@@ -256,7 +443,7 @@ async function verifyTokenWithBackend(token) {
   }
 }
 
-function setupAuthHeader(token) {
+const setupAuthHeader = (token) => {
   console.log('🔧 Configurando interceptor de fetch con token')
   
   // Guardar el token original para referencia
@@ -288,6 +475,16 @@ function setupAuthHeader(token) {
 </script>
 
 <style scoped>
+/* Estilos reCAPTCHA */
+.captcha-container {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  background: #f8f9fa;
+  text-align: center;
+}
+
+/* Estilos existentes */
 .input-group {
   position: relative;
 }
@@ -366,6 +563,27 @@ h1 {
 .security-info {
   background-color: rgba(255, 255, 255, 0.7) !important;
   border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ NUEVO: Estilos para botón de reenvío */
+.btn-outline-warning {
+  border-color: #ffc107;
+  color: #856404;
+}
+
+.btn-outline-warning:hover:not(:disabled) {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #000;
+}
+
+.fa-spin {
+  animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @media (max-width: 526px) {
