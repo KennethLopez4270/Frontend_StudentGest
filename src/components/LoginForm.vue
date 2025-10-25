@@ -28,10 +28,25 @@
           v-model="email"
           placeholder="Correo electrónico"
           class="form-control"
+          :class="{ 'is-invalid': showDomainError }"
           required
+          @blur="validateEmailRealTime"
+          @input="handleEmailInput"
           @focus="resetShake"
           maxlength="100"
         />
+        <!-- Mensaje de error de dominio -->
+        <div v-if="showDomainError" class="invalid-feedback d-block mt-1">
+          <i class="fas fa-exclamation-triangle me-1"></i>
+          {{ domainErrorMessage }}
+        </div>
+        <!-- Mensaje informativo de dominios permitidos -->
+        <div v-if="showDomainInfo && !showDomainError" class="domain-info mt-1">
+          <small class="text-info">
+            <i class="fas fa-info-circle me-1"></i>
+            Dominios permitidos: gmail.com, hotmail.com, yahoo.com, outlook.com, edu.bo
+          </small>
+        </div>
       </div>
 
       <!-- Contraseña -->
@@ -122,6 +137,13 @@
         <i class="fas fa-info-circle me-1"></i>
         Por seguridad, tu sesión se cerrará automáticamente después de 15 minutos de inactividad.
       </small>
+      <!-- Información adicional sobre correos -->
+      <div class="mt-2">
+        <small class="text-info">
+          <i class="fas fa-envelope me-1"></i>
+          Solo se permiten correos con dominio: gmail.com, hotmail.com, yahoo.com, outlook.com, edu.bo
+        </small>
+      </div>
     </div>
   </div>
 </template>
@@ -150,6 +172,11 @@ const recaptchaSiteKey = ref("")
 const captchaVerified = ref(false)
 const captchaToken = ref("")
 const captchaError = ref("")
+
+// ✅ NUEVO: Variables para validación de email
+const showDomainError = ref(false)
+const showDomainInfo = ref(false)
+const domainErrorMessage = ref('')
 
 // ✅ NUEVO: Variables para reenvío de verificación
 const showResendButton = ref(false)
@@ -227,34 +254,103 @@ const validateCaptcha = async () => {
   }
 }
 
+// ✅ NUEVO: Métodos para validación de email
+const validateEmailRealTime = async () => {
+  if (!email.value) {
+    showDomainInfo.value = false
+    showDomainError.value = false
+    return
+  }
+  
+  try {
+    const emailValue = email.value.trim()
+    if (emailValue.length < 5) return
+    
+    console.log('📧 Validando email en tiempo real (login):', emailValue)
+    const response = await fetch("http://localhost:8084/api/email/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: emailValue })
+    })
+    
+    const data = await response.json()
+    console.log('🔍 Respuesta validación tiempo real (login):', data)
+    
+    if (!data.valid) {
+      showDomainError.value = true
+      domainErrorMessage.value = data.requirements || 'Dominio no permitido. Use: gmail.com, hotmail.com, yahoo.com, outlook.com, edu.bo'
+      showDomainInfo.value = false
+    } else {
+      showDomainError.value = false
+      showDomainInfo.value = false
+    }
+    
+  } catch (error) {
+    console.error("Error validando email en tiempo real (login):", error)
+    showDomainError.value = false
+    showDomainInfo.value = true
+  }
+}
+
+const handleEmailInput = () => {
+  // Mostrar info cuando el usuario empiece a escribir
+  if (email.value && email.value.length > 0) {
+    showDomainInfo.value = true
+  } else {
+    showDomainInfo.value = false
+  }
+  
+  // Limpiar errores mientras escribe
+  showDomainError.value = false
+}
+
+// ✅ NUEVO: Método para validar email antes del login
+const validateEmail = async () => {
+  try {
+    console.log('📧 Email a validar (login):', email.value)
+    const response = await fetch("http://localhost:8084/api/email/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.value })
+    })
+    
+    const data = await response.json()
+    console.log('🔍 Respuesta validación email (login):', data)
+    return data.valid
+  } catch (error) {
+    console.error("Error validando email (login):", error)
+    return false
+  }
+}
+
 // ✅ NUEVO: Método para reenviar verificación
 const resendVerification = async () => {
   if (!email.value) {
-    showError('Error', 'Por favor ingresa tu email primero');
-    return;
+    showError('Error', 'Por favor ingresa tu email primero')
+    return
   }
 
-  resending.value = true;
+  resending.value = true
   
   try {
     const response = await fetch("http://localhost:8084/api/email-verification/resend", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: email.value })
-    });
+    })
 
-    const data = await response.json();
+    const data = await response.json()
     
     if (data.success) {
-      showSuccess('Éxito', 'Email de verificación reenviado. Revisa tu bandeja de entrada.');
+      showSuccess('Éxito', 'Email de verificación reenviado. Revisa tu bandeja de entrada.')
     } else {
-      showError('Error', data.message || 'Error al reenviar email de verificación');
+      showError('Error', data.message || 'Error al reenviar email de verificación')
     }
   } catch (error) {
-    console.error('❌ Error reenviando verificación:', error);
-    showError('Error', 'Error de conexión. Intenta más tarde.');
+    console.error('❌ Error reenviando verificación:', error)
+    showError('Error', 'Error de conexión. Intenta más tarde.')
   } finally {
-    resending.value = false;
+    resending.value = false
   }
 }
 
@@ -297,6 +393,15 @@ const submitLogin = async () => {
     shake.value = true
     setTimeout(() => (shake.value = false), 500)
     showError('Error', 'Por favor complete todos los campos.')
+    return
+  }
+
+  // ✅ NUEVO: Validar email antes del login
+  console.log('📧 Validando email antes del login...')
+  if (!await validateEmail()) {
+    showError('Error', 'El email no es válido o no está permitido. Use: gmail.com, hotmail.com, yahoo.com, outlook.com, edu.bo')
+    shake.value = true
+    setTimeout(() => (shake.value = false), 500)
     return
   }
 
@@ -482,6 +587,21 @@ const setupAuthHeader = (token) => {
   padding: 15px;
   background: #f8f9fa;
   text-align: center;
+}
+
+/* ✅ NUEVO: Estilos para mensajes de email */
+.domain-info {
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #e7f3ff;
+  border-left: 3px solid #17a2b8;
+}
+
+.invalid-feedback {
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #f8d7da;
+  border-left: 3px solid #dc3545;
 }
 
 /* Estilos existentes */

@@ -55,7 +55,11 @@ const routes = [
   { path: '/teacher-dashboard', name: 'TeacherDashboard', component: TeacherDashboard },
   { path: '/personal-dashboard', name: 'PersonalDashboard', component: PersonalDashboard },
   { path: '/admin-dashboard', name: 'AdminDashboard', component: AdminDashboard },
-  
+  { path: '/recuperar-contrasena',name: 'PasswordRecovery',component: () => import('../views/PasswordRecoveryView.vue')},
+  { path: '/restablecer-contrasena', name: 'ResetPassword', component: () => import('../views/PasswordRecoveryView.vue')},
+  { path: '/cambio-contrasena', name: 'ChangePassword', component: () => import('../components/ChangePassword.vue'),
+    meta: { requiresAuth: true }
+  }
 ];
 
 const router = createRouter({

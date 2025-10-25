@@ -48,7 +48,23 @@
           <span class="label nav-label">{{ item.label }}</span>
         </router-link>
       </nav>
-
+      <div class="sidebar-footer">
+          <router-link 
+            to="/cambio-contrasena" 
+            class="footer-link"
+            @click="handleNavClick"
+          >
+          <i class="fas fa-lock"></i>
+          <span class="label">Cambiar Contraseña</span>
+        </router-link>
+        
+        <div class="user-info">
+          <small class="text-muted">
+            <i class="fas fa-user me-1"></i>
+            {{ currentUserEmail }}
+          </small>
+        </div>
+      </div>
       <FooterSidebar @nav-click="handleNavClick" />
     </div>
   </div>

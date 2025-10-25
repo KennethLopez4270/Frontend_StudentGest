@@ -70,11 +70,12 @@
                   v-model="user.password"
                   class="form-control"
                   :placeholder="`Contraseña (mín. ${currentConfig.minLength} caracteres)`"
-                  @input="checkPasswordStrength"
+                  @input="handlePasswordInput"
                   required
                   :minlength="currentConfig.minLength"
                   maxlength="100"
                 />
+                
                 <span class="toggle-password" @click="togglePassword">
                   <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
                 </span>
@@ -93,6 +94,14 @@
                   <i :class="showConfirm ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
                 </span>
               </div>
+            </div>
+            
+            <!-- Mensaje de aviso constante para longitud de contraseña -->
+            <div class="password-length-warning mt-2">
+              <small :class="passwordLengthWarningClass">
+                <i :class="passwordLengthWarningIcon"></i>
+                {{ passwordLengthWarningText }}
+              </small>
             </div>
             
             <!-- Indicador de fuerza de contraseña -->
@@ -115,11 +124,35 @@
             <div class="password-requirements mt-2">
               <small class="text-muted">La contraseña debe incluir:</small>
               <ul class="ps-3 mb-0 small">
-                <li :class="{'text-success': hasMinLength}">Mínimo {{ currentConfig.minLength }} caracteres</li>
-                <li v-if="currentConfig.requiresUppercase" :class="{'text-success': hasUppercase}">Una letra mayúscula</li>
-                <li v-if="currentConfig.requiresLowercase" :class="{'text-success': hasLowercase}">Una letra minúscula</li>
-                <li v-if="currentConfig.requiresNumbers" :class="{'text-success': hasNumber}">Un número</li>
-                <li v-if="currentConfig.requiresSpecial" :class="{'text-success': hasSpecial}">Un símbolo ({{ currentConfig.allowedSpecialChars }})</li>
+                <li :class="{'text-success': hasMinLength, 'text-danger': !hasMinLength && user.password.length > 0}">
+                  <i v-if="hasMinLength" class="fas fa-check me-1"></i>
+                  <i v-else-if="!hasMinLength && user.password.length > 0" class="fas fa-times me-1"></i>
+                  Mínimo {{ currentConfig.minLength }} caracteres
+                </li>
+                <li v-if="currentConfig.requiresUppercase" 
+                    :class="{'text-success': hasUppercase, 'text-danger': !hasUppercase && user.password.length > 0}">
+                  <i v-if="hasUppercase" class="fas fa-check me-1"></i>
+                  <i v-else-if="!hasUppercase && user.password.length > 0" class="fas fa-times me-1"></i>
+                  Una letra mayúscula
+                </li>
+                <li v-if="currentConfig.requiresLowercase" 
+                    :class="{'text-success': hasLowercase, 'text-danger': !hasLowercase && user.password.length > 0}">
+                  <i v-if="hasLowercase" class="fas fa-check me-1"></i>
+                  <i v-else-if="!hasLowercase && user.password.length > 0" class="fas fa-times me-1"></i>
+                  Una letra minúscula
+                </li>
+                <li v-if="currentConfig.requiresNumbers" 
+                    :class="{'text-success': hasNumber, 'text-danger': !hasNumber && user.password.length > 0}">
+                  <i v-if="hasNumber" class="fas fa-check me-1"></i>
+                  <i v-else-if="!hasNumber && user.password.length > 0" class="fas fa-times me-1"></i>
+                  Un número
+                </li>
+                <li v-if="currentConfig.requiresSpecial" 
+                    :class="{'text-success': hasSpecial, 'text-danger': !hasSpecial && user.password.length > 0}">
+                  <i v-if="hasSpecial" class="fas fa-check me-1"></i>
+                  <i v-else-if="!hasSpecial && user.password.length > 0" class="fas fa-times me-1"></i>
+                  Un símbolo ({{ currentConfig.allowedSpecialChars }})
+                </li>
               </ul>
             </div>
           </div>
@@ -200,6 +233,7 @@
             </li>
             <li>El correo debe ser válido y accesible para verificación</li>
             <li>Contraseña segura (mín. {{ currentConfig.minLength }} caracteres)</li>
+            <li><strong>IMPORTANTE:</strong> La contraseña será débil si no alcanza los 12 caracteres</li>
             <li v-if="currentConfig.requiresUppercase || currentConfig.requiresLowercase">Incluye mayúsculas y minúsculas</li>
             <li v-if="currentConfig.requiresNumbers">Incluye números</li>
             <li v-if="currentConfig.requiresSpecial">Incluye símbolos ({{ currentConfig.allowedSpecialChars }})</li>
@@ -277,6 +311,14 @@ export default {
       showDomainError: false,
       domainErrorMessage: '',
       emailValid: false,
+
+      passwordFeedback: {
+      hasMinLength: false,
+      hasUppercase: false,
+      hasLowercase: false,
+      hasNumber: false,
+      hasSpecial: false
+    },
       // Configuración por defecto (se actualizará desde BD)
       currentConfig: {
         minLength: 12,
@@ -291,37 +333,96 @@ export default {
     };
   },
   computed: {
+    passwordLengthWarningText() {
+      const currentLength = this.user.password.length;
+      const requiredLength = this.currentConfig.minLength;
+      
+      if (currentLength === 0) {
+        return `La contraseña debe tener al menos ${requiredLength} caracteres para ser segura`;
+      } else if (currentLength < requiredLength) {
+        const remaining = requiredLength - currentLength;
+        return `Contraseña DÉBIL - Te faltan ${remaining} caracteres para los ${requiredLength} requeridos`;
+      } else {
+        return `¡Longitud adecuada! Tu contraseña tiene ${currentLength} caracteres`;
+      }
+    },
+    
+    passwordLengthWarningClass() {
+      const currentLength = this.user.password.length;
+      const requiredLength = this.currentConfig.minLength;
+      
+      if (currentLength === 0) {
+        return 'text-info';
+      } else if (currentLength < requiredLength) {
+        return 'text-danger fw-bold';
+      } else {
+        return 'text-success';
+      }
+    },
+
+    passwordLengthWarningIcon() {
+      const currentLength = this.user.password.length;
+      const requiredLength = this.currentConfig.minLength;
+      
+      if (currentLength === 0) {
+        return 'fas fa-info-circle me-1';
+      } else if (currentLength < requiredLength) {
+        return 'fas fa-exclamation-triangle me-1';
+      } else {
+        return 'fas fa-check-circle me-1';
+      }
+    },
+    
     passwordStrengthColor() {
+      // Si no tiene la longitud mínima, siempre es rojo
+      if (!this.hasMinLength) return "#dc3545";
       if (this.passwordStrength < 40) return "#dc3545";
       if (this.passwordStrength < 75) return "#ffc107";
       return "#28a745";
     },
+
     passwordStrengthLabel() {
       if (!this.user.password) return "";
+      // Si no tiene la longitud mínima, siempre es débil
+      if (!this.hasMinLength) return "Débil (faltan caracteres)";
       if (this.passwordStrength < 40) return "Débil";
       if (this.passwordStrength < 75) return "Media";
       return "Fuerte";
     },
+
     passwordStrengthClass() {
+      // Si no tiene la longitud mínima, siempre es danger
+      if (!this.hasMinLength) return "text-danger fw-bold";
       if (this.passwordStrength < 40) return "text-danger";
       if (this.passwordStrength < 75) return "text-warning";
       return "text-success";
     },
+
+    // ✅ MODIFICADO: Usar feedback del backend en lugar de cálculo local
     hasMinLength() {
+      if (!this.user.password) return false;
+      if (this.passwordFeedback.hasMinLength) return true;
       return this.user.password.length >= this.currentConfig.minLength;
     },
+    
     hasUppercase() {
-      return /[A-Z]/.test(this.user.password);
+      if (!this.currentConfig.requiresUppercase) return true;
+      return this.passwordFeedback.hasUppercase;
     },
+    
     hasLowercase() {
-      return /[a-z]/.test(this.user.password);
+      if (!this.currentConfig.requiresLowercase) return true;
+      return this.passwordFeedback.hasLowercase;
     },
+    
     hasNumber() {
-      return /[0-9]/.test(this.user.password);
+      if (!this.currentConfig.requiresNumbers) return true;
+      return this.passwordFeedback.hasNumber;
     },
+    
     hasSpecial() {
-      const specialCharsRegex = new RegExp(`[${this.escapeRegExp(this.currentConfig.allowedSpecialChars)}]`);
-      return specialCharsRegex.test(this.user.password);
+      if (!this.currentConfig.requiresSpecial) return true;
+      return this.passwordFeedback.hasSpecial;
     },
   },
   methods: {
@@ -425,10 +526,21 @@ export default {
               minStrength: 75
             };
             console.log("🎯 Configuración actualizada desde BD:", this.currentConfig);
+            
+            // DEBUG: Verificar configuración
+            console.log("🔍 Configuración final cargada:", {
+              minLength: this.currentConfig.minLength,
+              requiresUppercase: this.currentConfig.requiresUppercase,
+              requiresLowercase: this.currentConfig.requiresLowercase, 
+              requiresNumbers: this.currentConfig.requiresNumbers,
+              requiresSpecial: this.currentConfig.requiresSpecial,
+              allowedSpecialChars: this.currentConfig.allowedSpecialChars
+            });
             return;
           }
         }
         
+        console.warn("⚠️ No se pudo cargar política desde BD, usando valores por defecto");
         // Fallback a valores por defecto
         this.currentConfig = {
           minLength: 12,
@@ -453,6 +565,7 @@ export default {
         };
       }
     },
+
     async validateEmailRealTime() {
       if (!this.user.email) return;
       
@@ -482,6 +595,13 @@ export default {
         console.error("Error validando email en tiempo real:", error);
       }
     },
+    handlePasswordInput() {
+      this.checkPasswordStrength();
+      // Si la contraseña está vacía, resetear feedback
+      if (!this.user.password) {
+        this.resetPasswordFeedback();
+      }
+    },
 
     async validateEmail() {
       try {
@@ -505,8 +625,11 @@ export default {
       const pwd = this.user.password;
       if (!pwd) {
         this.passwordStrength = 0;
+        this.resetPasswordFeedback();
         return;
       }
+
+      console.log('🔍 Frontend - Evaluando contraseña:', pwd);
 
       try {
         const response = await fetch("http://localhost:8084/api/password-strength/evaluate", {
@@ -517,15 +640,102 @@ export default {
 
         if (response.ok) {
           const data = await response.json();
+          console.log('📊 Backend response:', data);
+          
           if (data.success) {
+            // USAR SIEMPRE LA RESPUESTA DEL BACKEND
             this.passwordStrength = data.score;
+            console.log('🎯 Puntuación asignada desde backend:', this.passwordStrength);
+            
+            this.processBackendFeedback(data.feedback || []);
+          } else {
+            this.passwordStrength = 0;
+            this.resetPasswordFeedback();
+            console.warn('⚠️ Backend respondió con error');
           }
         } else {
-          this.recalculatePasswordStrength(this.currentConfig);
+          console.warn('⚠️ Backend falló, usando fuerza 0');
+          this.passwordStrength = 0;
+          this.resetPasswordFeedback();
         }
       } catch (error) {
-        this.recalculatePasswordStrength(this.currentConfig);
+        console.error('❌ Error de conexión, usando fuerza 0:', error);
+        this.passwordStrength = 0;
+        this.resetPasswordFeedback();
       }
+    },
+
+   
+    processBackendFeedback(feedback) {
+      // Resetear todos los valores
+      this.resetPasswordFeedback();
+      
+      console.log('💬 Procesando feedback del backend:', feedback);
+      
+      // Si el array de feedback está vacío, significa que TODOS los requisitos se cumplen
+      if (feedback.length === 0) {
+        this.passwordFeedback.hasMinLength = true;
+        this.passwordFeedback.hasUppercase = true;
+        this.passwordFeedback.hasLowercase = true;
+        this.passwordFeedback.hasNumber = true;
+        this.passwordFeedback.hasSpecial = true;
+        console.log('✅ Todos los requisitos cumplidos (feedback vacío)');
+        return;
+      }
+      
+      // Analizar el feedback para determinar qué requisitos NO se cumplen
+      // Si un requisito NO aparece en el feedback, significa que SÍ se cumple
+      
+      // Verificar longitud mínima
+      const hasLengthError = feedback.some(item => 
+        item.toLowerCase().includes('mínimo') && item.toLowerCase().includes('caracteres')
+      );
+      this.passwordFeedback.hasMinLength = !hasLengthError;
+      
+      // Verificar mayúsculas
+      const hasUppercaseError = feedback.some(item => 
+        item.toLowerCase().includes('mayúscula')
+      );
+      this.passwordFeedback.hasUppercase = !hasUppercaseError;
+      
+      // Verificar minúsculas
+      const hasLowercaseError = feedback.some(item => 
+        item.toLowerCase().includes('minúscula')
+      );
+      this.passwordFeedback.hasLowercase = !hasLowercaseError;
+      
+      // Verificar números
+      const hasNumberError = feedback.some(item => 
+        item.toLowerCase().includes('número') || item.toLowerCase().includes('numero')
+      );
+      this.passwordFeedback.hasNumber = !hasNumberError;
+      
+      // Verificar símbolos
+      const hasSpecialError = feedback.some(item => 
+        item.toLowerCase().includes('símbolo') || item.toLowerCase().includes('simbolo') || 
+        item.toLowerCase().includes('especial')
+      );
+      this.passwordFeedback.hasSpecial = !hasSpecialError;
+      
+      console.log('📋 Estado de requisitos procesados:', this.passwordFeedback);
+      console.log('🔍 Análisis de errores:', {
+        hasLengthError,
+        hasUppercaseError, 
+        hasLowercaseError,
+        hasNumberError,
+        hasSpecialError
+      });
+    },
+
+
+    resetPasswordFeedback() {
+      this.passwordFeedback = {
+        hasMinLength: false,
+        hasUppercase: false,
+        hasLowercase: false,
+        hasNumber: false,
+        hasSpecial: false
+      };
     },
     
     recalculatePasswordStrength(config) {
@@ -535,28 +745,51 @@ export default {
         return;
       }
       
+      // Si no tiene la longitud mínima, fuerza baja automáticamente
+      if (!this.hasMinLength) {
+        this.passwordStrength = Math.min(30, Math.floor((pwd.length / config.minLength) * 30));
+        return;
+      }
+      
       let strength = 0;
       
-      const hasMinLength = pwd.length >= config.minLength;
-      if (hasMinLength) strength += 55;
+      // Base por longitud (ya tenemos la longitud mínima)
+      strength += 40;
       
-      const hasUppercase = !config.requiresUppercase || /[A-Z]/.test(pwd);
-      if (hasUppercase && config.requiresUppercase) strength += 10;
-      
-      const hasLowercase = !config.requiresLowercase || /[a-z]/.test(pwd);
-      if (hasLowercase && config.requiresLowercase) strength += 10;
-      
-      const hasNumber = !config.requiresNumbers || /[0-9]/.test(pwd);
-      if (hasNumber && config.requiresNumbers) strength += 10;
+      // Verificar cada requisito individualmente
+      const hasUppercase = /[A-Z]/.test(pwd);
+      const hasLowercase = /[a-z]/.test(pwd);
+      const hasNumber = /[0-9]/.test(pwd);
       
       const specialCharsRegex = new RegExp(`[${this.escapeRegExp(config.allowedSpecialChars || '@$!%*?&')}]`);
-      const hasSpecial = !config.requiresSpecial || specialCharsRegex.test(pwd);
-      if (hasSpecial && config.requiresSpecial) strength += 15;
+      const hasSpecial = specialCharsRegex.test(pwd);
       
+      // Asignar puntos solo si el requisito está habilitado Y se cumple
+      if (config.requiresUppercase && hasUppercase) strength += 15;
+      if (config.requiresLowercase && hasLowercase) strength += 15;
+      if (config.requiresNumbers && hasNumber) strength += 15;
+      if (config.requiresSpecial && hasSpecial) strength += 15;
+      
+      // Asegurar que no exceda 100%
       this.passwordStrength = Math.min(strength, 100);
+      
+      console.log('🔍 Cálculo de fuerza:', {
+        password: pwd,
+        length: pwd.length,
+        hasUppercase,
+        hasLowercase,
+        hasNumber,
+        hasSpecial,
+        strength,
+        requiresUppercase: config.requiresUppercase,
+        requiresLowercase: config.requiresLowercase,
+        requiresNumbers: config.requiresNumbers,
+        requiresSpecial: config.requiresSpecial
+      });
     },
     
     escapeRegExp(string) {
+      if (!string) return '';
       return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     },
     
@@ -574,16 +807,16 @@ export default {
         showError('Error', 'Las contraseñas no coinciden.');
         return;
       }
-      console.log('📧 Validando email antes del registro...'); // ✅ LOG
-      if (!await this.validateEmail()) {
-        showError('Error', 'El email no es válido o no está permitido.');
+
+      // Validar longitud mínima primero
+      if (this.user.password.length < this.currentConfig.minLength) {
+        showError('Error', `La contraseña debe tener al menos ${this.currentConfig.minLength} caracteres para ser considerada segura.`);
         return;
       }
 
-      this.loading = true;
-
-      if (this.user.password.length < this.currentConfig.minLength) {
-        showError('Error', `La contraseña debe tener al menos ${this.currentConfig.minLength} caracteres.`);
+      console.log('📧 Validando email antes del registro...');
+      if (!await this.validateEmail()) {
+        showError('Error', 'El email no es válido o no está permitido.');
         return;
       }
 
@@ -594,11 +827,6 @@ export default {
 
       if (!this.acceptedTerms) {
         showError('Error', 'Debe aceptar los términos y condiciones.');
-        return;
-      }
-
-      if (!await this.validateEmail()) {
-        showError('Error', 'El email no es válido o no está permitido.');
         return;
       }
 
@@ -644,6 +872,29 @@ export default {
   padding: 15px;
   background: #f8f9fa;
   text-align: center;
+}
+
+/* Estilos para el mensaje de longitud de contraseña */
+.password-length-warning {
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  border-left: 4px solid #17a2b8;
+}
+
+.password-length-warning .text-info {
+  border-left-color: #17a2b8;
+  background-color: #d1ecf1;
+}
+
+.password-length-warning .text-danger {
+  border-left-color: #dc3545;
+  background-color: #f8d7da;
+}
+
+.password-length-warning .text-success {
+  border-left-color: #28a745;
+  background-color: #d4edda;
 }
 
 /* Estilos existentes se mantienen igual */
@@ -762,4 +1013,4 @@ ul {
 .modal {
   background-color: rgba(0,0,0,0.5);
 }
-</style>  
+</style>
