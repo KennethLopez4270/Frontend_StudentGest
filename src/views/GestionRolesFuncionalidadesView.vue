@@ -14,8 +14,8 @@
               <select v-model="selectedRolId" class="form-control" @change="loadFuncionalidades">
                 <option value="" disabled>Selecciona un rol</option>
                 <option v-for="rol in roles" :key="rol.id_rol" :value="rol.id_rol">
-                  {{ rol.nombre }} 
-                  <span v-if="rol.nombre === 'OSI'" class="text-warning">[PROTEGIDO]</span>
+                  {{ rol.nombre }}
+                  <span v-if="rol.nombre === 'OSI'" class="text-warning"> [PROTEGIDO]</span>
                   ({{ rol.descripcion }})
                 </option>
               </select>
@@ -25,9 +25,9 @@
 
         <div v-if="selectedRolId" class="row justify-content-center">
           <div class="col-md-8">
-            <h4>Funcionalidades para <strong>{{ selectedRolNombre }}</strong></h4>
+            <h4>Funcionalidades para {{ selectedRolNombre }}</h4>
             <p v-if="isOsiRol" class="text-success">
-              <strong>El rol OSI tiene acceso total y no se pueden desasignar funcionalidades críticas.</strong>
+              El rol OSI tiene acceso total y no se pueden desasignar funcionalidades críticas.
             </p>
 
             <div class="form-check" v-for="func in funcionalidades" :key="func.id_funcionalidad">
@@ -40,7 +40,6 @@
                 @change="toggleFuncionalidad(func.id_funcionalidad)"
               />
               <label class="form-check-label" :for="`func-${selectedRolId}-${func.id_funcionalidad}`">
-                <span v-if="isCriticalFunctionality(func.direccion)" class="text-primary">[CRÍTICA]</span>
                 {{ func.nombre }} (<code>{{ func.direccion }}</code>)
               </label>
             </div>
@@ -74,7 +73,7 @@ export default {
       selectedRolId: '',
       roles: [],
       funcionalidades: [],
-      assignedFuncionalidades: new Set() // Solo IDs de funcionalidades asignadas al rol actual
+      assignedFuncionalidades: new Set()
     }
   },
   computed: {
@@ -112,7 +111,6 @@ export default {
       this.assignedFuncionalidades = new Set();
 
       try {
-        // Cargar todas las funcionalidades
         const funcResponse = await fetch(FUNCIONALIDADES_API);
         if (!funcResponse.ok) throw new Error('Error al cargar funcionalidades');
         const funcData = await funcResponse.json();
@@ -123,13 +121,11 @@ export default {
           direccion: f.direccion
         }));
 
-        // Cargar funcionalidades asignadas al rol
         const assignResponse = await fetch(`${ROLES_API}/${this.selectedRolId}/functionalities`);
         if (!assignResponse.ok) throw new Error('Error al cargar asignaciones');
         const assignData = await assignResponse.json();
         assignData.forEach(f => this.assignedFuncionalidades.add(f.id_funcionalidad));
 
-        // SI ES OSI: forzar funcionalidades críticas
         if (this.isOsiRol) {
           this.funcionalidades.forEach(f => {
             if (this.isCriticalFunctionality(f.direccion)) {
@@ -150,7 +146,6 @@ export default {
       const isCritical = this.isCriticalFunctionality(func.direccion);
       const isAssigned = this.assignedFuncionalidades.has(funcId);
 
-      // Bloquear desasignación de funcionalidad crítica en OSI
       if (isCritical && this.isOsiRol && isAssigned) {
         alert("No puedes desasignar esta funcionalidad del rol OSI.");
         return;
@@ -158,7 +153,6 @@ export default {
 
       try {
         if (isAssigned) {
-          // Desasignar
           const response = await fetch(ASSIGN_API(this.selectedRolId, funcId), {
             method: 'DELETE'
           });
@@ -166,7 +160,6 @@ export default {
           this.assignedFuncionalidades.delete(funcId);
           alert("Funcionalidad desasignada");
         } else {
-          // Asignar
           const response = await fetch(ASSIGN_API(this.selectedRolId, funcId), {
             method: 'POST'
           });
@@ -177,7 +170,6 @@ export default {
       } catch (error) {
         console.error("Error en asignación:", error);
         alert("Error: " + error.message);
-        // Revertir cambio visual
         await this.loadFuncionalidades();
       }
     }
@@ -233,15 +225,16 @@ h1 {
   cursor: not-allowed;
 }
 
-.text-primary { color: #0d6efd; }
 .text-success { color: #198754; }
 .text-warning { color: #ffc107; font-weight: bold; }
 
+/* RUTA EN NEGRO */
 code {
   background-color: #f1f1f1;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.875rem;
+  color: #000;
 }
 
 @media (max-width: 768px) {
