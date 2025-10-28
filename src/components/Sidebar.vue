@@ -109,7 +109,7 @@ const loadMenuItems = async () => {
       return
     }
 
-    const response = await fetch(`http://localhost:8084/api/roles/${roleId}/functionalities`)
+    const response = await fetch(`http://localhost:8080/api/roles/${roleId}/functionalities`)
     if (!response.ok) {
       throw new Error(`Error en la respuesta de la API: ${response.status} ${response.statusText}`)
     }

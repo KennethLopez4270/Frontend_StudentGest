@@ -168,7 +168,7 @@
     methods: {
       async loadParents() {
         try {
-          const response = await fetch('http://localhost:8080/api/users/rol/PADRE');
+          const response = await fetch('http://localhost:8080/api/users/rol/Padre');
           if (!response.ok) throw new Error("Error al cargar padres");
           this.parents = await response.json();
           
