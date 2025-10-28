@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-//import HomeView from '../views/HomeView.vue';
 import HomeView from '../views/LandingPage.vue';
 import LoginView from '../views/LoginView.vue';
 import RegistroView from '../views/RegistroView.vue';
@@ -13,18 +12,21 @@ import AdminReportsView from '../views/AdminReportsView.vue';
 import TaskDetailsView from '../views/TaskDetailsView.vue';
 import TeacherTasksView from '../views/TeacherTasksView.vue';
 import AcademicCalendar from '../views/AcademicCalendar.vue';
-import TeacherPerformanceReports from '../views/TeacherPerformanceReports.vue'; // Nueva vista
+import TeacherPerformanceReports from '../views/TeacherPerformanceReports.vue';
 import RestaurarPasswordForm from '../components/RestaurarPasswordForm.vue';
 import CrearEventos from '../views/CrearEventos.vue';
-
+import UserDashboard from '../views/UsersDashboards/UserDashboard.vue';
 import StudentDashboard from '../views/UsersDashboards/StudentDashboard.vue';
 import ParentDashboard from '../views/UsersDashboards/ParentDashboard.vue';
-//import ParentDashboard from '../views/ParentDashboard.vue';
 import TeacherDashboard from '../views/UsersDashboards/TeacherDashboard.vue';
 import PersonalDashboard from '../views/UsersDashboards/PersonalDashboard.vue';
 import AdminDashboard from '../views/UsersDashboards/AdminDashboard.vue';
 import RegistroInstitucion from '../views/RegistrarInstitucionView.vue';
 import GestionPadres from '../views/GestionPadresView.vue';
+import ABMUsuariosView from '../views/ABMUsuariosView.vue';
+import ABMRolesView from '../views/ABMRolesView.vue';
+import ABMFuncionalidadesView from '../views/ABMFuncionalidadesView.vue';
+import GestionRolesFuncionalidadesView from '../views/GestionRolesFuncionalidadesView.vue';
 import VerifyEmail from '../views/VerifyEmail.vue';
 const routes = [
   { path: '/', name: 'Home', component: HomeView },
@@ -41,20 +43,22 @@ const routes = [
   { path: '/task-details', name: 'TaskDetails', component: TaskDetailsView },
   { path: '/teacher-tasks', name: 'TeacherTasks', component: TeacherTasksView },
   { path: '/calendario', name: 'AcademicCalendar', component: AcademicCalendar },
-  { path: '/teacher-performance-reports', name: 'TeacherPerformanceReports', component: TeacherPerformanceReports }, // Nueva ruta
+  { path: '/teacher-performance-reports', name: 'TeacherPerformanceReports', component: TeacherPerformanceReports },
   { path: '/gestion-padres', name: 'GestionPadres', component: GestionPadres },
-  { path: '/eventos', name: 'Crear Eventos', component: CrearEventos },
+  { path: '/eventos', name: 'CrearEventos', component: CrearEventos },
   { path: '/restaurar-password/:id', name: 'RestaurarPasword', component: RestaurarPasswordForm, props: true },
   { path: '/verify-email', name: 'VerifyEmail', component: VerifyEmail },
-  
-
+  { path: '/abm-usuarios', name: 'ABMUsuarios', component: ABMUsuariosView },
+  { path: '/abm-roles', name: 'ABMRoles', component: ABMRolesView },
+  { path: '/abm-funcionalidades', name: 'ABMFuncionalidades', component: ABMFuncionalidadesView },
+  { path: '/gestion-roles-funcionalidades', name: 'GestionRolesFuncionalidades', component: GestionRolesFuncionalidadesView },
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFound.vue')},
-
   { path: '/student-dashboard', name: 'StudentDashboard', component: StudentDashboard },
   { path: '/parent-dashboard', name: 'ParentDashboard', component: ParentDashboard },
   { path: '/teacher-dashboard', name: 'TeacherDashboard', component: TeacherDashboard },
   { path: '/personal-dashboard', name: 'PersonalDashboard', component: PersonalDashboard },
   { path: '/admin-dashboard', name: 'AdminDashboard', component: AdminDashboard },
+  { path: '/user-dashboard', name: 'UserDashboard', component: UserDashboard },
   { path: '/recuperar-contrasena',name: 'PasswordRecovery',component: () => import('../views/PasswordRecoveryView.vue')},
   { path: '/restablecer-contrasena', name: 'ResetPassword', component: () => import('../views/PasswordRecoveryView.vue')},
   { path: '/cambio-contrasena', name: 'ChangePassword', component: () => import('../components/ChangePassword.vue'),

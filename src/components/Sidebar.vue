@@ -115,48 +115,82 @@ const handleNavClick = () => {
   }
 }
 
-// Cargar menú según rol
-const loadMenuItems = () => {
-  const user = JSON.parse(localStorage.getItem("user") || '{}')
-  const role = user.rol?.toUpperCase()
+// Cargar menú según rol desde la API con fetch
+const loadMenuItems = async () => {
+  try {
+    const user = JSON.parse(localStorage.getItem("user") || '{}')
+    const roleId = user.id_rol
 
-  const roleBasedMenus = {
-    PADRE: [
-      { route: '/parent-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
-      { route: '/calificaciones', name: 'Calificaciones', icon: 'fas fa-star', label: 'Calificaciones' },
-      { route: '/justificar-ausencias', name: 'JustificarAusencias', icon: 'fas fa-file-alt', label: 'Justificar Ausencias' },
-      { route: '/foro', name: 'Forum', icon: 'fas fa-comments', label: 'Foro' },
-      { route: '/calendario', name: 'AcademicCalendar', icon: 'fas fa-calendar-alt', label: 'Calendario' }
-    ],
-    ESTUDIANTE: [
-      { route: '/student-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
-      { route: '/tareas', name: 'MisTareas', icon: 'fas fa-tasks', label: 'Mis Tareas' },
-      //{ route: '/calificaciones', name: 'Notas', icon: 'fas fa-star', label: 'Mis Calificaciones' },
-      { route: '/foro', name: 'Forum', icon: 'fas fa-comments', label: 'Foro' },
-      { route: '/calendario', name: 'AcademicCalendar', icon: 'fas fa-calendar-alt', label: 'Calendario' }
-    ],
-    PROFESOR: [
-      { route: '/teacher-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
-      { route: '/teacher-tasks', name: 'Tareas', icon: 'fas fa-tasks', label: 'Mis Tareas' },
-      { route: '/control-asistencia', name: 'Asistencia', icon: 'fas fa-check-circle', label: 'Asistencia' },
-      { route: '/foro', name: 'Forum', icon: 'fas fa-comments', label: 'Foro' },
-      { route: '/calendario', name: 'AcademicCalendar', icon: 'fas fa-calendar-alt', label: 'Calendario' }
-    ],
-    DIRECTOR: [
-      //{ route: '/admin-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
-      { route: '/reportes', name: 'Reportes', icon: 'fas fa-chart-line', label: 'Reportes Generales' },
-      { route: '/eventos', name: 'Eventos', icon: 'fas fa-bullhorn', label: 'Eventos' },
-      { route: '/gestion-padres', name: 'GestionPadres', icon: 'fas fa-users', label: 'Gestion Padres' }
-    ],
-    PERSONAL: [
-      //{ route: '/personal-dashboard', name: 'Home', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
-      { route: '/calendario', name: 'Calendario', icon: 'fas fa-calendar-alt', label: 'Calendario Escolar' },
-      { route: '/eventos', name: 'Eventos', icon: 'fas fa-bullhorn', label: 'Eventos' },
-      { route: '/gestion-padres', name: 'GestionPadres', icon: 'fas fa-users', label: 'Gestion Padres' }
-    ]
+    if (!roleId) {
+      console.error('No se encontró el ID de rol del usuario.')
+      return
+    }
+
+    const response = await fetch(`http://localhost:8084/api/roles/${roleId}/functionalities`)
+    if (!response.ok) {
+      throw new Error(`Error en la respuesta de la API: ${response.status} ${response.statusText}`)
+    }
+    const funcionalidades = await response.json()
+    
+    // Imprimir la respuesta para depuración
+    console.log('Respuesta del endpoint:', funcionalidades)
+
+    // Mapear las funcionalidades a los items del menú
+    menuItems.value = funcionalidades
+      .filter(func => func && func.direccion) // Filtrar funcionalidades válidas
+      .map(func => {
+        const routeName = func.direccion ? func.direccion.replace('/', '') : 'unknown'
+        // Derivar el nombre para el label desde la dirección
+        const labelName = routeName.replace(/-([a-z])/g, (_, letter) => ` ${letter.toUpperCase()}`)
+        return {
+          route: `/${routeName}`,
+          name: routeName,
+          icon: mapIcon(routeName),
+          label: labelName.charAt(0).toUpperCase() + labelName.slice(1) // Capitalizar primera letra
+        }
+      })
+    
+    // Imprimir los ítems del menú generados
+    console.log('Menu Items generados:', menuItems.value)
+  } catch (error) {
+    console.error('Error al cargar las funcionalidades:', error)
+    menuItems.value = []
   }
+}
 
-  menuItems.value = roleBasedMenus[role] || []
+// Mapear íconos según el nombre derivado de la dirección
+const mapIcon = (name) => {
+  const iconMap = {
+    'historial-academico': 'fas fa-star',
+    'justificar-ausencias': 'fas fa-file-alt',
+    'foro': 'fas fa-comments',
+    'calendario': 'fas fa-calendar-alt',
+    'Home': 'fas fa-tachometer-alt',
+    'Login': 'fas fa-sign-in-alt',
+    'Registro': 'fas fa-user-plus',
+    'RegistroInstitucion': 'fas fa-building',
+    'ControlAsistencia': 'fas fa-check-circle',
+    'Reportes': 'fas fa-chart-line',
+    'PasswordRecovery': 'fas fa-key',
+    'AdminReports': 'fas fa-chart-pie',
+    'TaskDetails': 'fas fa-list',
+    'TeacherTasks': 'fas fa-tasks',
+    'TeacherPerformanceReports': 'fas fa-chart-bar',
+    'GestionPadres': 'fas fa-users',
+    'CrearEventos': 'fas fa-bullhorn',
+    'RestaurarPasword': 'fas fa-lock',
+    'ABMUsuarios': 'fas fa-users-cog',
+    'ABMRoles': 'fas fa-user-shield',
+    'ABMFuncionalidades': 'fas fa-cogs',
+    'GestionRolesFuncionalidades': 'fas fa-link',
+    'StudentDashboard': 'fas fa-tachometer-alt',
+    'ParentDashboard': 'fas fa-tachometer-alt',
+    'TeacherDashboard': 'fas fa-tachometer-alt',
+    'PersonalDashboard': 'fas fa-tachometer-alt',
+    'AdminDashboard': 'fas fa-tachometer-alt',
+    'NotFound': 'fas fa-exclamation-triangle'
+  }
+  return iconMap[name] || 'fas fa-question'
 }
 
 watch(() => route.name, () => {

@@ -152,7 +152,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showSuccess, showError } from '@/utils/useAlert'
-import { sessionTimeoutManager } from '@/utils/sessionTimeout' 
 import VueRecaptcha from 'vue3-recaptcha2'
 
 const email = ref('')
