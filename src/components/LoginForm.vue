@@ -481,8 +481,11 @@ const submitLogin = async () => {
 
       // Si requiere cambio de contraseña, redirigir
       if (data.requiresPasswordChange) {
-        router.push("/cambio-contrasena-forzado")
-        return
+        console.log('🔐 Redirigiendo a cambio forzado de contraseña');
+        // Guardar email para el cambio forzado
+        localStorage.setItem('forcedChangeEmail', email.value);
+        router.push("/cambio-contrasena-forzado");
+        return;
       }
 
       const routeByRole = {

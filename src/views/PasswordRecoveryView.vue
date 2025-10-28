@@ -1,12 +1,11 @@
 <template>
   <div class="login-container">
-    <!-- Main Content -->
     <div class="login-box animate__animated animate__fadeInUp">
       <h1 class="text-center mb-4 animate__animated animate__bounceInDown">
         Recuperar Contraseña
       </h1>
 
-      <form @submit.prevent="submitRecovery" class="p-3">
+      <form @submit.prevent="findUser" class="p-3">
         <!-- Campo de correo -->
         <div class="input-group mb-4 animate__animated animate__fadeInUp" :class="{ 'animate__shakeX': shake }">
           <span class="input-icon"><i class="fas fa-envelope"></i></span>
@@ -23,17 +22,17 @@
         <!-- Mensaje de instrucciones -->
         <div class="alert alert-info mb-4 animate__animated animate__fadeInUp">
           <i class="fas fa-info-circle me-2"></i>
-          Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+          Ingresa tu correo electrónico para cambiar tu contraseña.
         </div>
 
-        <!-- Botón de recuperación -->
+        <!-- Botón de búsqueda -->
         <button type="submit" class="login-button btn w-100" :disabled="loading">
           <template v-if="!loading">
             <i class="fas fa-paper-plane me-2"></i> Enviar enlace de recuperación
           </template>
           <template v-else>
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Enviando...
+            Buscando...
           </template>
         </button>
       </form>
@@ -80,7 +79,7 @@ export default {
     };
   },
   methods: {
-    async submitRecovery() {
+    async findUser() {
       if (!this.email) {
         this.shake = true;
         setTimeout(() => (this.shake = false), 500);
@@ -104,10 +103,9 @@ export default {
       this.successMessage = "";
 
       try {
-        console.log('🔄 Enviando solicitud de recuperación para:', this.email);
+        console.log('🔍 Buscando usuario por email:', this.email);
         
-        // ✅ USAR EL ENDPOINT CORRECTO de PasswordRecoveryController
-        const response = await fetch('http://localhost:8084/api/password-recovery/request', {
+        const response = await fetch('http://localhost:8084/api/password-recovery/find-user', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -132,22 +130,29 @@ export default {
 
         if (data.success) {
           this.success = true;
-          this.successMessage = data.message || "Se ha enviado un enlace de recuperación a tu correo electrónico. Por favor revisa tu bandeja de entrada.";
-          showSuccess('Éxito', this.successMessage);
-          this.email = ""; // Limpiar campo después del envío
+          this.successMessage = "Usuario encontrado. Redirigiendo...";
+          showSuccess('Éxito', 'Usuario encontrado');
+          
+          // Guardar email en localStorage para usarlo en ChangePassword
+          localStorage.setItem('recoveryEmail', this.email);
+          localStorage.setItem('recoveryUser', JSON.stringify(data.user));
+          
+          // Redirigir a ChangePassword después de 1 segundo
+          setTimeout(() => {
+            this.$router.push('/cambio-contrasena');
+          }, 1000);
         } else {
-          throw new Error(data.message || 'Error al procesar la solicitud');
+          throw new Error(data.message || 'Usuario no encontrado');
         }
 
       } catch (error) {
-        console.error('❌ Error en recuperación:', error);
+        console.error('❌ Error en búsqueda:', error);
         this.error = true;
         this.errorMessage = error.message || 'Error de conexión. Intenta más tarde.';
         
-        // Mostrar mensajes específicos según el tipo de error
         if (error.message.includes('conexión') || error.message.includes('Failed to fetch')) {
-          this.errorMessage = 'Error de conexión. Verifica que el servidor esté ejecutándose en el puerto 8084.';
-          showError('Error de conexión', 'No se pudo conectar al servidor. Verifica que esté ejecutándose.');
+          this.errorMessage = 'Error de conexión. Verifica que el servidor esté ejecutándose.';
+          showError('Error de conexión', 'No se pudo conectar al servidor.');
         } else {
           showError('Error', this.errorMessage);
         }

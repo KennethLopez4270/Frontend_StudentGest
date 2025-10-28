@@ -59,6 +59,12 @@ const routes = [
   { path: '/restablecer-contrasena', name: 'ResetPassword', component: () => import('../views/PasswordRecoveryView.vue')},
   { path: '/cambio-contrasena', name: 'ChangePassword', component: () => import('../components/ChangePassword.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/cambio-contrasena-forzado',
+    name: 'ForcedPasswordChange',
+    component: () => import('../components/ChangePassword.vue'),
+    meta: { requiresAuth: true, forcedChange: true }
   }
 ];
 
