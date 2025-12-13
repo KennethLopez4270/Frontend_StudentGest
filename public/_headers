@@ -1,0 +1,38 @@
+# Netlify Headers Configuration
+# Mitigación de vulnerabilidades ZAP: XSS (A05:2025) y Security Misconfiguration (A02:2025)
+
+/*
+  # ✅ Content Security Policy (CSP) - Previene XSS
+  # Scripts: SIN 'unsafe-inline' NI 'unsafe-eval' = Protegido contra XSS
+  # Styles: 'unsafe-inline' necesario para Vue.js (bajo riesgo)
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; frame-src https://www.google.com; connect-src 'self' http://localhost:* https://www.google.com https://*.netlify.app https://*.herokuapp.com; object-src 'none'; base-uri 'self'; form-action 'self';
+  
+  # ✅ X-Content-Type-Options - Previene MIME type sniffing
+  X-Content-Type-Options: nosniff
+  
+  # ✅ X-Frame-Options - Previene clickjacking
+  X-Frame-Options: DENY
+  
+  # ✅ X-XSS-Protection - Protección XSS adicional
+  X-XSS-Protection: 1; mode=block
+  
+  # ✅ Strict-Transport-Security (HSTS) - Fuerza HTTPS
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  
+  # ✅ Referrer-Policy - Controla información en Referer
+  Referrer-Policy: strict-origin-when-cross-origin
+  
+  # ✅ Permissions-Policy - Restringe features del navegador
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()
+
+# Headers específicos para JavaScript
+/*.js
+  Content-Type: application/javascript; charset=utf-8
+  X-Content-Type-Options: nosniff
+  Cache-Control: public, max-age=31536000, immutable
+
+# Headers específicos para CSS  
+/*.css
+  Content-Type: text/css; charset=utf-8
+  X-Content-Type-Options: nosniff
+  Cache-Control: public, max-age=31536000, immutable
