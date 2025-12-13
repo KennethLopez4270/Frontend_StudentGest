@@ -149,6 +149,7 @@
 </template>
 
 <script setup>
+import API_URL from '@/config/api'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showSuccess, showError } from '@/utils/useAlert'
@@ -185,7 +186,7 @@ const resending = ref(false)
 // reCAPTCHA METHODS
 const loadCaptchaConfig = async () => {
   try {
-    const response = await fetch("http://localhost:8084/api/captcha/config")
+    const response = await fetch(`${API_URL}/api/captcha/config`)
     if (response.ok) {
       const data = await response.json()
       captchaEnabled.value = data.enabled
@@ -226,7 +227,7 @@ const validateCaptcha = async () => {
   }
 
   try {
-    const response = await fetch("http://localhost:8084/api/captcha/verify", {
+    const response = await fetch(`${API_URL}/api/captcha/verify`, {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
@@ -267,7 +268,7 @@ const validateEmailRealTime = async () => {
     if (emailValue.length < 5) return
     
     console.log('📧 Validando email en tiempo real (login):', emailValue)
-    const response = await fetch("http://localhost:8084/api/email/validate", {
+    const response = await fetch(`${API_URL}/api/email/validate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: emailValue })
@@ -308,7 +309,7 @@ const handleEmailInput = () => {
 const validateEmail = async () => {
   try {
     console.log('📧 Email a validar (login):', email.value)
-    const response = await fetch("http://localhost:8084/api/email/validate", {
+    const response = await fetch(`${API_URL}/api/email/validate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: email.value })
@@ -333,7 +334,7 @@ const resendVerification = async () => {
   resending.value = true
   
   try {
-    const response = await fetch("http://localhost:8084/api/email-verification/resend", {
+    const response = await fetch(`${API_URL}/api/email-verification/resend`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: email.value })
@@ -411,7 +412,7 @@ const submitLogin = async () => {
   showResendButton.value = false // Resetear el botón
 
   try {
-    const response = await fetch("http://localhost:8084/api/users/login", {
+    const response = await fetch(`${API_URL}/api/users/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
@@ -500,7 +501,7 @@ const submitLogin = async () => {
       try {
         const idRol = data.id_rol || data.idRol;
         if (idRol) {
-          const funcsResponse = await fetch(`http://localhost:8084/api/roles/${idRol}/functionalities`,{
+          const funcsResponse = await fetch(`${API_URL}/api/roles/${idRol}/functionalities`,{
              headers: { 'Authorization': `Bearer ${data.token}` }
           });
           if (funcsResponse.ok) {
@@ -553,7 +554,7 @@ const verifyTokenWithBackend = async (token) => {
   try {
     console.log('🔐 Verificando token con backend...');
     
-    const response = await fetch('http://localhost:8084/api/users/verify-session', {
+    const response = await fetch(`${API_URL}/api/users/verify-session`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -601,7 +602,7 @@ const setupAuthHeader = (token) => {
     const [url, options = {}] = args
     
     // Solo agregar header a requests a nuestro backend
-    if (typeof url === 'string' && url.startsWith('http://localhost:8084')) {
+    if (typeof url === 'string' && url.startsWith(API_URL)) {
       const currentToken = localStorage.getItem('authToken') || originalToken
       
       options.headers = {

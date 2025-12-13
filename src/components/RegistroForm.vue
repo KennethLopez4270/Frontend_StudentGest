@@ -274,6 +274,7 @@
 </template>
 
 <script>
+import API_URL from '@/config/api'
 import { showSuccess, showError } from '@/utils/useAlert'
 import VueRecaptcha from 'vue3-recaptcha2'
 
@@ -442,7 +443,7 @@ export default {
       this.rolesError = "";
       try {
         console.log("🌐 Solicitando roles a: http://localhost:8084/api/roles");
-        const response = await fetch("http://localhost:8084/api/roles");
+        const response = await fetch(`${API_URL}/api/roles");
         
         if (response.ok) {
           const data = await response.json();
@@ -470,7 +471,7 @@ export default {
     // reCAPTCHA METHODS
     async loadCaptchaConfig() {
       try {
-        const response = await fetch("http://localhost:8084/api/captcha/config");
+        const response = await fetch(`${API_URL}/api/captcha/config");
         if (response.ok) {
           const data = await response.json();
           this.captchaEnabled = data.enabled;
@@ -511,7 +512,7 @@ export default {
       }
 
       try {
-        const response = await fetch("http://localhost:8084/api/captcha/verify", {
+        const response = await fetch(`${API_URL}/api/captcha/verify", {
           method: 'POST',
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -543,7 +544,7 @@ export default {
     async loadPasswordPolicy() {
       try {
         console.log("🔄 Cargando política de contraseñas...");
-        const response = await fetch("http://localhost:8084/api/users/public/password-policy");
+        const response = await fetch(`${API_URL}/api/users/public/password-policy");
         
         if (response.ok) {
           const data = await response.json();
@@ -608,7 +609,7 @@ export default {
         if (email.length < 5) return;
         
         console.log('📧 Validando email en tiempo real:', email);
-        const response = await fetch("http://localhost:8084/api/email/validate", {
+        const response = await fetch(`${API_URL}/api/email/validate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: email })
@@ -640,7 +641,7 @@ export default {
     async validateEmail() {
       try {
         console.log('📧 Email a validar:', this.user.email); 
-        const response = await fetch("http://localhost:8084/api/email/validate", {
+        const response = await fetch(`${API_URL}/api/email/validate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: this.user.email })
@@ -666,7 +667,7 @@ export default {
       console.log('🔍 Frontend - Evaluando contraseña:', pwd);
 
       try {
-        const response = await fetch("http://localhost:8084/api/password-strength/evaluate", {
+        const response = await fetch(`${API_URL}/api/password-strength/evaluate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ password: pwd })
@@ -879,7 +880,7 @@ export default {
       console.log("📤 Payload enviado al registro:", JSON.stringify(payload, null, 2));
 
       try {
-        const response = await fetch("http://localhost:8084/api/users", {
+        const response = await fetch(`${API_URL}/api/users", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

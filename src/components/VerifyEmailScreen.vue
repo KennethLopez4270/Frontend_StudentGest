@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import API_URL from '@/config/api'
 export default {
   name: 'VerifyEmail',
   data() {
@@ -86,7 +87,7 @@ export default {
       
       this.resending = true;
       try {
-        const response = await fetch('http://localhost:8084/api/email-verification/resend', {
+        const response = await fetch(`${API_URL}/api/email-verification/resend', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: this.userEmail })

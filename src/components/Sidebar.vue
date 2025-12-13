@@ -71,6 +71,7 @@
 </template>
 
 <script setup>
+import API_URL from '@/config/api'
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import FooterSidebar from './FooterSidebar.vue'

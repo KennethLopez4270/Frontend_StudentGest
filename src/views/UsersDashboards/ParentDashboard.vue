@@ -154,6 +154,7 @@
 </template>
 
 <script setup>
+import API_URL from '@/config/api'
 import Sidebar from '@/components/Sidebar.vue'
 import WelcomeBanner from '@/components/WelcomeBanner.vue'
 import '@/assets/parentDashboard.css';
@@ -223,7 +224,7 @@ async function loadChildren() {
 // Cargar las tareas desde el API
 async function loadHomework() {
   try {
-    const response = await fetch('http://localhost:8080/api/homework/entregas');
+    const response = await fetch(`${API_URL}/api/homework/entregas');
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }

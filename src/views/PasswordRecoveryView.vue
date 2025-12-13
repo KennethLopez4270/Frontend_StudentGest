@@ -60,6 +60,7 @@
 </template>
 
 <script>
+import API_URL from '@/config/api'
 import 'animate.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@/assets/passwordRecovery.css';
@@ -105,7 +106,7 @@ export default {
       try {
         console.log('🔍 Buscando usuario por email:', this.email);
         
-        const response = await fetch('http://localhost:8084/api/password-recovery/find-user', {
+        const response = await fetch(`${API_URL}/api/password-recovery/find-user', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

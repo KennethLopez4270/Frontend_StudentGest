@@ -107,6 +107,7 @@
   </template>
   
   <script>
+import API_URL from '@/config/api'
 import 'animate.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -178,16 +179,16 @@ export default {
         if (!courses) return;
         
         // 2. Obtener todas las relaciones CMP
-        const allCMP = await this.fetchData('http://localhost:8080/api/students/curso_materia_profesor');
+        const allCMP = await this.fetchData(`${API_URL}/api/students/curso_materia_profesor');
         this.allCMP = allCMP || [];
         console.log('Relaciones CMP:', this.allCMP);
         
         // 3. Obtener todas las tareas
-        const allTasks = await this.fetchData('http://localhost:8080/api/homework/tareas');
+        const allTasks = await this.fetchData(`${API_URL}/api/homework/tareas');
         console.log('Todas las tareas:', allTasks);
         
         // 4. Obtener todas las entregas
-        const allDeliveries = await this.fetchData('http://localhost:8080/api/homework/entregas');
+        const allDeliveries = await this.fetchData(`${API_URL}/api/homework/entregas');
         this.allDeliveries = allDeliveries || [];
         console.log('Todas las entregas:', this.allDeliveries);
         

@@ -275,6 +275,7 @@
 </template>
 
 <script>
+import API_URL from '@/config/api'
 import { ref, computed, onMounted } from 'vue';
 import { showSuccess, showError } from '@/utils/useAlert';
 import Sidebar from '../components/Sidebar.vue';
@@ -411,7 +412,7 @@ export default {
 
           console.log("Enviando payload:", payload); // Para depuración
 
-          const response = await fetch('http://localhost:8080/api/asistencia/registrar', {
+          const response = await fetch(`${API_URL}/api/asistencia/registrar', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -486,7 +487,7 @@ export default {
     // Función para cargar todos los cursos disponibles
     async function loadAllCourses() {
       try {
-        const response = await fetch('http://localhost:8080/api/students/curso');
+        const response = await fetch(`${API_URL}/api/students/curso');
         if (!response.ok) throw new Error('Error al cargar cursos');
         allCourses.value = await response.json();
       } catch (error) {

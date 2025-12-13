@@ -120,6 +120,7 @@
   </template>
   
   <script>
+import API_URL from '@/config/api'
   import Sidebar from '../components/Sidebar.vue';
   
   export default {
@@ -168,7 +169,7 @@
     methods: {
       async loadParents() {
         try {
-          const response = await fetch('http://localhost:8080/api/users/rol/PADRE');
+          const response = await fetch(`${API_URL}/api/users/rol/PADRE');
           if (!response.ok) throw new Error("Error al cargar padres");
           this.parents = await response.json();
           
@@ -203,7 +204,7 @@
       },
       async loadStudents() {
         try {
-          const response = await fetch('http://localhost:8080/api/students/estudiante_usuario');
+          const response = await fetch(`${API_URL}/api/students/estudiante_usuario');
           if (!response.ok) throw new Error("Error al cargar estudiantes");
           this.students = await response.json();
         } catch (error) {
@@ -236,7 +237,7 @@
         }
         
         try {
-          const response = await fetch('http://localhost:8080/api/students/conectar', {
+          const response = await fetch(`${API_URL}/api/students/conectar', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'

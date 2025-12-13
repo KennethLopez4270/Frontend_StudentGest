@@ -144,11 +144,12 @@
 </template>
 
 <script>
+import API_URL from '@/config/api'
 import Sidebar from '../components/Sidebar.vue';
 
 // Updated ports to 8084 for Target environment
-const API_URL = 'http://localhost:8084/api/users';
-const ROLES_API = 'http://localhost:8084/api/roles';
+const API_URL = `${API_URL}/api/users';
+const ROLES_API = `${API_URL}/api/roles';
 
 export default {
   name: 'ABMUsuariosView',

@@ -51,11 +51,12 @@
 </template>
 
 <script>
+import API_URL from '@/config/api'
 import Sidebar from '../components/Sidebar.vue';
 
 // Updated ports to 8084
-const ROLES_API = 'http://localhost:8084/api/roles';
-const FUNCIONALIDADES_API = 'http://localhost:8084/api/roles/functionalities';
+const ROLES_API = `${API_URL}/api/roles';
+const FUNCIONALIDADES_API = `${API_URL}/api/roles/functionalities';
 const ASSIGN_API = (roleId, funcId) => `http://localhost:8084/api/roles/${roleId}/functionalities/${funcId}`;
 
 // Funcionalidades CRÍTICAS que el OSI siempre debe tener

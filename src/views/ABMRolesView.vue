@@ -105,9 +105,10 @@
 
 <script>
 import Sidebar from '../components/Sidebar.vue';
+import API_URL from '@/config/api';
 
-// Updated port to 8084
-const API_URL = 'http://localhost:8084/api/roles';
+// Usar la API URL desde la configuración centralizada
+const ROLES_API = `${API_URL}/api/roles`;
 
 export default {
   name: 'ABMRolesView',
@@ -128,7 +129,7 @@ export default {
   methods: {
     async loadRoles() {
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(ROLES_API);
         if (!response.ok) throw new Error('Error al cargar roles');
         const data = await response.json();
         this.roles = data.map(r => ({
@@ -153,7 +154,7 @@ export default {
       }
 
       try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(ROLES_API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -186,7 +187,7 @@ export default {
     },
     async deleteRolConfirmed() {
       try {
-        const response = await fetch(`${API_URL}/${this.rolToDelete}`, {
+        const response = await fetch(`${ROLES_API}/${this.rolToDelete}`, {
           method: 'DELETE'
         });
 

@@ -135,6 +135,7 @@
 </template>
 
 <script>
+import API_URL from '@/config/api'
 import { showSuccess, showError } from '@/utils/useAlert';
 import 'animate.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -167,7 +168,7 @@ export default {
       try {
         this.loadingCourses = true;
         // El 4 es el ID del profesor (deberías obtenerlo del usuario logueado)
-        const response = await fetch('http://localhost:8080/api/students/curso_materia/4');
+        const response = await fetch(`${API_URL}/api/students/curso_materia/4');
         
         if (!response.ok) {
           throw new Error('Error al cargar los cursos');
@@ -201,7 +202,7 @@ export default {
           fechaEntrega: this.newTask.dueDate
         };
 
-        const response = await fetch('http://localhost:8080/api/homework/tareas', {
+        const response = await fetch(`${API_URL}/api/homework/tareas', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

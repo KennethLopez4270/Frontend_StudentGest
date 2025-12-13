@@ -181,6 +181,7 @@
 </template>
 
 <script>
+import API_URL from '@/config/api'
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { showSuccess, showError } from '@/utils/useAlert'
@@ -361,7 +362,7 @@ export default {
       console.log('🔍 Frontend - Evaluando contraseña:', pwd)
 
       try {
-        const response = await fetch("http://localhost:8084/api/password-strength/evaluate", {
+        const response = await fetch(`${API_URL}/api/password-strength/evaluate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ password: pwd })
@@ -453,7 +454,7 @@ export default {
 
       try {
           const token = localStorage.getItem('authToken')
-          const response = await fetch("http://localhost:8084/api/password-change/check-history", {
+          const response = await fetch(`${API_URL}/api/password-change/check-history", {
           method: "POST",
           headers: {
               "Content-Type": "application/json",
@@ -483,7 +484,7 @@ export default {
 
     const loadPasswordPolicy = async () => {
       try {
-        const response = await fetch("http://localhost:8084/api/password-change/policy")
+        const response = await fetch(`${API_URL}/api/password-change/policy")
         if (response.ok) {
           const data = await response.json()
           if (data.success) {
@@ -550,7 +551,7 @@ export default {
 
         if (forcedChangeMode.value) {
           // Modo cambio forzado
-          endpoint = 'http://localhost:8084/api/password-change/forced-change'
+          endpoint = `${API_URL}/api/password-change/forced-change'
           requestBody = {
             email: recoveryEmail.value,
             newPassword: newPassword.value,
@@ -558,7 +559,7 @@ export default {
           }
         } else if (recoveryMode.value) {
           // Modo recuperación
-          endpoint = 'http://localhost:8084/api/password-recovery/change-by-email'
+          endpoint = `${API_URL}/api/password-recovery/change-by-email'
           requestBody = {
             email: recoveryEmail.value,
             newPassword: newPassword.value,
@@ -566,7 +567,7 @@ export default {
           }
         } else {
           // Modo normal
-          endpoint = 'http://localhost:8084/api/password-change'
+          endpoint = `${API_URL}/api/password-change'
           const token = localStorage.getItem('authToken')
           headers['Authorization'] = `Bearer ${token}`
           requestBody = {

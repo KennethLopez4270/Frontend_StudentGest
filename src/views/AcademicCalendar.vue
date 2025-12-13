@@ -27,6 +27,7 @@
 </template>
 
 <script setup>
+import API_URL from '@/config/api'
 import 'animate.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -56,7 +57,7 @@ const mensaje = ref('');
 
 async function cargarEventos() {
   try {
-    const response = await fetch('http://localhost:8080/api/calendario/eventos');
+    const response = await fetch(`${API_URL}/api/calendario/eventos');
     const data = await response.json();
     // Mapeamos para que todo trabaje con la misma estructura que esperas
     eventos.value = data.map(e => ({

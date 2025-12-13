@@ -146,6 +146,7 @@
 </template>
 
 <script>
+import API_URL from '@/config/api'
 import { ref, watch, onMounted } from 'vue';
 import { showSuccess, showError } from '@/utils/useAlert';
 import Sidebar from '../components/Sidebar.vue';

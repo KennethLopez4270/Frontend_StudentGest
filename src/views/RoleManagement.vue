@@ -157,6 +157,7 @@
 </template>
 
 <script>
+import API_URL from '@/config/api'
 import { showSuccess, showError, showConfirm } from '@/utils/useAlert'
 import Sidebar from '../components/Sidebar.vue';
 
@@ -210,7 +211,7 @@ export default {
     async fetchRoles() {
       this.loading = true;
       try {
-        const response = await fetch('http://localhost:8084/api/roles', {
+        const response = await fetch(`${API_URL}/api/roles', {
             headers: this.getHeaders() // Just in case, though GET is public
         });
         if (response.ok) {
@@ -227,7 +228,7 @@ export default {
 
     async fetchAllFunctionalities() {
       try {
-        const response = await fetch('http://localhost:8084/api/roles/functionalities', {
+        const response = await fetch(`${API_URL}/api/roles/functionalities', {
              headers: this.getHeaders()
         });
         if (response.ok) {
@@ -259,7 +260,7 @@ export default {
       this.saving = true;
       const url = this.isEditing 
         ? `http://localhost:8084/api/roles/${this.currentRole.id_rol}`
-        : 'http://localhost:8084/api/roles';
+        : `${API_URL}/api/roles';
       
       const method = this.isEditing ? 'PUT' : 'POST';
 

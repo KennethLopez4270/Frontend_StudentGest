@@ -46,6 +46,7 @@
 import { ref } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
 import { showSuccess, showError } from '@/utils/useAlert'
+import API_URL from '@/config/api'
 
 // Datos del evento
 const evento = ref({
@@ -58,7 +59,7 @@ const evento = ref({
 
 const enviarEvento = async () => {
   try {
-    const response = await fetch('http://localhost:8080/api/calendario/evento-escolar', {
+    const response = await fetch(`${API_URL}/api/calendario/evento-escolar`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

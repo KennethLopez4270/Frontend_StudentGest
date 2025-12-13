@@ -30,6 +30,7 @@
 </template>
 
 <script setup>
+import API_URL from '@/config/api'
 import { ref, onMounted } from 'vue'
 
 const summaryData = ref([])

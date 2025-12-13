@@ -121,10 +121,11 @@
 </template>
 
 <script>
+import API_URL from '@/config/api'
 import Sidebar from '../components/Sidebar.vue';
 
 // Updated port to 8084
-const API_URL = 'http://localhost:8084/api/roles/functionalities';
+const API_URL = `${API_URL}/api/roles/functionalities';
 
 // Rutas protegidas (las que vienen por defecto en el sistema)
 const PROTECTED_PATHS = [
