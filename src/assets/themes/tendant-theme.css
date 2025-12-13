@@ -1,0 +1,25 @@
+:root {
+/* 🎨 Colores base */
+--t-color-primary: #042E5C; /* Azul profundo, profesional */
+--t-color-secondary: #00C4B3; /* Turquesa vibrante, moderno */
+--t-color-accent: #0485c7; /* Azul claro nuevo para acentos importantes */
+--t-color-accent-2: #66d3cf; /* Nuevo color complementario para acentos suaves */
+--t-color-info: #7dd4f7; /* Azul pastel muy claro, para info amigable */
+
+/* 🌫️ Colores neutros */
+--t-color-light: #f4f8fc; /* Blanco ligeramente azulado, más suave para fondos */
+--t-color-dark: #021a3a; /* Azul navy muy oscuro, más elegante que gris puro */
+
+/* 🎨 Colores hover */
+--t-hover-primary: #2c3e5e; /* Azul intermedio para hover de primary */
+--t-hover-secondary: #009b96; /* Turquesa más profundo para hover de secondary */
+--t-hover-accent: #036aa3; /* Azul más oscuro para el hover del nuevo accent */
+--t-hover-accent-2: #4bb4b0; /* Hover para el accent-2, un turquesa más fuerte */
+
+/* 🎯 Semánticos */
+--t-color-bg: var(--color-light);
+
+/* ✒️ Tipografías */
+--t-font-title: 'Playfair Display', serif;
+--t-font-body: 'Inter', sans-serif;
+}
