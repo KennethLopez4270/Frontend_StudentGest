@@ -473,20 +473,6 @@ const submitLogin = async () => {
       localStorage.setItem("institution", institution.value)
       localStorage.setItem("lastActivity", Date.now().toString())
       
-      // Configurar interceptor de fetch
-      setupAuthHeader(data.token)
-      
-      // Iniciar monitor de inactividad
-      console.log('🎯 Iniciando session timeout manager después del login')
-      if (typeof sessionTimeoutManager !== 'undefined' && sessionTimeoutManager.resetTimer) {
-        sessionTimeoutManager.resetTimer()
-      } else {
-        console.warn('❌ SessionTimeoutManager no disponible')
-      }
-
-      // Verificar token con backend
-      await verifyTokenWithBackend(data.token)
-
       // Si requiere cambio de contraseña, redirigir
       if (data.requiresPasswordChange) {
         console.log('🔐 Redirigiendo a cambio forzado de contraseña');
