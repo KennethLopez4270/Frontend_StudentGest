@@ -164,7 +164,8 @@ export default {
       filteredUsers: [],
       roles: [],
       showDeleteModal: false,
-      userToDelete: null
+      userToDelete: null,
+      originalUser: null
     }
   },
   methods: {
@@ -204,6 +205,8 @@ export default {
     },
     editUser(user) {
       this.editingUser = { ...user };
+      // Guardar estado original para detectar cambios
+      this.originalUser = { ...user };
     },
     async submitEditUser() {
       if (!this.editingUser.nombre || !this.editingUser.apellido_paterno) {
@@ -212,12 +215,14 @@ export default {
       }
 
       try {
+        // 1. Actualización General (Nombres, Apellidos, Rol)
         const payload = {
           nombre: this.editingUser.nombre,
           apellido_paterno: this.editingUser.apellido_paterno,
           apellido_materno: this.editingUser.apellido_materno,
           id_rol: this.editingUser.id_rol,
-          activo: this.editingUser.activo,
+          // No enviamos activo/estado aquí para evitar conflictos, o si se envían, el backend los ignora o los sobreescribe luego
+          activo: this.editingUser.activo, 
           estado: this.editingUser.estado
         };
 
@@ -229,15 +234,48 @@ export default {
 
         if (!response.ok) {
           const error = await response.json();
-          throw new Error(error.message || 'Error al actualizar');
+          throw new Error(error.message || 'Error al actualizar datos básicos');
+        }
+
+        const userId = this.editingUser.id_usuario;
+
+        // 2. Gestionar Cambios de Activo/Inactivo
+        if (this.editingUser.activo !== this.originalUser.activo) {
+          if (this.editingUser.activo) {
+            // Activar
+            await this.callStatusEndpoint(`${API_URL}/activar/${userId}`, 'PUT');
+          } else {
+            // Desactivar
+            await this.callStatusEndpoint(`${API_URL}/desactivar/${userId}`, 'PUT');
+          }
+        }
+
+        // 3. Gestionar Cambios de Estado (Aprobado/Rechazado)
+        // Solo si cambió con respecto al original
+        if (this.editingUser.estado !== this.originalUser.estado) {
+          if (this.editingUser.estado === 'APROBADO') {
+            await this.callStatusEndpoint(`${API_URL}/aprobar/${userId}`, 'PUT');
+          } else if (this.editingUser.estado === 'RECHAZADO') {
+            await this.callStatusEndpoint(`${API_URL}/desaprobar/${userId}`, 'PUT');
+          }
         }
 
         alert("Usuario actualizado correctamente");
         await this.loadUsers();
         this.editingUser = null;
+        this.originalUser = null;
       } catch (error) {
         console.error("Error actualizando:", error);
         alert("Error: " + error.message);
+      }
+    },
+    async callStatusEndpoint(url, method) {
+      const response = await fetch(url, { method: method });
+      if (!response.ok) {
+        const error = await response.json();
+        console.warn(`Error llamando a ${url}:`, error.message);
+        // No lanzamos error para no interrumpir el flujo completo si una parte falla,
+        // pero podrías lanzarlo si es crítico.
       }
     },
     confirmDelete(id) {
