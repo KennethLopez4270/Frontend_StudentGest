@@ -120,9 +120,9 @@
                   <i v-else-if="!hasSpecial && newPassword.length > 0" class="fas fa-times me-1"></i>
                   Un símbolo ({{ currentConfig.allowedSpecialChars }})
                 </li>
-                <li :class="{'text-success': !isPasswordInHistory, 'text-warning': isPasswordInHistory === null, 'text-danger': isPasswordInHistory === false}">
-                  <i v-if="isPasswordInHistory === false" class="fas fa-times me-1"></i>
-                  <i v-else-if="isPasswordInHistory" class="fas fa-check me-1"></i>
+                <li :class="{'text-success': isPasswordInHistory === false, 'text-warning': isPasswordInHistory === null, 'text-danger': isPasswordInHistory === true}">
+                  <i v-if="isPasswordInHistory === true" class="fas fa-times me-1"></i>
+                  <i v-else-if="isPasswordInHistory === false" class="fas fa-check me-1"></i>
                   <i v-else class="fas fa-spinner fa-spin me-1"></i>
                   No puede ser una de las últimas 5 contraseñas
                 </li>
@@ -861,10 +861,6 @@ export default {
   
   .card-body {
     padding: 1.5rem;
-  }
-  
-  .card-header {
-    padding: 1rem 1.5rem;
   }
 }
 </style>
