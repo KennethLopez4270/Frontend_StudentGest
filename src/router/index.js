@@ -59,6 +59,7 @@ const routes = [
   { path: '/abm-roles', name: 'ABMRoles', component: ABMRolesView },
   { path: '/abm-funcionalidades', name: 'ABMFuncionalidades', component: ABMFuncionalidadesView },
   { path: '/gestion-roles-funcionalidades', name: 'GestionRolesFuncionalidades', component: GestionRolesFuncionalidadesView },
+  { path: '/logs', name: 'LogViewer', component: () => import('../views/LogViewer.vue') },
 
 
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFound.vue') },
